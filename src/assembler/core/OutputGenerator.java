@@ -3,16 +3,17 @@ package assembler.core;
 public class OutputGenerator {
 
     private static OutputGenerator instance = new OutputGenerator();
+
     private static StringBuilder outputString = new StringBuilder();
 
     private OutputGenerator() {
     }
 
-    public static void resetOuput(){
+    public static void resetOuput() {
         outputString = new StringBuilder();
     }
 
-    public static void append(String text){
+    public static void append(String text) {
         outputString.append(text);
     }
 
