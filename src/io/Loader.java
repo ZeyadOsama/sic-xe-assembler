@@ -1,6 +1,5 @@
 package io;
 
-import assembler.structure.Operation;
 import assembler.structure.OperationTable;
 import misc.constants.Constants;
 
@@ -31,16 +30,16 @@ public class Loader {
             BufferedReader br = new BufferedReader(new FileReader(file));
 
             Scanner sc = new Scanner(file);
-//            String line;
-//            while ((line = br.readLine()) != null) {
-//                System.out.println(line);
-//            }
+            String line;
+            while ((line = br.readLine()) != null) {
+                System.out.println(line);
+            }
 
             OperationTable operationTable = OperationTable.getInstance();
-            Operation operation;
-            while (sc.hasNext()) {
-                System.out.println(sc.next());
-            }
+//            Operation operation;
+//            while (sc.hasNext()) {
+//                System.out.println(sc.next());
+//            }
 
 
             return operationTable;

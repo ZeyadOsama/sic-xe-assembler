@@ -4,9 +4,7 @@ import java.util.HashMap;
 
 public class OperationTable {
 
-
     private static HashMap<String, Operation> operationTable = new HashMap<>();
-    private static OperationTable instance = new OperationTable();
 
     private OperationTable() {
     }
@@ -14,6 +12,8 @@ public class OperationTable {
     public static OperationTable getInstance() {
         return instance;
     }
+
+    private static OperationTable instance = new OperationTable();
 
     public void fillTable() {
 

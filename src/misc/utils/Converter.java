@@ -1,15 +1,26 @@
 package misc.utils;
 
+import org.jetbrains.annotations.NotNull;
+
 public final class Converter {
 
-    public static final class Numbers {
+    @NotNull
+    public static String toBinary(int hexNumber) {
+        return Integer.toBinaryString(hexNumber);
+    }
 
-        public static String toBinary(String hexaNumber) {
-            return null;
-        }
+    @NotNull
+    public static String toBinary(@NotNull String hexNumber) {
+        return Integer.toBinaryString(Integer.parseInt(hexNumber));
+    }
 
-        public static String toHexa(String decNumber) {
-            return null;
-        }
+    @NotNull
+    public static String toHex(int decNumber) {
+        return Integer.toHexString(decNumber).toUpperCase();
+    }
+
+    @NotNull
+    public static String toHex(@NotNull String decNumber) {
+        return Integer.toHexString(Integer.parseInt(decNumber)).toUpperCase();
     }
 }
