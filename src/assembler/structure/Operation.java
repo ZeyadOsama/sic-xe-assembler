@@ -1,15 +1,17 @@
 package assembler.structure;
 
+import misc.constants.Format;
+
 public class Operation {
 
     private String operationName;
     private String operationCode;
-    private short format;
+    private Format format;
 
     public Operation() {
     }
 
-    public Operation(String operationName, String operationCode, short format) {
+    public Operation(String operationName, String operationCode, Format format) {
         setOperationName(operationName);
         setOperationCode(operationCode);
         setFormat(format);
@@ -31,33 +33,11 @@ public class Operation {
         this.operationCode = operationCode.toUpperCase();
     }
 
-    public short getFormat() {
+    public Format getFormat() {
         return format;
     }
 
-    public void setFormat(short format) {
-        if (format != 2 && format != 3) throw new FormatException();
-        else this.format = format;
-    }
-
-    /**
-     * Exception class for unexpected input errors
-     */
-    public class FormatException extends RuntimeException {
-        /**
-         * Construct this exception object.
-         */
-        public FormatException() {
-            super();
-        }
-
-        /**
-         * Construct this exception object.
-         *
-         * @param message the error message.
-         */
-        public FormatException(String message) {
-            super(message);
-        }
+    public void setFormat(Format format) {
+        this.format = format;
     }
 }
