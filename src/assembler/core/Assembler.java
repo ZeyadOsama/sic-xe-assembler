@@ -1,4 +1,4 @@
-package assembling;
+package assembler.core;
 
 public class Assembler {
 }

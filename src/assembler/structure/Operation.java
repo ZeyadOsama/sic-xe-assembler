@@ -1,4 +1,4 @@
-package assembling;
+package assembler.structure;
 
 public class Operation {
 

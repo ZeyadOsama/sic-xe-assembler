@@ -1,4 +1,4 @@
-package constants;
+package misc.constants;
 
 public class Constants {
 
