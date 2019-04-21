@@ -8,9 +8,11 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.Scanner;
+import java.util.ArrayList;
 
 public class FileLoader {
+
+    private ArrayList<String> programLines = new ArrayList<>();
 
     public void loadFile() throws IOException {
         JFileChooser chooser = new JFileChooser();
@@ -28,16 +30,15 @@ public class FileLoader {
             File file = new File(filePath);
             BufferedReader br = new BufferedReader(new FileReader(file));
 
-            Scanner sc = new Scanner(file);
             String line;
             while ((line = br.readLine()) != null) {
+                programLines.add(line);
                 System.out.println(line);
             }
-
-//            Instruction operation;
-//            while (sc.hasNext()) {
-//                System.out.println(sc.next());
-//            }
         }
+    }
+
+    public ArrayList<String> getProgramLines() {
+        return programLines;
     }
 }
