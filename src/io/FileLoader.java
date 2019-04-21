@@ -1,6 +1,5 @@
 package io;
 
-import assembler.structure.OperationTable;
 import misc.constants.Constants;
 
 import javax.swing.*;
@@ -11,9 +10,9 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.Scanner;
 
-public class Loader {
+public class FileLoader {
 
-    public OperationTable loadFile() throws IOException {
+    public void loadFile() throws IOException {
         JFileChooser chooser = new JFileChooser();
         FileNameExtensionFilter filter = new FileNameExtensionFilter(
                 Constants.TEXT_FILE, Constants.TEXT_FILE_FORMAT);
@@ -35,15 +34,10 @@ public class Loader {
                 System.out.println(line);
             }
 
-            OperationTable operationTable = OperationTable.getInstance();
 //            Instruction operation;
 //            while (sc.hasNext()) {
 //                System.out.println(sc.next());
 //            }
-
-
-            return operationTable;
         }
-        return null;
     }
 }
