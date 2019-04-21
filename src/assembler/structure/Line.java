@@ -4,20 +4,14 @@ public class Line {
 
     private String label;
     private String operationCode;
-    private String operand;
+    private String firstOperand;
+    private String secondOperand;
 
-    public Line() {
-    }
-
-    public Line(String operationCode, String operand) {
-        setOperationCode(operationCode);
-        setOperand(operand);
-    }
-
-    public Line(String label, String operationCode, String operand) {
+    public Line(String label, String operationCode, String firstOperand, String secondOperand) {
         setLabel(label);
         setOperationCode(operationCode);
-        setOperand(operand);
+        setFirstOperand(firstOperand);
+        setSecondOperand(secondOperand);
     }
 
     public String getLabel() {
@@ -36,11 +30,19 @@ public class Line {
         this.operationCode = operationCode.toUpperCase();
     }
 
-    public String getOperand() {
-        return operand;
+    public String getFirstOperand() {
+        return firstOperand;
     }
 
-    public void setOperand(String operand) {
-        this.operand = operand.toUpperCase();
+    public void setFirstOperand(String firstOperand) {
+        this.firstOperand = firstOperand;
+    }
+
+    public String getSecondOperand() {
+        return secondOperand;
+    }
+
+    public void setSecondOperand(String secondOperand) {
+        this.secondOperand = secondOperand;
     }
 }

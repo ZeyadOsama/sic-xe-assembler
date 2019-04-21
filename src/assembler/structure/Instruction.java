@@ -24,7 +24,7 @@ public class Instruction {
     }
 
     private void setName(String name) {
-        this.name = name.toLowerCase();
+        this.name = name.toUpperCase();
     }
 
     public String getOpcode() {
@@ -32,7 +32,7 @@ public class Instruction {
     }
 
     private void setOpcode(String opcode) {
-        this.opcode = opcode.toLowerCase();
+        this.opcode = opcode.toUpperCase();
     }
 
     public Format getFormat() {
