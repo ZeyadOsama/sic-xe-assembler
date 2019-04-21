@@ -15,12 +15,12 @@ public class SymbolTable {
     private SymbolTable() {
     }
 
-    public Symbol getSymbol(String label) {
-        return symbolTable.get(label);
-    }
-
     public HashMap<String, Symbol> get() {
         return symbolTable;
+    }
+
+    public Symbol getSymbol(String label) {
+        return symbolTable.get(label);
     }
 
     public void add(String label, Symbol symbol) {

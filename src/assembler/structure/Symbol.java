@@ -11,7 +11,7 @@ public class Symbol {
     }
 
     public Symbol(String address, String label, int length, boolean relocatable) {
-        this.address = address;
+        setAddress(address);
         setLabel(label);
         this.length = length;
         this.relocatable = relocatable;
@@ -22,7 +22,7 @@ public class Symbol {
     }
 
     public void setAddress(String address) {
-        this.address = address;
+        this.address = address.toUpperCase();
     }
 
     public String getLabel() {
