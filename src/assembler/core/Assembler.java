@@ -1,4 +1,5 @@
 package assembler.core;
 
-public class Assembler {
+public final class Assembler {
+
 }

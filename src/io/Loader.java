@@ -36,7 +36,7 @@ public class Loader {
             }
 
             OperationTable operationTable = OperationTable.getInstance();
-//            Operation operation;
+//            Instruction operation;
 //            while (sc.hasNext()) {
 //                System.out.println(sc.next());
 //            }

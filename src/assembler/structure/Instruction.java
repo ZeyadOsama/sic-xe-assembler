@@ -1,46 +1,50 @@
 package assembler.structure;
 
+import assembler.constants.Format;
+import assembler.constants.OperandType;
+
 public class Instruction {
 
-    private String label;
-    private String operationCode;
-    private String operand;
+    private final OperandType firstOperand;
+    private final OperandType secondOperand;
+    private Format format;
+    private String name;
+    private String opcode;
 
-    public Instruction() {
+    public Instruction(String name, String opcode, Format format, OperandType firstOperand, OperandType secondOperand) {
+        setName(name);
+        setOpcode(opcode);
+        this.format = format;
+        this.firstOperand = firstOperand;
+        this.secondOperand = secondOperand;
     }
 
-    public Instruction(String operationCode, String operand) {
-        setOperationCode(operationCode);
-        setOperand(operand);
+    public String getName() {
+        return name;
     }
 
-    public Instruction(String label, String operationCode, String operand) {
-        setLabel(label);
-        setOperationCode(operationCode);
-        setOperand(operand);
+    private void setName(String name) {
+        this.name = name.toLowerCase();
     }
 
-    public String getLabel() {
-        return label;
+    public String getOpcode() {
+        return opcode;
     }
 
-    public void setLabel(String label) {
-        this.label = label.toUpperCase();
+    private void setOpcode(String opcode) {
+        this.opcode = opcode.toLowerCase();
     }
 
-    public String getOperationCode() {
-        return operationCode;
+    public Format getFormat() {
+        return format;
     }
 
-    public void setOperationCode(String operationCode) {
-        this.operationCode = operationCode.toUpperCase();
+
+    public OperandType getFirstOperand() {
+        return firstOperand;
     }
 
-    public String getOperand() {
-        return operand;
-    }
-
-    public void setOperand(String operand) {
-        this.operand = operand.toUpperCase();
+    public OperandType getSecondOperand() {
+        return secondOperand;
     }
 }
