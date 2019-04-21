@@ -5,11 +5,11 @@ import java.util.Set;
 
 public class DirectiveTable {
 
-    private static final Set<String> assemblerDirectives = new HashSet<>();
-
     static {
         load();
     }
+
+    private static final Set<String> assemblerDirectives = new HashSet<>();
 
     public static boolean contains(String directive) {
         return assemblerDirectives.contains(directive);

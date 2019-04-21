@@ -1,5 +1,6 @@
 package io;
 
+import assembler.core.Assembler;
 import misc.constants.Constants;
 
 import javax.swing.*;
@@ -8,11 +9,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
 
 public class FileLoader {
-
-    private ArrayList<String> programLines = new ArrayList<>();
 
     public void loadFile() throws IOException {
         JFileChooser chooser = new JFileChooser();
@@ -32,11 +30,7 @@ public class FileLoader {
 
             String line;
             while ((line = bufferedReader.readLine()) != null)
-                programLines.add(line);
+                Assembler.addProgramLine(line);
         }
-    }
-
-    public ArrayList<String> getProgramLines() {
-        return programLines;
     }
 }

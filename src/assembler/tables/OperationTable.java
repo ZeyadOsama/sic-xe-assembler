@@ -8,6 +8,10 @@ import java.util.HashMap;
 
 public final class OperationTable {
 
+    static {
+        load();
+    }
+
     private static OperationTable instance = new OperationTable();
 
     public static OperationTable getInstance() {
@@ -18,10 +22,6 @@ public final class OperationTable {
     }
 
     private static HashMap<String, Instruction> operationTable = new HashMap<>();
-
-    static {
-        load();
-    }
 
     public static boolean containsKey(String opcode) {
         return operationTable.containsKey(opcode);
