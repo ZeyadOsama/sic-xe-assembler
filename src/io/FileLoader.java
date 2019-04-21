@@ -28,13 +28,11 @@ public class FileLoader {
                     chooser.getSelectedFile().getName());
 
             File file = new File(filePath);
-            BufferedReader br = new BufferedReader(new FileReader(file));
+            BufferedReader bufferedReader = new BufferedReader(new FileReader(file));
 
             String line;
-            while ((line = br.readLine()) != null) {
+            while ((line = bufferedReader.readLine()) != null)
                 programLines.add(line);
-                System.out.println(line);
-            }
         }
     }
 
