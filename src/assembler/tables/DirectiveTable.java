@@ -1,4 +1,4 @@
-package assembler.structure;
+package assembler.tables;
 
 import java.util.HashSet;
 import java.util.Set;

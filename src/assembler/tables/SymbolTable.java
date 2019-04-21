@@ -1,4 +1,6 @@
-package assembler.structure;
+package assembler.tables;
+
+import assembler.structure.Symbol;
 
 import java.util.HashMap;
 

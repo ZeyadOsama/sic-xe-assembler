@@ -1,7 +1,8 @@
-package assembler.structure;
+package assembler.tables;
 
 import assembler.constants.Format;
 import assembler.constants.OperandType;
+import assembler.structure.Instruction;
 
 import java.util.HashMap;
 

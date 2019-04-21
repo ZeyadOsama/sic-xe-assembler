@@ -1,7 +1,7 @@
 package misc.utils;
 
-import assembler.structure.DirectiveTable;
-import assembler.structure.OperationTable;
+import assembler.tables.DirectiveTable;
+import assembler.tables.OperationTable;
 
 public class Validations {
 

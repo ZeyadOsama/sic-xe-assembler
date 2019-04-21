@@ -1,4 +1,4 @@
-package assembler.structure;
+package assembler.tables;
 
 public class RegisterTable {
 
