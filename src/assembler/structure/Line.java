@@ -3,13 +3,13 @@ package assembler.structure;
 public class Line {
 
     private String label;
-    private String operationCode;
+    private String mnemonic;
     private String firstOperand;
     private String secondOperand;
 
-    public Line(String label, String operationCode, String firstOperand, String secondOperand) {
+    public Line(String label, String mnemonic, String firstOperand, String secondOperand) {
         setLabel(label);
-        setOperationCode(operationCode);
+        setMnemonic(mnemonic);
         setFirstOperand(firstOperand);
         setSecondOperand(secondOperand);
     }
@@ -22,12 +22,12 @@ public class Line {
         this.label = label.toUpperCase();
     }
 
-    public String getOperationCode() {
-        return operationCode;
+    public String getMnemonic() {
+        return mnemonic;
     }
 
-    public void setOperationCode(String operationCode) {
-        this.operationCode = operationCode.toUpperCase();
+    public void setMnemonic(String mnemonic) {
+        this.mnemonic = mnemonic.toUpperCase();
     }
 
     public String getFirstOperand() {
@@ -35,7 +35,7 @@ public class Line {
     }
 
     public void setFirstOperand(String firstOperand) {
-        this.firstOperand = firstOperand;
+        this.firstOperand = firstOperand.toUpperCase();
     }
 
     public String getSecondOperand() {
@@ -43,6 +43,6 @@ public class Line {
     }
 
     public void setSecondOperand(String secondOperand) {
-        this.secondOperand = secondOperand;
+        this.secondOperand = secondOperand.toUpperCase();
     }
 }

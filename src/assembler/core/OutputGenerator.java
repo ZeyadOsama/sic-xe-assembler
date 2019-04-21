@@ -1,13 +1,11 @@
 package assembler.core;
 
-public class OutputGenerator {
-
-    private static OutputGenerator instance = new OutputGenerator();
-
-    private static StringBuilder outputString = new StringBuilder();
+public final class OutputGenerator {
 
     private OutputGenerator() {
     }
+
+    private static StringBuilder outputString = new StringBuilder();
 
     public static void resetOuput() {
         outputString = new StringBuilder();
@@ -17,7 +15,8 @@ public class OutputGenerator {
         outputString.append(text);
     }
 
-    public OutputGenerator getInstance() {
-        return instance;
+    public static void appendLine(String line) {
+        String newLine = "\n" + line;
+        outputString.append(newLine);
     }
 }
