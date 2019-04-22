@@ -1,50 +1,60 @@
 package assembler.structure;
 
-import assembler.constants.Format;
-import assembler.constants.OperandType;
-
 public class Instruction {
 
-    private final OperandType firstOperand;
-    private final OperandType secondOperand;
-    private Format format;
-    private String name;
-    private String opcode;
+    private String label;
+    private String mnemonic;
+    private String firstOperand;
+    private String secondOperand;
 
-    public Instruction(String name, String opcode, Format format, OperandType firstOperand, OperandType secondOperand) {
-        setName(name);
-        setOpcode(opcode);
-        this.format = format;
-        this.firstOperand = firstOperand;
-        this.secondOperand = secondOperand;
+    public Instruction(String label, String mnemonic, String firstOperand, String secondOperand) {
+        setLabel(label);
+        setMnemonic(mnemonic);
+        setFirstOperand(firstOperand);
+        setSecondOperand(secondOperand);
     }
 
-    public String getName() {
-        return name;
+    public String getLabel() {
+        return label;
     }
 
-    private void setName(String name) {
-        this.name = name.toUpperCase();
+    public void setLabel(String label) {
+        this.label = label.toUpperCase();
     }
 
-    public String getOpcode() {
-        return opcode;
+    public String getMnemonic() {
+        return mnemonic;
     }
 
-    private void setOpcode(String opcode) {
-        this.opcode = opcode.toUpperCase();
+    public void setMnemonic(String mnemonic) {
+        this.mnemonic = mnemonic.toUpperCase();
     }
 
-    public Format getFormat() {
-        return format;
-    }
-
-
-    public OperandType getFirstOperand() {
+    public String getFirstOperand() {
         return firstOperand;
     }
 
-    public OperandType getSecondOperand() {
+    public void setFirstOperand(String firstOperand) {
+        this.firstOperand = firstOperand.toUpperCase();
+    }
+
+    public String getSecondOperand() {
         return secondOperand;
+    }
+
+    public void setSecondOperand(String secondOperand) {
+        this.secondOperand = secondOperand.toUpperCase();
+    }
+
+    public Boolean hasLabel() {
+        return label != null;
+    }
+
+    public boolean hasFirstOperand() {
+        return firstOperand != null;
+    }
+
+    public boolean hasSecondOperand() {
+        return secondOperand != null;
     }
 }
