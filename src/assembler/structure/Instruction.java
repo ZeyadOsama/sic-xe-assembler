@@ -55,12 +55,16 @@ public class Instruction {
             this.secondOperand = secondOperand.toUpperCase();
     }
 
+    public String getComment() {
+        return comment;
+    }
+
     public Boolean hasLabel() {
         return label != null;
     }
 
-    public String getComment() {
-        return comment;
+    public Boolean hasMnemonic() {
+        return mnemonic != null;
     }
 
     public boolean hasFirstOperand() {

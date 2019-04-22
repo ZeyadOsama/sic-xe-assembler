@@ -7,6 +7,24 @@ import java.util.Set;
 
 public class DirectiveTable {
 
+    /**
+     * Constants
+     */
+    public static final String BYTE = "BYTE";
+    public static final String RESB = "RESB";
+    public static final String WORD = "WORD";
+    public static final String RESW = "RESW";
+    public static final String START = "START";
+    public static final String BASE = "BASE";
+    public static final String NOBASE = "NOBASE";
+    public static final String END = "END";
+    public static final String LTORG = "LTORG";
+    public static final String EXTREF = "EXTREF";
+    public static final String EXTDEF = "EXTDEF";
+    public static final String ORG = "ORG";
+    public static final String EQU = "EQU";
+    public static final String CSECT = "CSECT";
+
     private static final Set<String> assemblerDirectives = new HashSet<>();
 
     /**

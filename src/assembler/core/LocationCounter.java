@@ -15,6 +15,10 @@ public class LocationCounter {
 
     private static int counter = 0;
 
+    public static void set(int counter) {
+        LocationCounter.counter = counter;
+    }
+
     public static int get() {
         return counter;
     }

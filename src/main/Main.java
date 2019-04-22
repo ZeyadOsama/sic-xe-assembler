@@ -1,5 +1,6 @@
 package main;
 
+import assembler.core.PassOne;
 import io.FileLoader;
 
 import java.io.IOException;
@@ -12,5 +13,7 @@ public class Main {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        PassOne.start();
     }
 }
