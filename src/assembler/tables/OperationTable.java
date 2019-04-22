@@ -3,6 +3,7 @@ package assembler.tables;
 import assembler.constants.Format;
 import assembler.constants.OperandType;
 import assembler.structure.Operation;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 
@@ -19,46 +20,31 @@ public final class OperationTable {
 
     private static HashMap<String, Operation> operationTable = new HashMap<>();
 
-    public static Operation getInstruction(String mnemonic) {
-        return operationTable.get(mnemonic);
+    /**
+     * Cache op-table before starting program
+     */
+    static {
+        load();
     }
 
     public static HashMap<String, Operation> get() {
         return operationTable;
     }
 
-    public static String getOpcode(String mnemonic) {
-        return operationTable.get(mnemonic.toLowerCase()).getOpcode();
+    public static Operation getOperation(@NotNull String mnemonic) {
+        return operationTable.get(mnemonic);
     }
 
-    public static Format getFormat(String mnemonic) {
-        return operationTable.get(mnemonic.toUpperCase()).getFormat();
-    }
-
-    public static OperandType getFirstOperandType(String mnemonic) {
-        return operationTable.get(mnemonic.toUpperCase()).getFirstOperand();
-    }
-
-    public static OperandType getSecondOperandType(String mnemonic) {
-        return operationTable.get(mnemonic.toUpperCase()).getSecondOperand();
-    }
-
-    static {
-        load();
-    }
-
-    public static boolean containsMnemonic(String mnemonic) {
+    public static boolean containsMnemonic(@NotNull String mnemonic) {
         return operationTable.containsKey(mnemonic.toUpperCase());
     }
 
-    public static boolean hasOperand(String mnemonic) {
-        return hasFirstOperand(mnemonic) || hasSecondOperand(mnemonic);
-    }
-
-    public static boolean hasFirstOperand(String mnemonic) {
-        return operationTable.get(mnemonic.toUpperCase()).hasFirstOperand();
-    }
-
+    /**
+     * Load all mnemonics details to op-table.
+     * Adds mnemonics in the format of Operation class.
+     *
+     * @see Operation class
+     */
     private static void load() {
         operationTable.put("ADD",
                 new Operation("ADD", "18", Format.THREE, OperandType.VALUE, OperandType.NONE));
@@ -204,9 +190,5 @@ public final class OperationTable {
                 new Operation("WD", "DC", Format.THREE, OperandType.VALUE, OperandType.NONE));
         operationTable.put("+WD",
                 new Operation("+WD", "DC", Format.FOUR, OperandType.VALUE, OperandType.NONE));
-    }
-
-    public static boolean hasSecondOperand(String mnemonic) {
-        return operationTable.get(mnemonic.toUpperCase()).hasSecondOperand();
     }
 }

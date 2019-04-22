@@ -3,6 +3,10 @@ package misc.utils;
 import assembler.tables.DirectiveTable;
 import assembler.tables.OperationTable;
 
+/**
+ * Utility class for parsing validations.
+ * Needed for error detection.
+ */
 public class Validations {
 
     public static boolean isComment(String line) {
