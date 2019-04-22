@@ -5,14 +5,10 @@ import java.util.Set;
 
 public class DirectiveTable {
 
-    static {
-        load();
-    }
-
     private static final Set<String> assemblerDirectives = new HashSet<>();
 
-    public static boolean contains(String directive) {
-        return assemblerDirectives.contains(directive);
+    static {
+        load();
     }
 
     private static void load() {
@@ -30,5 +26,9 @@ public class DirectiveTable {
         assemblerDirectives.add("ORG");
         assemblerDirectives.add("EQU");
         assemblerDirectives.add("CSECT");
+    }
+
+    public static boolean contains(String directive) {
+        return assemblerDirectives.contains(directive.toUpperCase());
     }
 }

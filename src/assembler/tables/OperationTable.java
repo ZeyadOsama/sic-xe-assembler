@@ -8,10 +8,6 @@ import java.util.HashMap;
 
 public final class OperationTable {
 
-    static {
-        load();
-    }
-
     private static OperationTable instance = new OperationTable();
 
     public static OperationTable getInstance() {
@@ -23,8 +19,8 @@ public final class OperationTable {
 
     private static HashMap<String, Operation> operationTable = new HashMap<>();
 
-    public static boolean containsKey(String opcode) {
-        return operationTable.containsKey(opcode);
+    static {
+        load();
     }
 
     public static Operation getInstruction(String mnemonic) {
@@ -208,5 +204,9 @@ public final class OperationTable {
                 new Operation("WD", "DC", Format.THREE, OperandType.VALUE, OperandType.NONE));
         operationTable.put("+WD",
                 new Operation("+WD", "DC", Format.FOUR, OperandType.VALUE, OperandType.NONE));
+    }
+
+    public static boolean containsKey(String opcode) {
+        return operationTable.containsKey(opcode.toUpperCase());
     }
 }
