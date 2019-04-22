@@ -4,23 +4,53 @@ import org.jetbrains.annotations.NotNull;
 
 public final class Converter {
 
-    @NotNull
-    public static String toBinary(int hexNumber) {
-        return Integer.toBinaryString(hexNumber);
+    private final static int RADIX_HEX = 16;
+    private final static int RADIX_BIN = 2;
+
+    public final static class Decimal {
+
+        @NotNull
+        public static String toBinary(int decimal) {
+            return Integer.toBinaryString(decimal);
+        }
+
+        @NotNull
+        public static String toBinary(@NotNull String decimal) {
+            return Integer.toBinaryString(Integer.parseInt(decimal));
+        }
+
+        @NotNull
+        public static String toHexadecimal(int decimal) {
+            return Integer.toHexString(decimal).toUpperCase();
+        }
+
+        @NotNull
+        public static String toHexadecimal(@NotNull String decimal) {
+            return Integer.toHexString(Integer.parseInt(decimal)).toUpperCase();
+        }
     }
 
-    @NotNull
-    public static String toBinary(@NotNull String hexNumber) {
-        return Integer.toBinaryString(Integer.parseInt(hexNumber));
+    public final static class Hexadecimal {
+
+        public static int toDecimal(String hexadecimal) {
+            return Integer.parseInt(hexadecimal, RADIX_HEX);
+        }
+
+        @NotNull
+        public static String toBinary(@NotNull String hexadecimal) {
+            return Decimal.toBinary(toDecimal(hexadecimal));
+        }
     }
 
-    @NotNull
-    public static String toHex(int decNumber) {
-        return Integer.toHexString(decNumber).toUpperCase();
-    }
+    public final static class Binary {
 
-    @NotNull
-    public static String toHex(@NotNull String decNumber) {
-        return Integer.toHexString(Integer.parseInt(decNumber)).toUpperCase();
+        public static int toDecimal(@NotNull String binary) {
+            return Integer.parseInt(binary, RADIX_BIN);
+        }
+
+        @NotNull
+        public static String toHexadecimal(@NotNull String binary) {
+            return Decimal.toHexadecimal(toDecimal(binary));
+        }
     }
 }
