@@ -6,12 +6,14 @@ public class Instruction {
     private String mnemonic;
     private String firstOperand;
     private String secondOperand;
+    private String comment;
 
-    public Instruction(String label, String mnemonic, String firstOperand, String secondOperand) {
+    public Instruction(String label, String mnemonic, String firstOperand, String secondOperand, String comment) {
         setLabel(label);
         setMnemonic(mnemonic);
         setFirstOperand(firstOperand);
         setSecondOperand(secondOperand);
+        this.comment = comment;
     }
 
     public String getLabel() {
@@ -19,7 +21,8 @@ public class Instruction {
     }
 
     public void setLabel(String label) {
-        this.label = label.toUpperCase();
+        if (label != null)
+            this.label = label.toUpperCase();
     }
 
     public String getMnemonic() {
@@ -27,7 +30,8 @@ public class Instruction {
     }
 
     public void setMnemonic(String mnemonic) {
-        this.mnemonic = mnemonic.toUpperCase();
+        if (mnemonic != null)
+            this.mnemonic = mnemonic.toUpperCase();
     }
 
     public String getFirstOperand() {
@@ -35,7 +39,8 @@ public class Instruction {
     }
 
     public void setFirstOperand(String firstOperand) {
-        this.firstOperand = firstOperand.toUpperCase();
+        if (firstOperand != null)
+            this.firstOperand = firstOperand.toUpperCase();
     }
 
     public String getSecondOperand() {
@@ -43,11 +48,16 @@ public class Instruction {
     }
 
     public void setSecondOperand(String secondOperand) {
-        this.secondOperand = secondOperand.toUpperCase();
+        if (secondOperand != null)
+            this.secondOperand = secondOperand.toUpperCase();
     }
 
     public Boolean hasLabel() {
         return label != null;
+    }
+
+    public String getComment() {
+        return comment;
     }
 
     public boolean hasFirstOperand() {
@@ -56,5 +66,9 @@ public class Instruction {
 
     public boolean hasSecondOperand() {
         return secondOperand != null;
+    }
+
+    public boolean hasComment() {
+        return comment != null;
     }
 }

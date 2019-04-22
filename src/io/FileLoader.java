@@ -1,7 +1,7 @@
 package io;
 
-import assembler.core.Assembler;
 import misc.constants.Constants;
+import parser.Parser;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -28,9 +28,12 @@ public class FileLoader {
             File file = new File(filePath);
             BufferedReader bufferedReader = new BufferedReader(new FileReader(file));
 
+            Parser parser = new Parser();
             String line;
-            while ((line = bufferedReader.readLine()) != null)
-                Assembler.addProgramLine(line);
+            while ((line = bufferedReader.readLine()) != null){
+//                Assembler.addProgramLine(line);
+                parser.parse(line);
+            }
         }
     }
 }

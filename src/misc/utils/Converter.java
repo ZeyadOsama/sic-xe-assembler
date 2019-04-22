@@ -15,18 +15,18 @@ public final class Converter {
         }
 
         @NotNull
-        public static String toBinary(@NotNull String decimal) {
-            return Integer.toBinaryString(Integer.parseInt(decimal));
+        public static String toBinary(@NotNull String number) {
+            return Integer.toBinaryString(Integer.parseInt(number));
         }
 
         @NotNull
-        public static String toHexadecimal(int decimal) {
-            return Integer.toHexString(decimal).toUpperCase();
+        public static String toHexadecimal(int number) {
+            return Integer.toHexString(number).toUpperCase();
         }
 
         @NotNull
-        public static String toHexadecimal(@NotNull String decimal) {
-            return Integer.toHexString(Integer.parseInt(decimal)).toUpperCase();
+        public static String toHexadecimal(@NotNull String number) {
+            return Integer.toHexString(Integer.parseInt(number)).toUpperCase();
         }
     }
 

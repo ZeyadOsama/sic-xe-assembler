@@ -51,11 +51,15 @@ public final class OperationTable {
         return operationTable.get(mnemonic.toUpperCase()).getSecondOperand();
     }
 
-    public static Boolean hasFirstOperandType(String mnemonic) {
+    public static Boolean hasOperand(String mnemonic) {
+        return hasFirstOperand(mnemonic) || hasSecondOperand(mnemonic);
+    }
+
+    public static Boolean hasFirstOperand(String mnemonic) {
         return operationTable.get(mnemonic.toUpperCase()).hasFirstOperand();
     }
 
-    public static Boolean hasSecondOperandType(String mnemonic) {
+    public static Boolean hasSecondOperand(String mnemonic) {
         return operationTable.get(mnemonic.toUpperCase()).hasSecondOperand();
     }
 

@@ -48,6 +48,9 @@ public class Operation {
         return secondOperand;
     }
 
+    public boolean hasOperand() {
+        return hasFirstOperand() || hasSecondOperand();
+    }
     public boolean hasFirstOperand() {
         return firstOperand != OperandType.NONE;
     }
