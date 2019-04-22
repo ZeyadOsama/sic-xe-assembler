@@ -1,8 +1,17 @@
 package parser;
 
+import assembler.structure.Instruction;
+
 import java.util.StringTokenizer;
 
+import static misc.utils.Validations.*;
+
 public class Parser {
+
+    private final static int RANGE_LABEL = 7;
+    private final static int RANGE_MNEMONIC = 14;
+    private final static int RANGE_OPERANDS = 16;
+    private final static int RANGE_COMMENT = 34;
 
     private final static int FIRST_OPERAND = 0;
     private final static int SECOND_OPERAND = 1;
@@ -13,39 +22,32 @@ public class Parser {
     private String[] operandsList = new String[2];
     private String comment;
 
-    public void parse(String line) {
+    public Instruction parse(String line) {
+//        String label = null, mnemonic = null, operands = null, comment = null;
+//        String[] operandsList = new String[2];
 
-        if (line.startsWith(".")) return;
+        if (isComment(line)) return new Instruction();
 
-        if (line.length() > 7) {
+        if (line.length() > RANGE_LABEL)
             label = line.substring(0, 8).replaceAll("\\s", "");
-            ;
-            System.out.println("label: " + label);
+
+        if (line.length() > RANGE_MNEMONIC) {
+            mnemonic = line.substring(9, 15).replaceAll("\\s", "");
+            if (!isMnemonic(mnemonic)) mnemonic = null;
         }
 
-        if (line.length() > 14) {
-            this.mnemonic = line.substring(9, 15).replaceAll("\\s", "");
-            ;
-            System.out.println("mnemonic: " + mnemonic);
-        }
-
-        if (line.length() > 34) {
-            this.operands = line.substring(17, 35).replaceAll("\\s", "");
+        if (line.length() > RANGE_COMMENT) {
+            operands = line.substring(17, 35).replaceAll("\\s", "");
             comment = line.substring(35);
-        }
-
-        if (line.length() > 16) {
-            this.operands = line.substring(17).replaceAll("\\s", "");
-        }
+            if (isBlank(comment)) comment = null;
+        } else if (line.length() > RANGE_OPERANDS)
+            operands = line.substring(17).replaceAll("\\s", "");
 
         int i = 0;
         StringTokenizer tokenizer = new StringTokenizer(operands, ",");
-        while (tokenizer.hasMoreTokens()) {
-            operandsList[i] = tokenizer.nextToken();
-            System.out.println("operand " + (i + 1) + ": " + operandsList[i]);
-            i++;
-        }
+        while (tokenizer.hasMoreTokens())
+            operandsList[i++] = tokenizer.nextToken();
 
-        System.out.println();
+        return new Instruction(label, mnemonic, operandsList[FIRST_OPERAND], operandsList[SECOND_OPERAND], comment);
     }
 }

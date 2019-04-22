@@ -19,10 +19,6 @@ public final class OperationTable {
 
     private static HashMap<String, Operation> operationTable = new HashMap<>();
 
-    static {
-        load();
-    }
-
     public static Operation getInstruction(String mnemonic) {
         return operationTable.get(mnemonic);
     }
@@ -47,16 +43,20 @@ public final class OperationTable {
         return operationTable.get(mnemonic.toUpperCase()).getSecondOperand();
     }
 
-    public static Boolean hasOperand(String mnemonic) {
+    static {
+        load();
+    }
+
+    public static boolean containsMnemonic(String mnemonic) {
+        return operationTable.containsKey(mnemonic.toUpperCase());
+    }
+
+    public static boolean hasOperand(String mnemonic) {
         return hasFirstOperand(mnemonic) || hasSecondOperand(mnemonic);
     }
 
-    public static Boolean hasFirstOperand(String mnemonic) {
+    public static boolean hasFirstOperand(String mnemonic) {
         return operationTable.get(mnemonic.toUpperCase()).hasFirstOperand();
-    }
-
-    public static Boolean hasSecondOperand(String mnemonic) {
-        return operationTable.get(mnemonic.toUpperCase()).hasSecondOperand();
     }
 
     private static void load() {
@@ -206,7 +206,7 @@ public final class OperationTable {
                 new Operation("+WD", "DC", Format.FOUR, OperandType.VALUE, OperandType.NONE));
     }
 
-    public static boolean containsKey(String opcode) {
-        return operationTable.containsKey(opcode.toUpperCase());
+    public static boolean hasSecondOperand(String mnemonic) {
+        return operationTable.get(mnemonic.toUpperCase()).hasSecondOperand();
     }
 }

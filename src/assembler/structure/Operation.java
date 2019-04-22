@@ -51,6 +51,7 @@ public class Operation {
     public boolean hasOperand() {
         return hasFirstOperand() || hasSecondOperand();
     }
+
     public boolean hasFirstOperand() {
         return firstOperand != OperandType.NONE;
     }

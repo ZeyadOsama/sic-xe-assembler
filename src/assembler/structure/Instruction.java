@@ -8,6 +8,9 @@ public class Instruction {
     private String secondOperand;
     private String comment;
 
+    public Instruction() {
+    }
+
     public Instruction(String label, String mnemonic, String firstOperand, String secondOperand, String comment) {
         setLabel(label);
         setMnemonic(mnemonic);
