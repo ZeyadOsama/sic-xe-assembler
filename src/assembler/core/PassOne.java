@@ -8,7 +8,7 @@ public class PassOne {
     public static void start() {
         for (Instruction instruction : Assembler.getInstructions()) {
             if (instruction.hasMnemonic() && instruction.getMnemonic().equals(DirectiveTable.START))
-                LocationCounter.set(Integer.parseInt(instruction.getFirstOperand()));
+                LocationCounter.set(instruction.getFirstOperand());
             else LocationCounter.reset();
         }
     }

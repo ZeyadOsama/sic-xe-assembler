@@ -2,6 +2,8 @@ package assembler.core;
 
 import assembler.constants.Format;
 
+import java.util.ArrayList;
+
 public class LocationCounter {
 
     private static LocationCounter instance = new LocationCounter();
@@ -13,32 +15,42 @@ public class LocationCounter {
         return instance;
     }
 
-    private static int counter = 0;
+    private static String currentAddress = "0";
+    private static ArrayList<String> addresses = new ArrayList<>();
 
-    public static void set(int counter) {
-        LocationCounter.counter = counter;
+    public static void set(String address) {
+        LocationCounter.currentAddress = address;
     }
 
-    public static int get() {
-        return counter;
+    public static String get() {
+        return currentAddress;
     }
 
     public static void reset() {
-        counter = 0;
+        currentAddress = "0";
     }
 
     // TODO
-    public static int increment(Format format) {
+    public static String increment(Format format) {
         switch (format) {
             case ONE:
-                return counter;
+
             case TWO:
 
             case THREE:
-                return counter += 3;
+
             case FOUR:
-                return counter += 4;
+
         }
-        return counter;
+        return null;
+    }
+
+    public static ArrayList<String> getAddresses() {
+        return addresses;
+    }
+
+    public static void addAddress(String address) {
+        LocationCounter.currentAddress = address;
+        LocationCounter.addresses.add(address);
     }
 }
