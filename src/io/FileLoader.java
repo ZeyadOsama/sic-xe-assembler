@@ -1,6 +1,6 @@
 package io;
 
-import assembler.structure.Instruction;
+import assembler.core.Assembler;
 import misc.constants.Constants;
 import parser.Parser;
 
@@ -10,11 +10,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
 
 public class FileLoader {
-
-    public   static ArrayList<Instruction> x = new ArrayList<>();
 
     public void loadFile() throws IOException {
         JFileChooser chooser = new JFileChooser();
@@ -34,11 +31,8 @@ public class FileLoader {
 
             Parser parser = new Parser();
             String line;
-            while ((line = bufferedReader.readLine()) != null){
-//                Assembler.addProgramLine(line);
-                x.add(parser.parse(line));
-
-            }
+            while ((line = bufferedReader.readLine()) != null)
+                Assembler.addInstruction(parser.parse(line));
         }
     }
 }
