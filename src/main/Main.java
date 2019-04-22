@@ -20,7 +20,6 @@ public class Main {
             System.out.println(i.getMnemonic());
             System.out.println(i.getFirstOperand());
             System.out.println(i.getSecondOperand());
-            System.out.println(i.getComment());
             System.out.println();
         }
     }

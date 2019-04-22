@@ -10,7 +10,7 @@ public class Validations {
     }
 
     public static boolean isBlank(String string) {
-        return string != null && !string.isEmpty() && !string.trim().isEmpty();
+        return string != null && !string.isEmpty() && string.trim().isEmpty();
     }
 
     public static boolean isMnemonic(String mnemonic) {
