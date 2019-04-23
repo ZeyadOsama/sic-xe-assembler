@@ -4,17 +4,15 @@ public class Symbol {
 
     private String address;
     private String label;
-    private int length;
-    private boolean relocatable;
+    private String value;
 
     public Symbol() {
     }
 
-    public Symbol(String address, String label, int length, boolean relocatable) {
-        setAddress(address);
-        setLabel(label);
-        this.length = length;
-        this.relocatable = relocatable;
+    public Symbol(String address, String label, String value) {
+        this.address = address;
+        this.label = label;
+        this.value = value;
     }
 
     public String getAddress() {
@@ -22,7 +20,7 @@ public class Symbol {
     }
 
     public void setAddress(String address) {
-        this.address = address.toUpperCase();
+        this.address = address;
     }
 
     public String getLabel() {
@@ -30,22 +28,18 @@ public class Symbol {
     }
 
     public void setLabel(String label) {
-        this.label = label.toUpperCase();
+        this.label = label;
     }
 
-    public int getLength() {
-        return length;
+    public String getValue() {
+        return value;
     }
 
-    public void setLength(int length) {
-        this.length = length;
+    public void setValue(String value) {
+        this.value = value;
     }
 
-    public boolean isRelocatable() {
-        return relocatable;
-    }
-
-    public void setRelocatable(boolean relocatable) {
-        this.relocatable = relocatable;
+    public boolean hasValue() {
+        return value != null;
     }
 }

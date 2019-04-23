@@ -1,6 +1,7 @@
 package assembler.tables;
 
 import assembler.structure.Symbol;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 
@@ -12,24 +13,24 @@ public class SymbolTable {
         return instance;
     }
 
-    private HashMap<String, Symbol> symbolTable = new HashMap<>();
-
     private SymbolTable() {
     }
+
+    private HashMap<String, Symbol> symbolTable = new HashMap<>();
 
     public HashMap<String, Symbol> get() {
         return symbolTable;
     }
 
-    public Symbol getSymbol(String label) {
+    public Symbol getSymbol(@NotNull String label) {
         return symbolTable.get(label);
     }
 
-    public void add(String label, Symbol symbol) {
-        symbolTable.put(label, symbol);
+    public boolean containsSymbol(@NotNull String label) {
+        return symbolTable.containsKey(label);
     }
 
-    public void add(String address, String label, int length, boolean relocatable) {
-        symbolTable.put(label, new Symbol(address, label, length, relocatable));
+    public void put(@NotNull String label, Symbol symbol) {
+        symbolTable.put(label, symbol);
     }
 }

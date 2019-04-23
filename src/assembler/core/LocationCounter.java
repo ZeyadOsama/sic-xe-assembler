@@ -28,7 +28,7 @@ public final class LocationCounter {
 
     private int previousAddress = 0;
     private int currentAddress = 0;
-    private int programCounter = 1;
+    private int programCounter = 0;
     private ArrayList<Integer> addresses = new ArrayList<>();
     private ArrayList<String> convertedAddresses = new ArrayList<>();
 
@@ -71,7 +71,6 @@ public final class LocationCounter {
                     else currentAddress += (Integer.parseInt(instruction.getFirstOperand()));
                     break;
             }
-            programCounter++;
             addAddress(previousAddress);
             previousAddress = currentAddress;
         } else if (isOperation(mnemonic)) {
@@ -86,7 +85,6 @@ public final class LocationCounter {
                     currentAddress += 4;
                     break;
             }
-            programCounter++;
             addAddress(previousAddress);
             previousAddress = currentAddress;
         } else throw new ParsingException("Could not find specific format", programCounter);
@@ -94,15 +92,17 @@ public final class LocationCounter {
 
 
     public void update() {
-        programCounter++;
         addAddress(previousAddress);
         previousAddress = currentAddress;
     }
 
     public void addAddress(int address) {
+        programCounter++;
         addresses.add(address);
         convertedAddresses
-                .add(Utils.addHexadecimalNotation(Utils.extendLength(Converter.Decimal.toHexadecimal(address), 4)));
+                .add(Utils.addHexadecimalNotation(
+                        Utils.extendLength(
+                                Converter.Decimal.toHexadecimal(address), 4).toUpperCase()));
     }
 
     public ArrayList<Integer> getAddresses() {
@@ -115,5 +115,9 @@ public final class LocationCounter {
 
     public int getProgramCounter() {
         return programCounter;
+    }
+
+    public String getLastAddress() {
+        return convertedAddresses.get(programCounter - 1);
     }
 }

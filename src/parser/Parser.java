@@ -2,6 +2,8 @@ package parser;
 
 import assembler.core.LocationCounter;
 import assembler.structure.Instruction;
+import assembler.structure.Symbol;
+import assembler.tables.SymbolTable;
 import misc.exceptions.ParsingException;
 
 import java.io.BufferedReader;
@@ -25,6 +27,7 @@ public class Parser {
     private ArrayList<String> instructions = new ArrayList<>();
     private Instruction lastParsedInstruction;
     private LocationCounter locationCounter = LocationCounter.getInstance();
+    private SymbolTable symbolTable = SymbolTable.getInstance();
 
     private final static int FIRST_OPERAND = 0;
     private final static int SECOND_OPERAND = 1;
@@ -111,6 +114,15 @@ public class Parser {
                 = new Instruction(label, mnemonic, operandsList[FIRST_OPERAND], operandsList[SECOND_OPERAND], comment);
         parsedInstructions.add(lastParsedInstruction);
         locationCounter.update(lastParsedInstruction);
+
+        if (label != null) {
+            Symbol symbol = new Symbol();
+            symbol.setAddress(locationCounter.getLastAddress());
+            symbol.setLabel(label);
+            if (lastParsedInstruction.hasFirstOperand()) symbol.setValue(lastParsedInstruction.getFirstOperand());
+            symbolTable.put(label, symbol);
+        }
+
         return lastParsedInstruction;
     }
 

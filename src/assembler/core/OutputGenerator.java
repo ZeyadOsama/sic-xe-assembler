@@ -1,35 +1,57 @@
 package assembler.core;
 
+import assembler.structure.Symbol;
+import assembler.tables.SymbolTable;
 import parser.Parser;
 
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 
+/**
+ * Responsible for generating addresses file and symbol table file
+ */
 public final class OutputGenerator {
 
     private String filePath;
     private String fileName;
-    private ArrayList<String> addressFile;
-    private ArrayList<String> symbolFile;
+    private ArrayList<String> addressFileLines;
+    private ArrayList<String> symbolFileLines;
 
+    /**
+     * @param filePath parsed file absolute parent path
+     * @param fileName parsed file name
+     */
     public OutputGenerator(String filePath, String fileName) {
         this.filePath = filePath;
         this.fileName = fileName;
-        addressFile = new ArrayList<>();
+        addressFileLines = new ArrayList<>();
+        symbolFileLines = new ArrayList<>();
     }
 
-    public void generate() {
+    public void generateAddressFile() {
         LocationCounter locationCounter = LocationCounter.getInstance();
         for (int i = 0; i < locationCounter.getProgramCounter(); i++) {
-            addressFile.add(locationCounter.getHexAddresses().get(i)
+            addressFileLines.add(locationCounter.getHexAddresses().get(i)
                     + "\t\t"
                     + Parser.getInstance().getInstructions().get(i));
         }
     }
 
+    public void generateSymbolFile() {
+        SymbolTable symbolTable = SymbolTable.getInstance();
+        for (String name : symbolTable.get().keySet()) {
+            Symbol symbol = symbolTable.getSymbol(name);
+            String string = symbol.getAddress() + "\t\t" + symbol.getLabel() + "\t\t";
+            if (symbol.hasValue())
+                string += symbol.getValue();
+            System.out.println(string);
+            symbolFileLines.add(string);
+        }
+    }
+
     public void showInTerminal() {
-        for (String line : addressFile)
+        for (String line : addressFileLines)
             System.out.println(line);
     }
 
@@ -38,7 +60,7 @@ public final class OutputGenerator {
         System.out.println(file);
         try {
             FileWriter writer = new FileWriter(file);
-            for (String string : addressFile) {
+            for (String string : addressFileLines) {
                 writer.write(string + "\n");
             }
             writer.close();
@@ -52,7 +74,7 @@ public final class OutputGenerator {
         System.out.println(file);
         try {
             FileWriter writer = new FileWriter(file);
-            for (String string : symbolFile) {
+            for (String string : symbolFileLines) {
                 writer.write(string + "\n");
             }
             writer.close();
