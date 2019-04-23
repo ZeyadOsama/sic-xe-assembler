@@ -12,9 +12,9 @@ public class Main {
         Parser parser = Parser.getInstance();
         parser.parse(fileLoader.loadFile());
 
-        OutputGenerator outputGenerator = OutputGenerator.getInstance();
+        OutputGenerator outputGenerator = new OutputGenerator(fileLoader.getFileParentPath(), fileLoader.getFileName());
         outputGenerator.generate();
         outputGenerator.showInTerminal();
-        outputGenerator.saveToFile(fileLoader.getFileParentPath(), fileLoader.getFileName());
+        outputGenerator.makeAddressFile();
     }
 }
