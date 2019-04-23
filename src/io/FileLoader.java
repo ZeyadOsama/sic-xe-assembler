@@ -12,7 +12,7 @@ import java.io.IOException;
 
 public class FileLoader {
 
-    public void loadFile() throws IOException {
+    public void loadFile() {
         JFileChooser chooser = new JFileChooser();
         FileNameExtensionFilter filter = new FileNameExtensionFilter(
                 Constants.TEXT_FILE, Constants.TEXT_FILE_FORMAT);
@@ -26,13 +26,16 @@ public class FileLoader {
             System.out.println("You chose to open this file: " +
                     chooser.getSelectedFile().getName());
 
-            File file = new File(filePath);
-            BufferedReader bufferedReader = new BufferedReader(new FileReader(file));
-
-            Parser parser = Parser.getInstance();
-            String line;
-            while ((line = bufferedReader.readLine()) != null)
-                parser.parseInstruction(line);
+            try {
+                File file = new File(filePath);
+                BufferedReader bufferedReader = new BufferedReader(new FileReader(file));
+                Parser parser = Parser.getInstance();
+                String line;
+                while ((line = bufferedReader.readLine()) != null)
+                    parser.parseInstruction(line);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 }
