@@ -1,24 +1,67 @@
 package parser;
 
 import assembler.structure.Instruction;
+import misc.exceptions.ParsingException;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.StringTokenizer;
 
 import static misc.utils.Validations.*;
 
+/**
+ * Responsible for reading an input text file for SIC and SIC/XE code.
+ * <p>
+ * Possibly containing comments or unexpected characters. parses it an creates
+ * an arrayList of Instruction in the order they appear in the input file.
+ */
 public class Parser {
+
+    private static Parser instance = new Parser();
+    private ArrayList<Instruction> programInstructions = new ArrayList<>();
+    private Instruction lastParsedInstruction;
 
     private final static int FIRST_OPERAND = 0;
     private final static int SECOND_OPERAND = 1;
 
+    private Parser() {
+    }
+
+    public static Parser getInstance() {
+        return instance;
+    }
+
     /**
-     * Parse a given String to the format of Instruction class.
+     * Parses the file specified in the path.
+     * Reads it line by line and creates a list of instructions in the same order
+     * they appear in the file
      *
-     * @param instruction is a String which is read from file
-     * @return Instruction format
+     * @param bufferedReader file being read
+     * @return ArrayList containing parsed instructions
+     * @throws ParsingException in case the input file contains unexpected text
      * @see Instruction class
      */
-    public Instruction parse(String instruction) {
+    public ArrayList<Instruction> parse(BufferedReader bufferedReader) throws ParsingException {
+        String line;
+        try {
+            while ((line = bufferedReader.readLine()) != null)
+                programInstructions.add(parseInstruction(line));
+        } catch (IOException e) {
+            e.getCause();
+        }
+        return programInstructions;
+    }
+
+    /**
+     * Parses a single instruction given in the form of a String into Instructon form
+     *
+     * @param instruction is a String which is read from file
+     * @return parsed instructions
+     * @throws ParsingException in case the input file contains unexpected text
+     * @see Instruction class
+     */
+    public Instruction parseInstruction(String instruction) throws ParsingException {
         String label = null, mnemonic = null, operands = null, comment = null;
         String[] operandsList = new String[2];
 
@@ -51,8 +94,40 @@ public class Parser {
             while (tokenizer.hasMoreTokens())
                 operandsList[i++] = tokenizer.nextToken();
         }
+        lastParsedInstruction
+                = new Instruction(label, mnemonic, operandsList[FIRST_OPERAND], operandsList[SECOND_OPERAND], comment);
+        programInstructions.add(lastParsedInstruction);
+        return lastParsedInstruction;
+    }
 
-        return new Instruction(label, mnemonic, operandsList[FIRST_OPERAND], operandsList[SECOND_OPERAND], comment);
+    /**
+     * @return ArrayList containing all parsed instructions of the given program
+     * @see Instruction
+     */
+    public ArrayList<Instruction> getParsedInstructionsList() {
+        return programInstructions;
+    }
+
+    public Instruction getParsedInstruction(int index) {
+        return programInstructions.get(index);
+    }
+
+    public Instruction getLastParsedInstruction() {
+        return lastParsedInstruction;
+    }
+
+    /**
+     * Utility method.
+     * Show all instructions of read program in form of their details.
+     */
+    public void showInstructions() {
+        for (Instruction i : programInstructions) {
+            System.out.println(i.getLabel());
+            System.out.println(i.getMnemonic());
+            System.out.println(i.getFirstOperand());
+            System.out.println(i.getSecondOperand());
+            System.out.println(i.getComment() + "\n");
+        }
     }
 
     /**
@@ -61,9 +136,7 @@ public class Parser {
     private static class Range {
         private final static int START = 0;
         private final static int END = 1;
-
         private final static int[] LABEL = {0, 9};
-
         private final static int[] MNEMONIC = {9, 16};
         private final static int[] OPERANDS = {17, 36};
         private final static int[] COMMENT = {35, 67};

@@ -1,6 +1,5 @@
 package io;
 
-import assembler.core.Assembler;
 import misc.constants.Constants;
 import parser.Parser;
 
@@ -23,16 +22,17 @@ public class FileLoader {
         String filePath = chooser.getSelectedFile().getAbsolutePath();
 
         if (returnVal == JFileChooser.APPROVE_OPTION) {
+            System.out.println(filePath);
             System.out.println("You chose to open this file: " +
                     chooser.getSelectedFile().getName());
 
             File file = new File(filePath);
             BufferedReader bufferedReader = new BufferedReader(new FileReader(file));
 
-            Parser parser = new Parser();
+            Parser parser = Parser.getInstance();
             String line;
             while ((line = bufferedReader.readLine()) != null)
-                Assembler.addInstruction(parser.parse(line));
+                parser.parseInstruction(line);
         }
     }
 }

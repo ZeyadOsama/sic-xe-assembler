@@ -9,12 +9,6 @@ import java.util.HashMap;
 
 public final class OperationTable {
 
-    private static OperationTable instance = new OperationTable();
-
-    public static OperationTable getInstance() {
-        return instance;
-    }
-
     private OperationTable() {
     }
 

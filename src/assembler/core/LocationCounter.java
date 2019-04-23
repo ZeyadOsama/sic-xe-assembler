@@ -11,7 +11,7 @@ public class LocationCounter {
     private LocationCounter() {
     }
 
-    public LocationCounter getInstance() {
+    public static LocationCounter getInstance() {
         return instance;
     }
 

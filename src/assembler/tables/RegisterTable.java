@@ -2,7 +2,8 @@ package assembler.tables;
 
 public class RegisterTable {
 
-    public static int getRegisterNumber(String registerName) {
+    public static int getRegisterNumber(String register) {
+        String registerName = register.toUpperCase();
         if (registerName.equals("A"))
             return 0;
         if (registerName.equals("X"))
