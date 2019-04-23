@@ -1,9 +1,10 @@
 package assembler.tables;
 
+import assembler.constants.Length;
+import assembler.structure.Directive;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
 
 public class DirectiveTable {
 
@@ -25,7 +26,7 @@ public class DirectiveTable {
     public static final String EQU = "EQU";
     public static final String CSECT = "CSECT";
 
-    private static final Set<String> assemblerDirectives = new HashSet<>();
+    private static final HashMap<String, Directive> directiveTable = new HashMap<>();
 
     /**
      * Cache directive table before starting program
@@ -34,24 +35,12 @@ public class DirectiveTable {
         load();
     }
 
-    /**
-     * Load all directives to directive table
-     */
-    private static void load() {
-        assemblerDirectives.add("BYTE");
-        assemblerDirectives.add("RESB");
-        assemblerDirectives.add("WORD");
-        assemblerDirectives.add("RESW");
-        assemblerDirectives.add("START");
-        assemblerDirectives.add("BASE");
-        assemblerDirectives.add("NOBASE");
-        assemblerDirectives.add("END");
-        assemblerDirectives.add("LTORG");
-        assemblerDirectives.add("EXTREF");
-        assemblerDirectives.add("EXTDEF");
-        assemblerDirectives.add("ORG");
-        assemblerDirectives.add("EQU");
-        assemblerDirectives.add("CSECT");
+    public static HashMap<String, Directive> get() {
+        return directiveTable;
+    }
+
+    public static Directive getDirective(@NotNull String directive) {
+        return directiveTable.get(directive);
     }
 
     /**
@@ -60,6 +49,27 @@ public class DirectiveTable {
      * @return boolean if found in the directive set
      */
     public static boolean contains(@NotNull String directive) {
-        return assemblerDirectives.contains(directive.toUpperCase());
+        return directiveTable.containsKey(directive.toUpperCase());
     }
+
+    /**
+     * Load all directiveTable to directive table
+     */
+    private static void load() {
+        directiveTable.put(BYTE, new Directive(BYTE, Length.ONE));
+        directiveTable.put(RESB, new Directive(BYTE, Length.VARIABLE));
+        directiveTable.put(WORD, new Directive(BYTE, Length.THREE));
+        directiveTable.put(RESW, new Directive(BYTE, Length.VARIABLE));
+        directiveTable.put(START, new Directive(BYTE, Length.NONE));
+        directiveTable.put(BASE, new Directive(BYTE, Length.NONE));
+        directiveTable.put(NOBASE, new Directive(BYTE, Length.NONE));
+        directiveTable.put(END, new Directive(BYTE, Length.NONE));
+        directiveTable.put(LTORG, new Directive(BYTE, Length.NONE));
+        directiveTable.put(EXTREF, new Directive(BYTE, Length.NONE));
+        directiveTable.put(EXTDEF, new Directive(BYTE, Length.NONE));
+        directiveTable.put(ORG, new Directive(BYTE, Length.NONE));
+        directiveTable.put(EQU, new Directive(BYTE, Length.NONE));
+        directiveTable.put(CSECT, new Directive(BYTE, Length.NONE));
+    }
+
 }

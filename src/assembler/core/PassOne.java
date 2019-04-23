@@ -8,10 +8,11 @@ public class PassOne {
 
     public static void start() {
         Parser parser = Parser.getInstance();
-        for (Instruction instruction : parser.getParsedInstructionsList()) {
+        LocationCounter locationCounter = LocationCounter.getInstance();
+        for (Instruction instruction : parser.getParsedInstructions()) {
             if (instruction.hasMnemonic() && instruction.getMnemonic().equals(DirectiveTable.START))
-                LocationCounter.set(instruction.getFirstOperand());
-            else LocationCounter.reset();
+                locationCounter.set(Integer.parseInt(instruction.getFirstOperand()));
+            else locationCounter.reset();
         }
     }
 }

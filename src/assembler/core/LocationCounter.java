@@ -1,10 +1,19 @@
 package assembler.core;
 
-import assembler.constants.Format;
+import assembler.structure.Instruction;
+import assembler.tables.DirectiveTable;
+import assembler.tables.OperationTable;
+import misc.exceptions.FormatException;
+import misc.exceptions.ParsingException;
+import misc.utils.Converter;
+import misc.utils.Utils;
 
 import java.util.ArrayList;
 
-public class LocationCounter {
+import static misc.utils.Validations.isDirective;
+import static misc.utils.Validations.isOperation;
+
+public final class LocationCounter {
 
     private static LocationCounter instance = new LocationCounter();
 
@@ -15,42 +24,96 @@ public class LocationCounter {
         return instance;
     }
 
-    private static String currentAddress = "0";
-    private static ArrayList<String> addresses = new ArrayList<>();
+    private final int WORD_LENGTH = 3;
 
-    public static void set(String address) {
-        LocationCounter.currentAddress = address;
+    private int previousAddress = 0;
+    private int currentAddress = 0;
+    private int programCounter = 1;
+    private ArrayList<Integer> addresses = new ArrayList<>();
+    private ArrayList<String> convertedAddresses = new ArrayList<>();
+
+    public void set(int address) {
+        currentAddress = address;
     }
 
-    public static String get() {
-        return currentAddress;
+    public void reset() {
+        currentAddress = 0;
+        programCounter = 0;
     }
 
-    public static void reset() {
-        currentAddress = "0";
-    }
+    public void update(Instruction instruction) throws FormatException {
+        String mnemonic = instruction.getMnemonic();
+        if (mnemonic == null)
+            return;
 
-    // TODO
-    public static String increment(Format format) {
-        switch (format) {
-            case ONE:
+        if (mnemonic.equals(DirectiveTable.START)) {
 
-            case TWO:
-
-            case THREE:
-
-            case FOUR:
-
+            currentAddress = Integer.parseInt(instruction.getFirstOperand());
+            addAddress(currentAddress);
+            previousAddress = currentAddress;
+            return;
         }
-        return null;
+
+        if (isDirective(mnemonic)) {
+            switch (DirectiveTable.getDirective(mnemonic).getLength()) {
+                case ONE:
+                    currentAddress += 1;
+                    break;
+                case TWO:
+                    currentAddress += 2;
+                    break;
+                case THREE:
+                    currentAddress += 3;
+                    break;
+                case VARIABLE:
+                    if (mnemonic.equals(DirectiveTable.RESW))
+                        currentAddress += (Integer.parseInt(instruction.getFirstOperand()) * WORD_LENGTH);
+                    else currentAddress += (Integer.parseInt(instruction.getFirstOperand()));
+                    break;
+            }
+            programCounter++;
+            addAddress(previousAddress);
+            previousAddress = currentAddress;
+        } else if (isOperation(mnemonic)) {
+            switch (OperationTable.getOperation(mnemonic).getFormat()) {
+                case TWO:
+                    currentAddress += 2;
+                    break;
+                case THREE:
+                    currentAddress += 3;
+                    break;
+                case FOUR:
+                    currentAddress += 4;
+                    break;
+            }
+            programCounter++;
+            addAddress(previousAddress);
+            previousAddress = currentAddress;
+        } else throw new ParsingException("Could not find specific format", programCounter);
     }
 
-    public static ArrayList<String> getAddresses() {
+
+    public void update() {
+        programCounter++;
+        addAddress(previousAddress);
+        previousAddress = currentAddress;
+    }
+
+    public void addAddress(int address) {
+        addresses.add(address);
+        convertedAddresses
+                .add(Utils.addHexadecimalNotation(Utils.extendLength(Converter.Decimal.toHexadecimal(address), 4)));
+    }
+
+    public ArrayList<Integer> getAddresses() {
         return addresses;
     }
 
-    public static void addAddress(String address) {
-        LocationCounter.currentAddress = address;
-        LocationCounter.addresses.add(address);
+    public ArrayList<String> getHexAddresses() {
+        return convertedAddresses;
+    }
+
+    public int getProgramCounter() {
+        return programCounter;
     }
 }

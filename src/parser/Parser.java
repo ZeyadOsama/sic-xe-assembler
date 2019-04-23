@@ -1,5 +1,6 @@
 package parser;
 
+import assembler.core.LocationCounter;
 import assembler.structure.Instruction;
 import misc.exceptions.ParsingException;
 
@@ -19,8 +20,11 @@ import static misc.utils.Validations.*;
 public class Parser {
 
     private static Parser instance = new Parser();
-    private ArrayList<Instruction> programInstructions = new ArrayList<>();
+
+    private ArrayList<Instruction> parsedInstructions = new ArrayList<>();
+    private ArrayList<String> instructions = new ArrayList<>();
     private Instruction lastParsedInstruction;
+    private LocationCounter locationCounter = LocationCounter.getInstance();
 
     private final static int FIRST_OPERAND = 0;
     private final static int SECOND_OPERAND = 1;
@@ -45,12 +49,14 @@ public class Parser {
     public ArrayList<Instruction> parse(BufferedReader bufferedReader) throws ParsingException {
         String line;
         try {
-            while ((line = bufferedReader.readLine()) != null)
-                programInstructions.add(parseInstruction(line));
+            while ((line = bufferedReader.readLine()) != null) {
+                instructions.add(line);
+                parsedInstructions.add(parseInstruction(line));
+            }
         } catch (IOException e) {
             e.getCause();
         }
-        return programInstructions;
+        return parsedInstructions;
     }
 
     /**
@@ -65,7 +71,10 @@ public class Parser {
         String label = null, mnemonic = null, operands = null, comment = null;
         String[] operandsList = new String[2];
 
-        if (isComment(instruction)) return new Instruction();
+        if (isComment(instruction)) {
+            locationCounter.update();
+            return new Instruction();
+        }
 
         if (instruction.length() > Range.LABEL[Range.END]) {
             label = instruction.substring(Range.LABEL[Range.START], Range.LABEL[Range.END]);
@@ -74,6 +83,10 @@ public class Parser {
 
         if (instruction.length() > Range.MNEMONIC[Range.END]) {
             mnemonic = instruction.substring(Range.MNEMONIC[Range.START], Range.MNEMONIC[Range.END])
+                    .replaceAll("\\s", "");
+            if (!isMnemonic(mnemonic)) mnemonic = null;
+        } else if (instruction.length() > Range.MNEMONIC[Range.START]) {
+            mnemonic = instruction.substring(Range.MNEMONIC[Range.START])
                     .replaceAll("\\s", "");
             if (!isMnemonic(mnemonic)) mnemonic = null;
         }
@@ -96,7 +109,8 @@ public class Parser {
         }
         lastParsedInstruction
                 = new Instruction(label, mnemonic, operandsList[FIRST_OPERAND], operandsList[SECOND_OPERAND], comment);
-        programInstructions.add(lastParsedInstruction);
+        parsedInstructions.add(lastParsedInstruction);
+        locationCounter.update(lastParsedInstruction);
         return lastParsedInstruction;
     }
 
@@ -104,12 +118,16 @@ public class Parser {
      * @return ArrayList containing all parsed instructions of the given program
      * @see Instruction
      */
-    public ArrayList<Instruction> getParsedInstructionsList() {
-        return programInstructions;
+    public ArrayList<Instruction> getParsedInstructions() {
+        return parsedInstructions;
     }
 
-    public Instruction getParsedInstruction(int index) {
-        return programInstructions.get(index);
+    /**
+     * @return ArrayList containing all instructions of the given program in
+     * it's original form {String}
+     */
+    public ArrayList<String> getInstructions() {
+        return instructions;
     }
 
     public Instruction getLastParsedInstruction() {
@@ -120,8 +138,8 @@ public class Parser {
      * Utility method.
      * Show all instructions of read program in form of their details.
      */
-    public void showInstructions() {
-        for (Instruction i : programInstructions) {
+    public void showParsedInstructions() {
+        for (Instruction i : parsedInstructions) {
             System.out.println(i.getLabel());
             System.out.println(i.getMnemonic());
             System.out.println(i.getFirstOperand());
