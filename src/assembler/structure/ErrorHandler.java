@@ -1,6 +1,17 @@
 package assembler.structure;
 
+import misc.constants.Constants;
+import misc.utils.ConsoleColors;
+
 public final class ErrorHandler {
+
+    private static ErrorHandler instance = new ErrorHandler();
+
+    static {
+        load();
+    }
+
+    private boolean hasError = false;
 
     public final static int MISPLACED_LABEL = 0;
     public final static int MISPLACED_OPERATION = 1;
@@ -8,9 +19,36 @@ public final class ErrorHandler {
     public final static int DUPLICATE_LABEL = 3;
 
     private final static String[] errorList = new String[17];
+    private int currentError;
+    private ErrorHandler() {
+    }
 
-    static {
-        load();
+    public static ErrorHandler getInstance() {
+        return instance;
+    }
+
+    public String getErrorString(int error) {
+        return errorList[error];
+    }
+
+    public int getCurrentError() {
+        return currentError;
+    }
+
+    public void setCurrentError(int currentError) {
+        this.currentError = currentError;
+    }
+
+    public void setHasError(boolean hasError) {
+        this.hasError = hasError;
+    }
+
+    public boolean hasError() {
+        return hasError;
+    }
+
+    public String generate() {
+        return ConsoleColors.RED + Constants.TAB + errorList[currentError] + ConsoleColors.RESET;
     }
 
     private static void load() {
@@ -33,11 +71,7 @@ public final class ErrorHandler {
         errorList[16] = "***ERROR: operation mnemonic cannot have spaces in between***";
     }
 
-    public static String getErrorString(int error) {
-        return errorList[error];
-    }
-
-    public static void validate(){
+    public void check(Instruction instruction) {
 
     }
 }

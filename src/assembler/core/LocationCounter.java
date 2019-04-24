@@ -9,6 +9,7 @@ import misc.utils.Converter;
 import misc.utils.Utils;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 import static misc.utils.Validations.isDirective;
 import static misc.utils.Validations.isOperation;
@@ -48,7 +49,7 @@ public final class LocationCounter {
 
         if (mnemonic.equals(DirectiveTable.START)) {
 
-            currentAddress = Integer.parseInt(instruction.getFirstOperand());
+            currentAddress = Integer.parseInt(Objects.requireNonNull(instruction.getFirstOperand()));
             addAddress(currentAddress);
             previousAddress = currentAddress;
             return;
@@ -67,14 +68,14 @@ public final class LocationCounter {
                     break;
                 case VARIABLE:
                     if (mnemonic.equals(DirectiveTable.RESW))
-                        currentAddress += (Integer.parseInt(instruction.getFirstOperand()) * WORD_LENGTH);
-                    else currentAddress += (Integer.parseInt(instruction.getFirstOperand()));
+                        currentAddress += (Integer.parseInt(Objects.requireNonNull(instruction.getFirstOperand())) * WORD_LENGTH);
+                    else currentAddress += (Integer.parseInt(Objects.requireNonNull(instruction.getFirstOperand())));
                     break;
             }
             addAddress(previousAddress);
             previousAddress = currentAddress;
         } else if (isOperation(mnemonic)) {
-            switch (OperationTable.getOperation(mnemonic).getFormat()) {
+            switch (Objects.requireNonNull(OperationTable.getOperation(mnemonic).getFormat())) {
                 case TWO:
                     currentAddress += 2;
                     break;
@@ -117,7 +118,7 @@ public final class LocationCounter {
         return programCounter;
     }
 
-    public String getLastAddress() {
+    public String getCurrentAddress() {
         return convertedAddresses.get(programCounter - 1);
     }
 }

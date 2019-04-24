@@ -1,6 +1,7 @@
 package io;
 
 import misc.constants.Constants;
+import misc.utils.ConsoleColors;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -34,7 +35,7 @@ public class FileLoader {
         fileName = chooser.getSelectedFile().getName();
 
         if (returnVal == JFileChooser.APPROVE_OPTION) {
-            System.out.println("You chose to open this file: " + fileName);
+            System.out.println(ConsoleColors.GREEN + "File opened successfully" + ConsoleColors.RESET);
 
             File file = new File(filePath);
             try {

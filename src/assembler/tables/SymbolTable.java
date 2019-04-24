@@ -1,6 +1,7 @@
 package assembler.tables;
 
 import assembler.core.LocationCounter;
+import assembler.structure.ErrorHandler;
 import assembler.structure.Instruction;
 import assembler.structure.Symbol;
 import org.jetbrains.annotations.NotNull;
@@ -19,6 +20,7 @@ public class SymbolTable {
     }
 
     private HashMap<String, Symbol> symbolTable = new HashMap<>();
+    private ErrorHandler errorHandler = ErrorHandler.getInstance();
 
     public HashMap<String, Symbol> get() {
         return symbolTable;
@@ -37,12 +39,19 @@ public class SymbolTable {
     }
 
     public void update(@NotNull Instruction instruction) {
-        if (instruction.getLabel() != null) {
+        String label = instruction.getLabel();
+        if (label != null) {
+            if (symbolTable.containsKey(label)) {
+                errorHandler.setHasError(true);
+                errorHandler.setCurrentError(ErrorHandler.DUPLICATE_LABEL);
+                return;
+            }
             Symbol symbol = new Symbol();
-            symbol.setAddress(LocationCounter.getInstance().getLastAddress());
+            symbol.setAddress(LocationCounter.getInstance().getCurrentAddress());
             symbol.setLabel(instruction.getLabel());
             if (instruction.hasFirstOperand()) symbol.setValue(instruction.getFirstOperand());
-            symbolTable.put(instruction.getLabel(), symbol);
+            symbolTable.put(label, symbol);
         }
+        errorHandler.setHasError(false);
     }
 }

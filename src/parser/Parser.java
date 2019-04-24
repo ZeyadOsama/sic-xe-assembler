@@ -1,6 +1,8 @@
 package parser;
 
 import assembler.core.LocationCounter;
+import assembler.core.OutputGenerator;
+import assembler.structure.ErrorHandler;
 import assembler.structure.Instruction;
 import assembler.tables.SymbolTable;
 import misc.exceptions.ParsingException;
@@ -28,8 +30,11 @@ public class Parser {
     private ArrayList<Instruction> parsedInstructionsList = new ArrayList<>();
     private ArrayList<String> instructions = new ArrayList<>();
     private Instruction parsedInstruction;
+    private String currentInstruction;
+
     private LocationCounter locationCounter = LocationCounter.getInstance();
     private SymbolTable symbolTable = SymbolTable.getInstance();
+    private ErrorHandler errorHandler = ErrorHandler.getInstance();
 
     private final static int FIRST_OPERAND = 0;
     private final static int SECOND_OPERAND = 1;
@@ -73,14 +78,16 @@ public class Parser {
      * @see Instruction class
      */
     public Instruction parseInstruction(String instruction) throws ParsingException {
-        if (isComment(instruction)) {
+        currentInstruction = instruction;
+        if (isComment(currentInstruction)) {
             locationCounter.update();
+            OutputGenerator.update();
             return new Instruction();
         }
-        String label = determineLabel(instruction);
-        String mnemonic = determineMnemonic(instruction);
-        String[] operandsList = determineOperands(instruction);
-        String comment = determineComment(instruction);
+        String label = determineLabel(currentInstruction);
+        String mnemonic = determineMnemonic(currentInstruction);
+        String[] operandsList = determineOperands(currentInstruction);
+        String comment = determineComment(currentInstruction);
 
         parsedInstruction = new Instruction(label, mnemonic,
                 Objects.requireNonNull(operandsList)[FIRST_OPERAND],
@@ -89,6 +96,9 @@ public class Parser {
         parsedInstructionsList.add(parsedInstruction);
         locationCounter.update(parsedInstruction);
         symbolTable.update(parsedInstruction);
+        errorHandler.check(parsedInstruction);
+        OutputGenerator.update();
+
         return parsedInstruction;
     }
 
@@ -167,8 +177,12 @@ public class Parser {
         return instructions;
     }
 
-    public Instruction getLastParsedInstruction() {
+    public Instruction getCurrentParsedInstruction() {
         return parsedInstruction;
+    }
+
+    public String getCurrentInstruction() {
+        return currentInstruction;
     }
 
     /**
