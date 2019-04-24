@@ -1,5 +1,7 @@
 package assembler.structure;
 
+import org.jetbrains.annotations.Nullable;
+
 public class Instruction {
 
     private String label;
@@ -11,7 +13,9 @@ public class Instruction {
     public Instruction() {
     }
 
-    public Instruction(String label, String mnemonic, String firstOperand, String secondOperand, String comment) {
+    public Instruction(@Nullable String label, @Nullable String mnemonic,
+                       @Nullable String firstOperand, @Nullable String secondOperand,
+                       @Nullable String comment) {
         setLabel(label);
         setMnemonic(mnemonic);
         setFirstOperand(firstOperand);
@@ -19,6 +23,7 @@ public class Instruction {
         this.comment = comment;
     }
 
+    @Nullable
     public String getLabel() {
         return label;
     }
@@ -28,6 +33,7 @@ public class Instruction {
             this.label = label.toUpperCase();
     }
 
+    @Nullable
     public String getMnemonic() {
         return mnemonic;
     }
@@ -37,6 +43,7 @@ public class Instruction {
             this.mnemonic = mnemonic.toUpperCase();
     }
 
+    @Nullable
     public String getFirstOperand() {
         return firstOperand;
     }
@@ -46,6 +53,7 @@ public class Instruction {
             this.firstOperand = firstOperand.toUpperCase();
     }
 
+    @Nullable
     public String getSecondOperand() {
         return secondOperand;
     }
@@ -55,15 +63,16 @@ public class Instruction {
             this.secondOperand = secondOperand.toUpperCase();
     }
 
+    @Nullable
     public String getComment() {
         return comment;
     }
 
-    public Boolean hasLabel() {
+    public boolean hasLabel() {
         return label != null;
     }
 
-    public Boolean hasMnemonic() {
+    public boolean hasMnemonic() {
         return mnemonic != null;
     }
 

@@ -1,5 +1,7 @@
 package assembler.tables;
 
+import assembler.core.LocationCounter;
+import assembler.structure.Instruction;
 import assembler.structure.Symbol;
 import org.jetbrains.annotations.NotNull;
 
@@ -32,5 +34,15 @@ public class SymbolTable {
 
     public void put(@NotNull String label, Symbol symbol) {
         symbolTable.put(label, symbol);
+    }
+
+    public void update(@NotNull Instruction instruction) {
+        if (instruction.getLabel() != null) {
+            Symbol symbol = new Symbol();
+            symbol.setAddress(LocationCounter.getInstance().getLastAddress());
+            symbol.setLabel(instruction.getLabel());
+            if (instruction.hasFirstOperand()) symbol.setValue(instruction.getFirstOperand());
+            symbolTable.put(instruction.getLabel(), symbol);
+        }
     }
 }

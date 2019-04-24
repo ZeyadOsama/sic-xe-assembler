@@ -13,6 +13,7 @@ public class Directive {
         this.length = length;
     }
 
+    @NotNull
     public String getDirective() {
         return directive;
     }
@@ -21,11 +22,12 @@ public class Directive {
         this.directive = directive.toUpperCase();
     }
 
+    @NotNull
     public Length getLength() {
         return length;
     }
 
-    public void setLength(Length length) {
+    public void setLength(@NotNull Length length) {
         this.length = length;
     }
 }

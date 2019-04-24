@@ -2,6 +2,7 @@ package assembler.structure;
 
 import assembler.constants.Format;
 import assembler.constants.OperandType;
+import org.jetbrains.annotations.Nullable;
 
 public class Operation {
 
@@ -19,6 +20,7 @@ public class Operation {
         this.secondOperand = secondOperand;
     }
 
+    @Nullable
     public String getName() {
         return name;
     }
@@ -27,6 +29,7 @@ public class Operation {
         this.name = name.toUpperCase();
     }
 
+    @Nullable
     public String getOpcode() {
         return opcode;
     }
@@ -35,15 +38,17 @@ public class Operation {
         this.opcode = opcode.toUpperCase();
     }
 
+    @Nullable
     public Format getFormat() {
         return format;
     }
 
-
+    @Nullable
     public OperandType getFirstOperand() {
         return firstOperand;
     }
 
+    @Nullable
     public OperandType getSecondOperand() {
         return secondOperand;
     }

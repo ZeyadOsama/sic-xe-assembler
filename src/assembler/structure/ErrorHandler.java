@@ -6,6 +6,7 @@ public final class ErrorHandler {
     public final static int MISPLACED_OPERATION = 1;
     public final static int MISPLACED_OPERAND = 2;
     public final static int DUPLICATE_LABEL = 3;
+
     private final static String[] errorList = new String[17];
 
     static {
@@ -32,7 +33,11 @@ public final class ErrorHandler {
         errorList[16] = "***ERROR: operation mnemonic cannot have spaces in between***";
     }
 
-    public static String getError(int error) {
+    public static String getErrorString(int error) {
         return errorList[error];
+    }
+
+    public static void validate(){
+
     }
 }

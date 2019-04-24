@@ -1,5 +1,7 @@
 package assembler.structure;
 
+import org.jetbrains.annotations.Nullable;
+
 public class Symbol {
 
     private String address;
@@ -15,6 +17,7 @@ public class Symbol {
         this.value = value;
     }
 
+    @Nullable
     public String getAddress() {
         return address;
     }
@@ -23,6 +26,7 @@ public class Symbol {
         this.address = address;
     }
 
+    @Nullable
     public String getLabel() {
         return label;
     }
@@ -31,6 +35,7 @@ public class Symbol {
         this.label = label;
     }
 
+    @Nullable
     public String getValue() {
         return value;
     }

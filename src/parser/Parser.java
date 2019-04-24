@@ -2,13 +2,15 @@ package parser;
 
 import assembler.core.LocationCounter;
 import assembler.structure.Instruction;
-import assembler.structure.Symbol;
 import assembler.tables.SymbolTable;
 import misc.exceptions.ParsingException;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.StringTokenizer;
 
 import static misc.utils.Validations.*;
@@ -23,9 +25,9 @@ public class Parser {
 
     private static Parser instance = new Parser();
 
-    private ArrayList<Instruction> parsedInstructions = new ArrayList<>();
+    private ArrayList<Instruction> parsedInstructionsList = new ArrayList<>();
     private ArrayList<String> instructions = new ArrayList<>();
-    private Instruction lastParsedInstruction;
+    private Instruction parsedInstruction;
     private LocationCounter locationCounter = LocationCounter.getInstance();
     private SymbolTable symbolTable = SymbolTable.getInstance();
 
@@ -49,17 +51,17 @@ public class Parser {
      * @throws ParsingException in case the input file contains unexpected text
      * @see Instruction class
      */
-    public ArrayList<Instruction> parse(BufferedReader bufferedReader) throws ParsingException {
+    public ArrayList<Instruction> parse(@NotNull BufferedReader bufferedReader) throws ParsingException {
         String line;
         try {
             while ((line = bufferedReader.readLine()) != null) {
                 instructions.add(line);
-                parsedInstructions.add(parseInstruction(line));
+                parsedInstructionsList.add(parseInstruction(line));
             }
         } catch (IOException e) {
             e.getCause();
         }
-        return parsedInstructions;
+        return parsedInstructionsList;
     }
 
     /**
@@ -71,59 +73,82 @@ public class Parser {
      * @see Instruction class
      */
     public Instruction parseInstruction(String instruction) throws ParsingException {
-        String label = null, mnemonic = null, operands = null, comment = null;
-        String[] operandsList = new String[2];
-
         if (isComment(instruction)) {
             locationCounter.update();
             return new Instruction();
         }
+        String label = determineLabel(instruction);
+        String mnemonic = determineMnemonic(instruction);
+        String[] operandsList = determineOperands(instruction);
+        String comment = determineComment(instruction);
 
+        parsedInstruction = new Instruction(label, mnemonic,
+                Objects.requireNonNull(operandsList)[FIRST_OPERAND],
+                Objects.requireNonNull(operandsList)[SECOND_OPERAND],
+                comment);
+        parsedInstructionsList.add(parsedInstruction);
+        locationCounter.update(parsedInstruction);
+        symbolTable.update(parsedInstruction);
+        return parsedInstruction;
+    }
+
+    @Nullable
+    private String determineLabel(@NotNull String instruction) {
+        String label = null;
         if (instruction.length() > Range.LABEL[Range.END]) {
             label = instruction.substring(Range.LABEL[Range.START], Range.LABEL[Range.END]);
-            if (isBlank(label)) label = null;
+            if (isBlank(label))
+                return null;
         }
+        return label;
+    }
 
+    @Nullable
+    private String determineMnemonic(@NotNull String instruction) {
+        String mnemonic = null;
         if (instruction.length() > Range.MNEMONIC[Range.END]) {
             mnemonic = instruction.substring(Range.MNEMONIC[Range.START], Range.MNEMONIC[Range.END])
                     .replaceAll("\\s", "");
-            if (!isMnemonic(mnemonic)) mnemonic = null;
+            if (!isMnemonic(mnemonic))
+                return null;
         } else if (instruction.length() > Range.MNEMONIC[Range.START]) {
             mnemonic = instruction.substring(Range.MNEMONIC[Range.START])
                     .replaceAll("\\s", "");
-            if (!isMnemonic(mnemonic)) mnemonic = null;
+            if (!isMnemonic(mnemonic))
+                return null;
         }
+        return mnemonic;
+    }
 
-        if (instruction.length() > Range.COMMENT[Range.START]) {
-            operands = instruction.substring(Range.OPERANDS[Range.START], Range.OPERANDS[Range.END])
+    @Nullable
+    private String[] determineOperands(@NotNull String instruction) {
+        String operands = null;
+        if (instruction.length() > Range.OPERANDS[Range.END]) {
+            operands = instruction.substring(Range.MNEMONIC[Range.START], Range.MNEMONIC[Range.END])
                     .replaceAll("\\s", "");
-            comment = instruction.substring(Range.COMMENT[Range.START]);
-            if (isBlank(comment)) comment = null;
-
         } else if (instruction.length() > Range.OPERANDS[Range.START])
             operands = instruction.substring(Range.OPERANDS[Range.START])
                     .replaceAll("\\s", "");
 
+        String[] operandsList = new String[2];
         if (operands != null) {
             int i = 0;
             StringTokenizer tokenizer = new StringTokenizer(operands, ",");
             while (tokenizer.hasMoreTokens())
                 operandsList[i++] = tokenizer.nextToken();
         }
-        lastParsedInstruction
-                = new Instruction(label, mnemonic, operandsList[FIRST_OPERAND], operandsList[SECOND_OPERAND], comment);
-        parsedInstructions.add(lastParsedInstruction);
-        locationCounter.update(lastParsedInstruction);
+        return operandsList;
+    }
 
-        if (label != null) {
-            Symbol symbol = new Symbol();
-            symbol.setAddress(locationCounter.getLastAddress());
-            symbol.setLabel(label);
-            if (lastParsedInstruction.hasFirstOperand()) symbol.setValue(lastParsedInstruction.getFirstOperand());
-            symbolTable.put(label, symbol);
+    @Nullable
+    private String determineComment(@NotNull String instruction) {
+        String comment = null;
+        if (instruction.length() > Range.COMMENT[Range.START]) {
+            comment = instruction.substring(Range.COMMENT[Range.START]);
+            if (isBlank(comment))
+                return null;
         }
-
-        return lastParsedInstruction;
+        return comment;
     }
 
     /**
@@ -131,7 +156,7 @@ public class Parser {
      * @see Instruction
      */
     public ArrayList<Instruction> getParsedInstructions() {
-        return parsedInstructions;
+        return parsedInstructionsList;
     }
 
     /**
@@ -143,7 +168,7 @@ public class Parser {
     }
 
     public Instruction getLastParsedInstruction() {
-        return lastParsedInstruction;
+        return parsedInstruction;
     }
 
     /**
@@ -151,7 +176,7 @@ public class Parser {
      * Show all instructions of read program in form of their details.
      */
     public void showParsedInstructions() {
-        for (Instruction i : parsedInstructions) {
+        for (Instruction i : parsedInstructionsList) {
             System.out.println(i.getLabel());
             System.out.println(i.getMnemonic());
             System.out.println(i.getFirstOperand());
