@@ -1,8 +1,8 @@
 package parser;
 
+import assembler.core.ErrorHandler;
 import assembler.core.LocationCounter;
 import assembler.core.OutputGenerator;
-import assembler.structure.ErrorHandler;
 import assembler.structure.Instruction;
 import assembler.tables.SymbolTable;
 import misc.exceptions.ParsingException;
@@ -78,6 +78,7 @@ public class Parser {
      * @see Instruction class
      */
     public Instruction parseInstruction(String instruction) throws ParsingException {
+        errorHandler.setHasError(false);
         currentInstruction = instruction;
         if (isComment(currentInstruction)) {
             locationCounter.update();
@@ -96,7 +97,7 @@ public class Parser {
         parsedInstructionsList.add(parsedInstruction);
         locationCounter.update(parsedInstruction);
         symbolTable.update(parsedInstruction);
-        errorHandler.check(parsedInstruction);
+//        errorHandler.check(parsedInstruction);
         OutputGenerator.update();
 
         return parsedInstruction;
@@ -119,13 +120,19 @@ public class Parser {
         if (instruction.length() > Range.MNEMONIC[Range.END]) {
             mnemonic = instruction.substring(Range.MNEMONIC[Range.START], Range.MNEMONIC[Range.END])
                     .replaceAll("\\s", "");
-            if (!isMnemonic(mnemonic))
+            if (!isMnemonic(mnemonic)) {
+                errorHandler.setHasError(true);
+                errorHandler.setCurrentError(ErrorHandler.UNRECOGNIZED_OPERATION);
                 return null;
+            }
         } else if (instruction.length() > Range.MNEMONIC[Range.START]) {
             mnemonic = instruction.substring(Range.MNEMONIC[Range.START])
                     .replaceAll("\\s", "");
-            if (!isMnemonic(mnemonic))
+            if (!isMnemonic(mnemonic)) {
+                errorHandler.setHasError(true);
+                errorHandler.setCurrentError(ErrorHandler.UNRECOGNIZED_OPERATION);
                 return null;
+            }
         }
         return mnemonic;
     }

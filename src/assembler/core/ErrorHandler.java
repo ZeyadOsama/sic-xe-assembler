@@ -1,4 +1,4 @@
-package assembler.structure;
+package assembler.core;
 
 import misc.constants.Constants;
 import misc.utils.ConsoleColors;
@@ -7,19 +7,28 @@ public final class ErrorHandler {
 
     private static ErrorHandler instance = new ErrorHandler();
 
-    static {
-        load();
-    }
-
     private boolean hasError = false;
 
     public final static int MISPLACED_LABEL = 0;
     public final static int MISPLACED_OPERATION = 1;
     public final static int MISPLACED_OPERAND = 2;
     public final static int DUPLICATE_LABEL = 3;
+    public final static int CAN_NOT_HAVE_LABEL = 4;
+    public final static int CAN_NOT_HAVE_OPERAND = 5;
+    public final static int WRONG_OPERATION = 6;
+    public final static int UNRECOGNIZED_OPERATION = 7;
+    public final static int UNDEFINED_SYMBOL = 8;
+    public final static int NOT_HEX = 9;
+    public final static int NOT_FORMAT_FOUR = 10;
+    public final static int ILLEAGAL_REG_ADDRESS = 11;
+    public final static int MISSING_END = 12;
+    public final static int LABEL_STARTING_WITH_DIGIT = 13;
+    public final static int WRONG_COMMENT_FORMAT = 14;
+    public final static int LABELS_CAN_NOT_HAVE_SPACES = 15;
 
     private final static String[] errorList = new String[17];
     private int currentError;
+
     private ErrorHandler() {
     }
 
@@ -68,10 +77,9 @@ public final class ErrorHandler {
         errorList[13] = "***ERROR: label cannot start with a digit***";
         errorList[14] = "***ERROR: wrong comment format***";
         errorList[15] = "***ERROR: labels cannot have spaces in between***";
-        errorList[16] = "***ERROR: operation mnemonic cannot have spaces in between***";
     }
 
-    public void check(Instruction instruction) {
-
+    static {
+        load();
     }
 }

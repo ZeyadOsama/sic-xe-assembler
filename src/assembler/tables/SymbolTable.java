@@ -1,7 +1,7 @@
 package assembler.tables;
 
+import assembler.core.ErrorHandler;
 import assembler.core.LocationCounter;
-import assembler.structure.ErrorHandler;
 import assembler.structure.Instruction;
 import assembler.structure.Symbol;
 import org.jetbrains.annotations.NotNull;
@@ -52,6 +52,5 @@ public class SymbolTable {
             if (instruction.hasFirstOperand()) symbol.setValue(instruction.getFirstOperand());
             symbolTable.put(label, symbol);
         }
-        errorHandler.setHasError(false);
     }
 }

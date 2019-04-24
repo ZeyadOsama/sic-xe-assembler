@@ -1,6 +1,5 @@
 package assembler.core;
 
-import assembler.structure.ErrorHandler;
 import assembler.structure.Symbol;
 import assembler.tables.SymbolTable;
 import misc.constants.Constants;
