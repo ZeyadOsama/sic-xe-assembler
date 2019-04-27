@@ -76,6 +76,10 @@ public class Instruction {
         return mnemonic != null;
     }
 
+    public boolean hasOperands() {
+        return hasFirstOperand() || hasSecondOperand();
+    }
+
     public boolean hasFirstOperand() {
         return firstOperand != null;
     }

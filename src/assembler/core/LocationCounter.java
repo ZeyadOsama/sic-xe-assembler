@@ -4,7 +4,6 @@ import assembler.structure.Instruction;
 import assembler.tables.DirectiveTable;
 import assembler.tables.OperationTable;
 import misc.exceptions.FormatException;
-import misc.exceptions.ParsingException;
 import misc.utils.Converter;
 import misc.utils.Utils;
 
@@ -27,6 +26,7 @@ public final class LocationCounter {
 
     private final int WORD_LENGTH = 3;
 
+    private boolean enabled = true;
     private int previousAddress = 0;
     private int currentAddress = 0;
     private int programCounter = 0;
@@ -43,6 +43,9 @@ public final class LocationCounter {
     }
 
     public void update(Instruction instruction) throws FormatException {
+        if (!enabled)
+            return;
+
         String mnemonic = instruction.getMnemonic();
         if (mnemonic == null)
             return;
@@ -87,7 +90,9 @@ public final class LocationCounter {
             }
             addAddress(previousAddress);
             previousAddress = currentAddress;
-        } else throw new ParsingException("Could not find specific format", programCounter);
+        } else
+            enabled = false;
+//            throw new ParsingException("Could not find specific format", programCounter);
     }
 
 

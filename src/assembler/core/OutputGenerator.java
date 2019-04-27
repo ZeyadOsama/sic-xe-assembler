@@ -55,7 +55,6 @@ public final class OutputGenerator {
             String string = symbol.getAddress() + "\t\t" + symbol.getLabel() + "\t\t";
             if (symbol.hasValue())
                 string += symbol.getValue();
-            System.out.println(string);
             symbolFileLines.add(string);
         }
     }
@@ -68,11 +67,6 @@ public final class OutputGenerator {
 
         if (errorHandler.hasError())
             addressFileLines.add(errorHandler.generate());
-    }
-
-    public void showInTerminal() {
-        for (String line : addressFileLines)
-            System.out.println(line);
     }
 
     public void makeAddressFile() {
@@ -101,6 +95,20 @@ public final class OutputGenerator {
         } catch (IOException e) {
             e.getCause();
         }
+    }
 
+    public Terminal terminal = new Terminal();
+
+    public class Terminal {
+
+        public void showAddressFile() {
+            for (String line : addressFileLines)
+                System.out.println(line);
+        }
+
+        public void showSymbolFile() {
+            for (String line : symbolFileLines)
+                System.out.println(line);
+        }
     }
 }

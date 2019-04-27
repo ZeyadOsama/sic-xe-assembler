@@ -37,7 +37,7 @@ class ParsingValidations {
     }
 
     private static boolean validateOperands() {
-        if (instruction.getMnemonic() == null && (instruction.hasFirstOperand() || instruction.hasSecondOperand())) {
+        if (instruction.getMnemonic() == null && instruction.hasOperands()) {
             errorHandler.setHasError(true);
             errorHandler.setCurrentError(ErrorHandler.CAN_NOT_HAVE_OPERANDS);
             return false;

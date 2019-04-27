@@ -13,9 +13,11 @@ public class Main {
         parser.parse(fileLoader.loadFile());
 
         OutputGenerator outputGenerator = new OutputGenerator(fileLoader.getFileParentPath(), fileLoader.getFileName());
-//        outputGenerator.generateAddressFile();
         outputGenerator.generateSymbolFile();
-        outputGenerator.showInTerminal();
+
+        outputGenerator.terminal.showAddressFile();
+        outputGenerator.terminal.showSymbolFile();
+
         outputGenerator.makeAddressFile();
         outputGenerator.makeSymbolFile();
     }
