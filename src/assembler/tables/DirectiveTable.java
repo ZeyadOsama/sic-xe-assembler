@@ -56,20 +56,20 @@ public class DirectiveTable {
      * Load all directiveTable to directive table
      */
     private static void load() {
-        directiveTable.put(BYTE, new Directive(BYTE, Length.ONE));
-        directiveTable.put(RESB, new Directive(BYTE, Length.VARIABLE));
-        directiveTable.put(WORD, new Directive(BYTE, Length.THREE));
-        directiveTable.put(RESW, new Directive(BYTE, Length.VARIABLE));
-        directiveTable.put(START, new Directive(BYTE, Length.NONE));
-        directiveTable.put(BASE, new Directive(BYTE, Length.NONE));
-        directiveTable.put(NOBASE, new Directive(BYTE, Length.NONE));
-        directiveTable.put(END, new Directive(BYTE, Length.NONE));
-        directiveTable.put(LTORG, new Directive(BYTE, Length.NONE));
-        directiveTable.put(EXTREF, new Directive(BYTE, Length.NONE));
-        directiveTable.put(EXTDEF, new Directive(BYTE, Length.NONE));
-        directiveTable.put(ORG, new Directive(BYTE, Length.NONE));
-        directiveTable.put(EQU, new Directive(BYTE, Length.NONE));
-        directiveTable.put(CSECT, new Directive(BYTE, Length.NONE));
+        directiveTable.put(BYTE, new Directive(BYTE, Length.ONE, true));
+        directiveTable.put(RESB, new Directive(BYTE, Length.VARIABLE, true));
+        directiveTable.put(WORD, new Directive(BYTE, Length.THREE, true));
+        directiveTable.put(RESW, new Directive(BYTE, Length.VARIABLE, true));
+        directiveTable.put(START, new Directive(BYTE, Length.NONE, true));
+        directiveTable.put(BASE, new Directive(BYTE, Length.NONE, true));
+        directiveTable.put(NOBASE, new Directive(BYTE, Length.NONE, true));
+        directiveTable.put(END, new Directive(BYTE, Length.NONE, false));
+        directiveTable.put(LTORG, new Directive(BYTE, Length.NONE, true));
+        directiveTable.put(EXTREF, new Directive(BYTE, Length.NONE, true));
+        directiveTable.put(EXTDEF, new Directive(BYTE, Length.NONE, true));
+        directiveTable.put(ORG, new Directive(BYTE, Length.NONE, true));
+        directiveTable.put(EQU, new Directive(BYTE, Length.NONE, true));
+        directiveTable.put(CSECT, new Directive(BYTE, Length.NONE, true));
     }
 
 }

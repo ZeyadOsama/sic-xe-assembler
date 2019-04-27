@@ -93,9 +93,9 @@ public final class OperationTable {
         operationTable.put("+LDB",
                 new Operation("+LDB", "68", Format.FOUR, OperandType.VALUE, OperandType.NONE));
         operationTable.put("LDCH",
-                new Operation("LDCH", "50", Format.THREE, OperandType.VALUE, OperandType.NONE));
+                new Operation("LDCH", "50", Format.THREE, OperandType.VALUE, OperandType.DONT_CARE));
         operationTable.put("+LDCH",
-                new Operation("+LDCH", "50", Format.FOUR, OperandType.VALUE, OperandType.NONE));
+                new Operation("+LDCH", "50", Format.FOUR, OperandType.VALUE, OperandType.DONT_CARE));
         operationTable.put("LDL",
                 new Operation("LDL", "08", Format.THREE, OperandType.VALUE, OperandType.NONE));
         operationTable.put("+LDL",

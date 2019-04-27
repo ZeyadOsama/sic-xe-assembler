@@ -14,7 +14,7 @@ public final class ErrorHandler {
     public final static int MISPLACED_OPERAND = 2;
     public final static int DUPLICATE_LABEL = 3;
     public final static int CAN_NOT_HAVE_LABEL = 4;
-    public final static int CAN_NOT_HAVE_OPERAND = 5;
+    public final static int CAN_NOT_HAVE_OPERANDS = 5;
     public final static int WRONG_OPERATION = 6;
     public final static int UNRECOGNIZED_OPERATION = 7;
     public final static int UNDEFINED_SYMBOL = 8;
@@ -25,8 +25,13 @@ public final class ErrorHandler {
     public final static int LABEL_STARTING_WITH_DIGIT = 13;
     public final static int WRONG_COMMENT_FORMAT = 14;
     public final static int LABELS_CAN_NOT_HAVE_SPACES = 15;
+    public final static int NO_FIRST_OPERAND = 16;
+    public final static int NO_SECOND_OPERAND = 17;
+    public final static int SHOULD_HAVE_FIRST_OPERAND = 18;
+    public final static int SHOULD_HAVE_SECOND_OPERAND = 19;
+    public final static int WRONG_OPERAND_TYPE = 20;
 
-    private final static String[] errorList = new String[17];
+    private final static String[] errorList = new String[21];
     private int currentError;
 
     private ErrorHandler() {
@@ -66,7 +71,7 @@ public final class ErrorHandler {
         errorList[2] = "***ERROR: missing or misplaced operand field***";
         errorList[3] = "***ERROR: duplicate label definition***";
         errorList[4] = "***ERROR: this statement can't have a label***";
-        errorList[5] = "***ERROR: this statement can't have an operand***";
+        errorList[5] = "***ERROR: this statement can't have an operands***";
         errorList[6] = "***ERROR: wrong operation prefix***";
         errorList[7] = "***ERROR: unrecognized operation code***";
         errorList[8] = "***ERROR: undefined symbol in operand***";
@@ -77,6 +82,11 @@ public final class ErrorHandler {
         errorList[13] = "***ERROR: label cannot start with a digit***";
         errorList[14] = "***ERROR: wrong comment format***";
         errorList[15] = "***ERROR: labels cannot have spaces in between***";
+        errorList[16] = "***ERROR: can not have operand***";
+        errorList[17] = "***ERROR: can not have second operand***";
+        errorList[18] = "***ERROR: should have an operand***";
+        errorList[19] = "***ERROR: should have second operand***";
+        errorList[20] = "***ERROR: wrong operand type***";
     }
 
     static {

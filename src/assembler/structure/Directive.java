@@ -7,10 +7,12 @@ public class Directive {
 
     private String directive;
     private Length length;
+    private boolean hasOperand;
 
-    public Directive(String directive, Length length) {
+    public Directive(String directive, Length length, boolean hasOperand) {
         setDirective(directive);
         this.length = length;
+        this.hasOperand = hasOperand;
     }
 
     @NotNull
@@ -27,7 +29,7 @@ public class Directive {
         return length;
     }
 
-    public void setLength(@NotNull Length length) {
-        this.length = length;
+    public boolean hasOperand() {
+        return hasOperand;
     }
 }

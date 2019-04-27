@@ -6,18 +6,19 @@ import org.jetbrains.annotations.Nullable;
 
 public class Operation {
 
-    private final OperandType firstOperand;
-    private final OperandType secondOperand;
+    private final OperandType firstOperandType;
+    private final OperandType secondOperandType;
     private Format format;
     private String name;
     private String opcode;
 
-    public Operation(String name, String opcode, Format format, OperandType firstOperand, OperandType secondOperand) {
+    public Operation(String name, String opcode, Format format,
+                     OperandType firstOperandType, OperandType secondOperandType) {
         setName(name);
         setOpcode(opcode);
         this.format = format;
-        this.firstOperand = firstOperand;
-        this.secondOperand = secondOperand;
+        this.firstOperandType = firstOperandType;
+        this.secondOperandType = secondOperandType;
     }
 
     @Nullable
@@ -44,13 +45,13 @@ public class Operation {
     }
 
     @Nullable
-    public OperandType getFirstOperand() {
-        return firstOperand;
+    public OperandType getFirstOperandType() {
+        return firstOperandType;
     }
 
     @Nullable
-    public OperandType getSecondOperand() {
-        return secondOperand;
+    public OperandType getSecondOperandType() {
+        return secondOperandType;
     }
 
     public boolean hasOperand() {
@@ -58,10 +59,10 @@ public class Operation {
     }
 
     public boolean hasFirstOperand() {
-        return firstOperand != OperandType.NONE;
+        return firstOperandType != OperandType.NONE;
     }
 
     public boolean hasSecondOperand() {
-        return secondOperand != OperandType.NONE;
+        return secondOperandType != OperandType.NONE;
     }
 }

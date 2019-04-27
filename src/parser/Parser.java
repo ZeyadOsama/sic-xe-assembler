@@ -15,7 +15,9 @@ import java.util.ArrayList;
 import java.util.Objects;
 import java.util.StringTokenizer;
 
-import static misc.utils.Validations.*;
+import static misc.utils.Validations.isBlank;
+import static misc.utils.Validations.isComment;
+import static parser.ParsingValidations.validateInstruction;
 
 /**
  * Responsible for reading an input text file for SIC and SIC/XE code.
@@ -27,15 +29,6 @@ public class Parser {
 
     private static Parser instance = new Parser();
 
-    private ArrayList<Instruction> parsedInstructionsList = new ArrayList<>();
-    private ArrayList<String> instructions = new ArrayList<>();
-    private Instruction parsedInstruction;
-    private String currentInstruction;
-
-    private LocationCounter locationCounter = LocationCounter.getInstance();
-    private SymbolTable symbolTable = SymbolTable.getInstance();
-    private ErrorHandler errorHandler = ErrorHandler.getInstance();
-
     private final static int FIRST_OPERAND = 0;
     private final static int SECOND_OPERAND = 1;
 
@@ -45,6 +38,15 @@ public class Parser {
     public static Parser getInstance() {
         return instance;
     }
+
+    private ArrayList<Instruction> parsedInstructionsList = new ArrayList<>();
+    private ArrayList<String> instructions = new ArrayList<>();
+    private Instruction parsedInstruction;
+    private String currentInstruction;
+
+    private LocationCounter locationCounter = LocationCounter.getInstance();
+    private SymbolTable symbolTable = SymbolTable.getInstance();
+    private ErrorHandler errorHandler = ErrorHandler.getInstance();
 
     /**
      * Parses the file specified in the path.
@@ -70,7 +72,7 @@ public class Parser {
     }
 
     /**
-     * Parses a single instruction given in the form of a String into Instructon form
+     * Parses a single instruction given in the form of a String into Instruction form
      *
      * @param instruction is a String which is read from file
      * @return parsed instructions
@@ -97,7 +99,7 @@ public class Parser {
         parsedInstructionsList.add(parsedInstruction);
         locationCounter.update(parsedInstruction);
         symbolTable.update(parsedInstruction);
-//        errorHandler.check(parsedInstruction);
+        validateInstruction(parsedInstruction);
         OutputGenerator.update();
 
         return parsedInstruction;
@@ -117,33 +119,25 @@ public class Parser {
     @Nullable
     private String determineMnemonic(@NotNull String instruction) {
         String mnemonic = null;
-        if (instruction.length() > Range.MNEMONIC[Range.END]) {
+        if (instruction.length() > Range.MNEMONIC[Range.END])
             mnemonic = instruction.substring(Range.MNEMONIC[Range.START], Range.MNEMONIC[Range.END])
                     .replaceAll("\\s", "");
-            if (!isMnemonic(mnemonic)) {
-                errorHandler.setHasError(true);
-                errorHandler.setCurrentError(ErrorHandler.UNRECOGNIZED_OPERATION);
-                return null;
-            }
-        } else if (instruction.length() > Range.MNEMONIC[Range.START]) {
+
+        else if (instruction.length() > Range.MNEMONIC[Range.START])
             mnemonic = instruction.substring(Range.MNEMONIC[Range.START])
                     .replaceAll("\\s", "");
-            if (!isMnemonic(mnemonic)) {
-                errorHandler.setHasError(true);
-                errorHandler.setCurrentError(ErrorHandler.UNRECOGNIZED_OPERATION);
-                return null;
-            }
-        }
+
         return mnemonic;
     }
 
     @Nullable
     private String[] determineOperands(@NotNull String instruction) {
         String operands = null;
-        if (instruction.length() > Range.OPERANDS[Range.END]) {
+        if (instruction.length() > Range.OPERANDS[Range.END])
             operands = instruction.substring(Range.MNEMONIC[Range.START], Range.MNEMONIC[Range.END])
                     .replaceAll("\\s", "");
-        } else if (instruction.length() > Range.OPERANDS[Range.START])
+
+        else if (instruction.length() > Range.OPERANDS[Range.START])
             operands = instruction.substring(Range.OPERANDS[Range.START])
                     .replaceAll("\\s", "");
 

@@ -48,7 +48,6 @@ public final class LocationCounter {
             return;
 
         if (mnemonic.equals(DirectiveTable.START)) {
-
             currentAddress = Integer.parseInt(Objects.requireNonNull(instruction.getFirstOperand()));
             addAddress(currentAddress);
             previousAddress = currentAddress;

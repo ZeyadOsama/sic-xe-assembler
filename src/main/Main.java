@@ -11,7 +11,6 @@ public class Main {
 
         Parser parser = Parser.getInstance();
         parser.parse(fileLoader.loadFile());
-//        parser.showParsedInstructions();
 
         OutputGenerator outputGenerator = new OutputGenerator(fileLoader.getFileParentPath(), fileLoader.getFileName());
 //        outputGenerator.generateAddressFile();

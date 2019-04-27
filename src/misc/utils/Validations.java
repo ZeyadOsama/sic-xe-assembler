@@ -18,15 +18,15 @@ public class Validations {
         return !string.isEmpty() && string.trim().isEmpty();
     }
 
-    public static boolean isMnemonic(@NotNull String mnemonic) {
+    public static boolean isMnemonic(String mnemonic) {
         return isDirective(mnemonic) || isOperation(mnemonic);
     }
 
-    public static boolean isDirective(@NotNull String directive) {
-        return DirectiveTable.contains(directive);
+    public static boolean isDirective(String directive) {
+        return (directive != null) && DirectiveTable.contains(directive);
     }
 
-    public static boolean isOperation(@NotNull String operation) {
-        return OperationTable.containsMnemonic(operation);
+    public static boolean isOperation(String operation) {
+        return (operation != null) && OperationTable.containsMnemonic(operation);
     }
 }

@@ -1,6 +1,14 @@
 package assembler.tables;
 
+import java.util.HashSet;
+
 public class RegisterTable {
+
+    private static HashSet<String> registers = new HashSet<>();
+
+    static {
+        load();
+    }
 
     public static int getRegisterNumber(String register) {
         String registerName = register.toUpperCase();
@@ -48,5 +56,24 @@ public class RegisterTable {
                 return "SW";
         }
         return null;
+    }
+
+    private RegisterTable() {
+    }
+
+    public static boolean contains(String register) {
+        return register.contains(register);
+    }
+
+    private static void load() {
+        registers.add("A");
+        registers.add("X");
+        registers.add("L");
+        registers.add("B");
+        registers.add("S");
+        registers.add("T");
+        registers.add("F");
+        registers.add("PC");
+        registers.add("SW");
     }
 }
