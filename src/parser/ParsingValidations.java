@@ -6,6 +6,9 @@ import assembler.structure.Instruction;
 import assembler.tables.DirectiveTable;
 import assembler.tables.OperationTable;
 import assembler.tables.RegisterTable;
+import misc.constants.Constants;
+
+import java.util.StringTokenizer;
 
 import static misc.utils.Validations.isMnemonic;
 import static misc.utils.Validations.isOperation;
@@ -18,7 +21,25 @@ class ParsingValidations {
 
     static boolean validateInstruction(Instruction instruction) {
         ParsingValidations.instruction = instruction;
-        return validateMnemonic() && validateOperands();
+        return validateLabel() && validateMnemonic() && validateOperands();
+    }
+
+    private static boolean validateLabel() {
+        if (instruction.getLabel() != null) {
+            byte cnt = 0;
+            StringTokenizer tokenizer = new StringTokenizer(instruction.getLabel(), Constants.SPACE);
+            while (tokenizer.hasMoreTokens()){
+                tokenizer.nextToken();
+                cnt++;
+            }
+            if (cnt > 1) {
+                errorHandler.setHasError(true);
+                errorHandler.setCurrentError(ErrorHandler.LABELS_CAN_NOT_HAVE_SPACES);
+                return false;
+            }
+        }
+        errorHandler.setHasError(false);
+        return true;
     }
 
     private static boolean validateMnemonic() {
@@ -26,7 +47,6 @@ class ParsingValidations {
             errorHandler.setHasError(false);
             return true;
         }
-
         if (!isMnemonic(instruction.getMnemonic())) {
             errorHandler.setHasError(true);
             errorHandler.setCurrentError(ErrorHandler.UNRECOGNIZED_OPERATION);
@@ -79,14 +99,12 @@ class ParsingValidations {
             errorHandler.setCurrentError(ErrorHandler.NO_FIRST_OPERAND);
             return false;
         }
-
         if (OperationTable.getOperation(instruction.getMnemonic()).hasSecondOperand()) {
             if (!instruction.hasSecondOperand()) {
                 errorHandler.setHasError(true);
                 errorHandler.setCurrentError(ErrorHandler.SHOULD_HAVE_SECOND_OPERAND);
                 return false;
             }
-
             if (OperationTable.getOperation(instruction.getMnemonic()).getSecondOperandType() == OperandType.REGISTER)
                 if (!RegisterTable.contains(instruction.getSecondOperand())) {
                     errorHandler.setHasError(true);
@@ -98,7 +116,6 @@ class ParsingValidations {
             errorHandler.setCurrentError(ErrorHandler.NO_SECOND_OPERAND);
             return false;
         }
-
         errorHandler.setHasError(false);
         return true;
     }

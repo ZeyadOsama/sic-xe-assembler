@@ -9,6 +9,7 @@ public class Instruction {
     private String firstOperand;
     private String secondOperand;
     private String comment;
+    private boolean hasError;
 
     public Instruction() {
     }
@@ -21,6 +22,7 @@ public class Instruction {
         setFirstOperand(firstOperand);
         setSecondOperand(secondOperand);
         this.comment = comment;
+        hasError = false;
     }
 
     @Nullable
@@ -90,5 +92,13 @@ public class Instruction {
 
     public boolean hasComment() {
         return comment != null;
+    }
+
+    public boolean hasError() {
+        return hasError;
+    }
+
+    public void errorFree(boolean error) {
+        hasError = !error;
     }
 }

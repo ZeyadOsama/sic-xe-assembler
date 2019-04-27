@@ -40,7 +40,7 @@ public class SymbolTable {
 
     public void update(@NotNull Instruction instruction) {
         String label = instruction.getLabel();
-        if (label != null) {
+        if (label != null && !instruction.hasError()) {
             if (symbolTable.containsKey(label)) {
                 errorHandler.setHasError(true);
                 errorHandler.setCurrentError(ErrorHandler.DUPLICATE_LABEL);

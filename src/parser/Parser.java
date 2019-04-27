@@ -96,10 +96,10 @@ public class Parser {
                 Objects.requireNonNull(operandsList)[FIRST_OPERAND],
                 Objects.requireNonNull(operandsList)[SECOND_OPERAND],
                 comment);
+        parsedInstruction.errorFree(validateInstruction(parsedInstruction));
         parsedInstructionsList.add(parsedInstruction);
         locationCounter.update(parsedInstruction);
         symbolTable.update(parsedInstruction);
-        validateInstruction(parsedInstruction);
         OutputGenerator.update();
 
         return parsedInstruction;
