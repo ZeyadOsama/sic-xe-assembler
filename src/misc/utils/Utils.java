@@ -8,6 +8,10 @@ public class Utils {
         return "0x" + string;
     }
 
+    public static String removeHexadecimalNotation(String string) {
+        return string.replace("0x", "");
+    }
+
     /**
      * @param string to be extended
      * @param length to be extended

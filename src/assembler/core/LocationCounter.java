@@ -55,6 +55,8 @@ public final class LocationCounter {
             currentAddress = Hexadecimal.toDecimal(instruction.getFirstOperand());
             addAddress(currentAddress);
             previousAddress = currentAddress;
+            Program.setName(instruction.getLabel());
+            Program.setStartAddress(instruction.getFirstOperand());
             return;
         }
 

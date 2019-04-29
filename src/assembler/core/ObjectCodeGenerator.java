@@ -2,6 +2,7 @@ package assembler.core;
 
 import assembler.constants.Format;
 import assembler.structure.Instruction;
+import assembler.tables.DirectiveTable;
 import assembler.tables.OperationTable;
 import assembler.tables.RegisterTable;
 import assembler.tables.SymbolTable;
@@ -12,6 +13,7 @@ import java.util.ArrayList;
 import static misc.utils.Converter.Binary;
 import static misc.utils.Converter.Decimal;
 import static misc.utils.Utils.extendLength;
+import static misc.utils.Validations.Operand.*;
 import static misc.utils.Validations.isOperation;
 
 public class ObjectCodeGenerator {
@@ -41,12 +43,16 @@ public class ObjectCodeGenerator {
     }
 
     private void generateHeaderRecord() {
+        headerRecord.addContent(Program.getName());
+        headerRecord.addContent(Program.getStartAddress());
+        headerRecord.addContent(Program.getObjectCodeLength());
+        System.out.println(headerRecord.content);
     }
 
-    public ArrayList<String> generateTextRecord() {
+    private ArrayList<String> generateTextRecord() {
         for (Instruction instruction : instructions) {
             String objectCode = null;
-            if (isOperation(instruction.getMnemonic()))
+            if (isOperation(instruction.getMnemonic())) {
                 switch (OperationTable.getOperation(instruction.getMnemonic()).getFormat()) {
                     case ONE:
                         objectCode = generateFormatOne(instruction);
@@ -61,7 +67,11 @@ public class ObjectCodeGenerator {
                         objectCode = generateFormatFour(instruction);
                         break;
                 }
-//            System.out.println(objectCode);
+            } else if (instruction.getMnemonic().equals(DirectiveTable.BYTE) && instruction.hasFirstOperand())
+                objectCode = extendLength(Decimal.toHexadecimal(instruction.getFirstOperand()), 2);
+            else if (instruction.getMnemonic().equals(DirectiveTable.WORD) && instruction.hasFirstOperand())
+                objectCode = extendLength(Decimal.toHexadecimal(instruction.getFirstOperand()), 6);
+
             textRecord.addContent(objectCode);
         }
         System.out.println(textRecord.content);
@@ -98,6 +108,10 @@ public class ObjectCodeGenerator {
         opcode = extendLength(Decimal.toBinary(opcode), 6);
 
         String operand = instruction.getFirstOperand();
+        if (isIndirect(operand))
+            operand = getIndirectValue(operand);
+        else if (isImmediate(operand))
+            operand = getImmediateValue(operand);
         if (symbolTable.containsSymbol(operand))
             operand = String.valueOf(symbolTable.getSymbol(operand).getAddress());
         operand = extendLength(Decimal.toBinary(operand), 12);
@@ -112,6 +126,10 @@ public class ObjectCodeGenerator {
         opcode = extendLength(Decimal.toBinary(opcode), 6);
 
         String operand = instruction.getFirstOperand();
+        if (isIndirect(operand))
+            operand = getIndirectValue(operand);
+        else if (isImmediate(operand))
+            operand = getImmediateValue(operand);
         if (symbolTable.containsSymbol(operand))
             operand = String.valueOf(symbolTable.getSymbol(operand).getAddress());
         operand = extendLength(Decimal.toBinary(operand), 20);
@@ -164,18 +182,13 @@ public class ObjectCodeGenerator {
         return new StringBuilder().append(b).append(p).append(e).toString();
     }
 
-    private boolean isImmediate(Instruction instruction) {
-        return (instruction.getFirstOperand() != null && instruction.getFirstOperand().startsWith("#"))
-                || (instruction.getSecondOperand() != null && instruction.getSecondOperand().startsWith("#"));
+
+    private String getImmediateValue(String operand) {
+        return operand.replace("#", "");
     }
 
-    private boolean isIndirect(Instruction instruction) {
-        return (instruction.getFirstOperand() != null && instruction.getFirstOperand().startsWith("@"))
-                || (instruction.getSecondOperand() != null && instruction.getSecondOperand().startsWith("@"));
-    }
-
-    private boolean isDirect(Instruction instruction) {
-        return !isImmediate(instruction) && !isIndirect(instruction);
+    private String getIndirectValue(String operand) {
+        return operand.replace("@", "");
     }
 
     private class Record {
