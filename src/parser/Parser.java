@@ -4,6 +4,7 @@ import assembler.core.ErrorHandler;
 import assembler.core.LocationCounter;
 import assembler.core.OutputGenerator;
 import assembler.structure.Instruction;
+import assembler.tables.DirectiveTable;
 import assembler.tables.SymbolTable;
 import misc.exceptions.ParsingException;
 import org.jetbrains.annotations.NotNull;
@@ -43,6 +44,7 @@ public class Parser {
     private ArrayList<String> instructions = new ArrayList<>();
     private Instruction parsedInstruction;
     private String currentInstruction;
+    private boolean hasBaseDirective = false;
 
     private LocationCounter locationCounter = LocationCounter.getInstance();
     private SymbolTable symbolTable = SymbolTable.getInstance();
@@ -97,7 +99,6 @@ public class Parser {
                 Objects.requireNonNull(operandsList)[SECOND_OPERAND],
                 comment);
         parsedInstruction.errorFree(validateInstruction(parsedInstruction));
-        parsedInstructionsList.add(parsedInstruction);
         locationCounter.update(parsedInstruction);
         symbolTable.update(parsedInstruction);
         OutputGenerator.update();
@@ -126,6 +127,9 @@ public class Parser {
         else if (instruction.length() > Range.MNEMONIC[Range.START])
             mnemonic = instruction.substring(Range.MNEMONIC[Range.START])
                     .replaceAll("\\s", "");
+
+        if (mnemonic != null && mnemonic.equals(DirectiveTable.BASE))
+            hasBaseDirective = true;
 
         return mnemonic;
     }
@@ -198,6 +202,10 @@ public class Parser {
             System.out.println(i.getSecondOperand());
             System.out.println(i.getComment() + "\n");
         }
+    }
+
+    public boolean hasBaseDirective() {
+        return hasBaseDirective;
     }
 
     /**

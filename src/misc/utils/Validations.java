@@ -25,6 +25,10 @@ public class Validations {
     public static boolean isDirective(String directive) {
         return (directive != null) && DirectiveTable.contains(directive);
     }
+    public static boolean isReservationDirective(String directive) {
+        return (directive != null)
+                && (directive.equals(DirectiveTable.RESB) || directive.equals(DirectiveTable.RESW));
+    }
 
     public static boolean isOperation(String operation) {
         return (operation != null) && OperationTable.containsMnemonic(operation);

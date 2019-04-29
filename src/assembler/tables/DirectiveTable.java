@@ -53,7 +53,9 @@ public class DirectiveTable {
     }
 
     /**
-     * Load all directiveTable to directive table
+     * Load all directives details to directive table
+     *
+     * @see Directive
      */
     private static void load() {
         directiveTable.put(BYTE, new Directive(BYTE, Length.ONE, true));

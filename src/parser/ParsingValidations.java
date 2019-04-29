@@ -28,7 +28,7 @@ class ParsingValidations {
         if (instruction.getLabel() != null) {
             byte cnt = 0;
             StringTokenizer tokenizer = new StringTokenizer(instruction.getLabel(), Constants.SPACE);
-            while (tokenizer.hasMoreTokens()){
+            while (tokenizer.hasMoreTokens()) {
                 tokenizer.nextToken();
                 cnt++;
             }
@@ -37,6 +37,7 @@ class ParsingValidations {
                 errorHandler.setCurrentError(ErrorHandler.LABELS_CAN_NOT_HAVE_SPACES);
                 return false;
             }
+            instruction.setLabel(instruction.getLabel().replaceAll("\\s", ""));
         }
         errorHandler.setHasError(false);
         return true;
@@ -72,7 +73,8 @@ class ParsingValidations {
                 errorHandler.setCurrentError(ErrorHandler.SHOULD_HAVE_FIRST_OPERAND);
                 return false;
             }
-        } else if (instruction.hasFirstOperand()) {
+        } else if (instruction.hasFirstOperand()
+                && OperationTable.getOperation(instruction.getMnemonic()).getFirstOperandType() != OperandType.DONT_CARE) {
             errorHandler.setHasError(true);
             errorHandler.setCurrentError(ErrorHandler.NO_FIRST_OPERAND);
             return false;
@@ -111,7 +113,8 @@ class ParsingValidations {
                     errorHandler.setCurrentError(ErrorHandler.WRONG_OPERAND_TYPE);
                     return false;
                 }
-        } else if (instruction.hasSecondOperand()) {
+        } else if (instruction.hasSecondOperand()
+                && OperationTable.getOperation(instruction.getMnemonic()).getSecondOperandType() != OperandType.DONT_CARE) {
             errorHandler.setHasError(true);
             errorHandler.setCurrentError(ErrorHandler.NO_SECOND_OPERAND);
             return false;

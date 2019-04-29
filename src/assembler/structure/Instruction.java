@@ -1,5 +1,7 @@
 package assembler.structure;
 
+import assembler.tables.RegisterTable;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class Instruction {
@@ -9,12 +11,13 @@ public class Instruction {
     private String firstOperand;
     private String secondOperand;
     private String comment;
+    private boolean indexed;
     private boolean hasError;
 
     public Instruction() {
     }
 
-    public Instruction(@Nullable String label, @Nullable String mnemonic,
+    public Instruction(@Nullable String label, @NotNull String mnemonic,
                        @Nullable String firstOperand, @Nullable String secondOperand,
                        @Nullable String comment) {
         setLabel(label);
@@ -22,7 +25,12 @@ public class Instruction {
         setFirstOperand(firstOperand);
         setSecondOperand(secondOperand);
         this.comment = comment;
+        indexed = checkIndexabilty();
         hasError = false;
+    }
+
+    private boolean checkIndexabilty() {
+        return secondOperand != null && secondOperand.equals(RegisterTable.X);
     }
 
     @Nullable
@@ -32,17 +40,15 @@ public class Instruction {
 
     public void setLabel(String label) {
         if (label != null)
-            this.label = label.toUpperCase();
+            this.label = label;
     }
 
-    @Nullable
     public String getMnemonic() {
         return mnemonic;
     }
 
-    public void setMnemonic(String mnemonic) {
-        if (mnemonic != null)
-            this.mnemonic = mnemonic.toUpperCase();
+    public void setMnemonic(@NotNull String mnemonic) {
+        this.mnemonic = mnemonic.toUpperCase();
     }
 
     @Nullable
@@ -96,6 +102,10 @@ public class Instruction {
 
     public boolean hasError() {
         return hasError;
+    }
+
+    public boolean isIndexed() {
+        return indexed;
     }
 
     public void errorFree(boolean error) {

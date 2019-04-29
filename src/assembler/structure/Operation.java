@@ -10,15 +10,17 @@ public class Operation {
     private final OperandType secondOperandType;
     private Format format;
     private String name;
-    private String opcode;
+    private int opcode;
+    private boolean indexable;
 
-    public Operation(String name, String opcode, Format format,
+    public Operation(String name, int opcode, Format format,
                      OperandType firstOperandType, OperandType secondOperandType) {
         setName(name);
-        setOpcode(opcode);
+        this.opcode = opcode;
         this.format = format;
         this.firstOperandType = firstOperandType;
         this.secondOperandType = secondOperandType;
+        indexable = format == Format.THREE;
     }
 
     @Nullable
@@ -27,29 +29,22 @@ public class Operation {
     }
 
     private void setName(String name) {
-        this.name = name.toUpperCase();
+        if (name != null)
+            this.name = name.toUpperCase();
     }
 
-    @Nullable
-    public String getOpcode() {
+    public int getOpcode() {
         return opcode;
     }
 
-    private void setOpcode(String opcode) {
-        this.opcode = opcode.toUpperCase();
-    }
-
-    @Nullable
     public Format getFormat() {
         return format;
     }
 
-    @Nullable
     public OperandType getFirstOperandType() {
         return firstOperandType;
     }
 
-    @Nullable
     public OperandType getSecondOperandType() {
         return secondOperandType;
     }
@@ -59,10 +54,14 @@ public class Operation {
     }
 
     public boolean hasFirstOperand() {
-        return firstOperandType != OperandType.NONE;
+        return firstOperandType == OperandType.DONT_CARE || firstOperandType != OperandType.NONE;
     }
 
     public boolean hasSecondOperand() {
-        return secondOperandType != OperandType.NONE;
+        return secondOperandType == OperandType.DONT_CARE || secondOperandType != OperandType.NONE;
+    }
+
+    public boolean isIndexable() {
+        return indexable;
     }
 }

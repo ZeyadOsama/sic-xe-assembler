@@ -31,11 +31,7 @@ public class SymbolTable {
     }
 
     public boolean containsSymbol(@NotNull String label) {
-        return symbolTable.containsKey(label);
-    }
-
-    public void put(@NotNull String label, Symbol symbol) {
-        symbolTable.put(label, symbol);
+        return symbolTable.containsKey(label.toUpperCase());
     }
 
     public void update(@NotNull Instruction instruction) {
@@ -46,11 +42,8 @@ public class SymbolTable {
                 errorHandler.setCurrentError(ErrorHandler.DUPLICATE_LABEL);
                 return;
             }
-            Symbol symbol = new Symbol();
-            symbol.setAddress(LocationCounter.getInstance().getCurrentAddress());
-            symbol.setLabel(instruction.getLabel());
-            if (instruction.hasFirstOperand()) symbol.setValue(instruction.getFirstOperand());
-            symbolTable.put(label, symbol);
+            symbolTable.put(label,
+                    new Symbol(label, LocationCounter.getInstance().getCurrentAddress()));
         }
     }
 }

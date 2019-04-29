@@ -1,7 +1,16 @@
 <component name="ProjectDictionaryState">
   <dictionary name="zeyadosama">
     <words>
+      <w>csect</w>
+      <w>extdef</w>
+      <w>extref</w>
+      <w>indexabilty</w>
+      <w>indexable</w>
+      <w>ltorg</w>
+      <w>nobase</w>
       <w>opcode</w>
+      <w>resb</w>
+      <w>resw</w>
     </words>
   </dictionary>
 </component>

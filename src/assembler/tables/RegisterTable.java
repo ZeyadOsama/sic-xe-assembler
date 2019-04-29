@@ -1,37 +1,25 @@
 package assembler.tables;
 
-import java.util.HashSet;
+import assembler.structure.Register;
+
+import java.util.HashMap;
 
 public class RegisterTable {
 
-    private static HashSet<String> registers = new HashSet<>();
+    public static final String A = "A";
+    public static final String X = "X";
+    public static final String L = "L";
+    public static final String B = "B";
+    public static final String S = "S";
+    public static final String T = "T";
+    public static final String F = "F";
+    public static final String PC = "PC";
+    public static final String SW = "SW";
+
+    private static HashMap<String, Register> registers = new HashMap<>();
 
     static {
         load();
-    }
-
-    public static int getRegisterNumber(String register) {
-        String registerName = register.toUpperCase();
-        if (registerName.equals("A"))
-            return 0;
-        if (registerName.equals("X"))
-            return 1;
-        if (registerName.equals("L"))
-            return 2;
-        if (registerName.equals("B"))
-            return 3;
-        if (registerName.equals("S"))
-            return 4;
-        if (registerName.equals("T"))
-            return 5;
-        if (registerName.equals("F"))
-            return 6;
-        if (registerName.equals("PC"))
-            return 8;
-        if (registerName.equals("SW"))
-            return 9;
-
-        return -1;
     }
 
     public static String getRegisterName(int registerNumber) {
@@ -61,19 +49,26 @@ public class RegisterTable {
     private RegisterTable() {
     }
 
-    public static boolean contains(String register) {
-        return register.contains(register);
+    public static Register getRegister(String registerName){
+        return registers.get(registerName);
     }
 
+    public static boolean contains(String register) {
+        return registers.containsKey(register);
+    }
+
+    /**
+     * Load all register names and values to details to hash map.
+     */
     private static void load() {
-        registers.add("A");
-        registers.add("X");
-        registers.add("L");
-        registers.add("B");
-        registers.add("S");
-        registers.add("T");
-        registers.add("F");
-        registers.add("PC");
-        registers.add("SW");
+        registers.put("A", new Register(0));
+        registers.put("X", new Register(1));
+        registers.put("L", new Register(2));
+        registers.put("B", new Register(3));
+        registers.put("S", new Register(4));
+        registers.put("T", new Register(5));
+        registers.put("F", new Register(6));
+        registers.put("PC", new Register(8));
+        registers.put("SW", new Register(9));
     }
 }

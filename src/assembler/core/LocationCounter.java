@@ -4,12 +4,13 @@ import assembler.structure.Instruction;
 import assembler.tables.DirectiveTable;
 import assembler.tables.OperationTable;
 import misc.exceptions.FormatException;
-import misc.utils.Converter;
 import misc.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.Objects;
 
+import static misc.utils.Converter.Decimal;
+import static misc.utils.Converter.Hexadecimal;
 import static misc.utils.Validations.isDirective;
 import static misc.utils.Validations.isOperation;
 
@@ -51,7 +52,7 @@ public final class LocationCounter {
             return;
 
         if (mnemonic.equals(DirectiveTable.START)) {
-            currentAddress = Integer.parseInt(Objects.requireNonNull(instruction.getFirstOperand()));
+            currentAddress = Hexadecimal.toDecimal(instruction.getFirstOperand());
             addAddress(currentAddress);
             previousAddress = currentAddress;
             return;
@@ -107,7 +108,7 @@ public final class LocationCounter {
         convertedAddresses
                 .add(Utils.addHexadecimalNotation(
                         Utils.extendLength(
-                                Converter.Decimal.toHexadecimal(address), 4).toUpperCase()));
+                                Decimal.toHexadecimal(address), 4).toUpperCase()));
     }
 
     public ArrayList<Integer> getAddresses() {
@@ -122,7 +123,11 @@ public final class LocationCounter {
         return programCounter;
     }
 
-    public String getCurrentAddress() {
+    public int getCurrentAddress() {
+        return addresses.get(programCounter - 1);
+    }
+
+    public String getCurrentConvertedAddress() {
         return convertedAddresses.get(programCounter - 1);
     }
 }

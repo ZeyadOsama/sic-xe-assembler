@@ -53,15 +53,13 @@ public final class OutputGenerator {
         for (String name : symbolTable.get().keySet()) {
             Symbol symbol = symbolTable.getSymbol(name);
             String string = symbol.getAddress() + "\t\t" + symbol.getLabel() + "\t\t";
-            if (symbol.hasValue())
-                string += symbol.getValue();
             symbolFileLines.add(string);
         }
     }
 
     public static void update() {
         addressFileLines.add(
-                LocationCounter.getInstance().getCurrentAddress()
+                LocationCounter.getInstance().getCurrentConvertedAddress()
                         + Constants.TAB
                         + Parser.getInstance().getCurrentInstruction());
 
