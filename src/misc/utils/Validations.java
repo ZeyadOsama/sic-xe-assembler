@@ -69,5 +69,8 @@ public class Validations {
             return !isImmediate(operand) && !isIndirect(operand);
         }
 
+        public static boolean isLiteral(String operand) {
+            return operand != null && (operand.startsWith("X'") || operand.startsWith("C'")) && operand.endsWith("'");
+        }
     }
 }

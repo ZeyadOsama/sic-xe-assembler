@@ -14,9 +14,8 @@ public final class Converter {
             return Integer.toBinaryString(decimal);
         }
 
-//        @NotNull
-        public static String toBinary( String number) {
-            if(number==null) return null;
+        @NotNull
+        public static String toBinary(@NotNull String number) {
             return Integer.toBinaryString(Integer.parseInt(number));
         }
 
@@ -25,9 +24,8 @@ public final class Converter {
             return Integer.toHexString(number).toUpperCase();
         }
 
-//        @NotNull
-        public static String toHexadecimal(String number) {
-            if(number==null) return null;
+        @NotNull
+        public static String toHexadecimal(@NotNull String number) {
             return Integer.toHexString(Integer.parseInt(number)).toUpperCase();
         }
     }

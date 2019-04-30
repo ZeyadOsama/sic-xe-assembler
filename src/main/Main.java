@@ -1,7 +1,9 @@
 package main;
 
+import assembler.core.ObjectCodeGenerator;
 import assembler.core.OutputGenerator;
 import io.FileLoader;
+import io.FileWriter;
 import parser.Parser;
 
 public class Main {
@@ -16,7 +18,11 @@ public class Main {
         outputGenerator.generateSymbolFile();
         outputGenerator.terminal.showAddressFile();
         outputGenerator.terminal.showSymbolFile();
-        outputGenerator.makeAddressFile();
-        outputGenerator.makeSymbolFile();
+
+        FileWriter fileWriter = new FileWriter(outputGenerator);
+        fileWriter.writeAddressFile();
+        fileWriter.writeSymbolFile();
+
+        new ObjectCodeGenerator().generate();
     }
 }

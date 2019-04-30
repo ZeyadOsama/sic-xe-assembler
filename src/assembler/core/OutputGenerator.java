@@ -5,8 +5,6 @@ import assembler.tables.SymbolTable;
 import misc.constants.Constants;
 import parser.Parser;
 
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
 
 /**
@@ -67,33 +65,15 @@ public final class OutputGenerator {
             addressFileLines.add(errorHandler.generate());
     }
 
-    public void makeAddressFile() {
-        String file = filePath + "/" + fileName.replaceAll(".txt", "") + "-addresses.txt";
-        System.out.println(file);
-        try {
-            FileWriter writer = new FileWriter(file);
-            for (String string : addressFileLines) {
-                writer.write(string + "\n");
-            }
-            writer.close();
-        } catch (IOException e) {
-            e.getCause();
-        }
+    public String getFilePath() {
+        return filePath;
     }
 
-    public void makeSymbolFile() {
-        String file = filePath + "/" + fileName.replaceAll(".txt", "") + "-symbol-table.txt";
-        System.out.println(file);
-        try {
-            FileWriter writer = new FileWriter(file);
-            for (String string : symbolFileLines) {
-                writer.write(string + "\n");
-            }
-            writer.close();
-        } catch (IOException e) {
-            e.getCause();
-        }
+    public String getFileName() {
+        return fileName;
     }
+
+
 
     public Terminal terminal = new Terminal();
 

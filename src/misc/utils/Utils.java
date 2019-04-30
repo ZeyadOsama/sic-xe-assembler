@@ -38,18 +38,18 @@ public class Utils {
      * @param operand data Operand  C'EOF' || X'F1'
      * @return its integer value
      */
-    public static int parseDataOperand(String operand) {
-        String obj = "";
+    public static String parseDataOperand(String operand) {
+        String parsedOperand = "";
         if (operand.startsWith("X"))
-            obj = operand.substring(1).replace("'", "");
+            parsedOperand = operand.substring(1).replace("'", "");
 
         else if (operand.startsWith("C"))
             for (int i = 2; i < operand.length() - 1; i++)
-                obj += Integer.toHexString(operand.charAt(i));
+                parsedOperand += Integer.toHexString(operand.charAt(i));
 
         else if (Pattern.matches("0x[0-9A-F]+", operand))
-            obj = operand.substring(2);
+            parsedOperand = operand.substring(2);
 
-        return Integer.parseInt(obj, 16);
+        return String.valueOf(Integer.parseInt(parsedOperand, 16));
     }
 }
