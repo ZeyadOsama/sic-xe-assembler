@@ -1,5 +1,6 @@
 package parser;
 
+import assembler.constants.Format;
 import assembler.constants.OperandType;
 import assembler.core.ErrorHandler;
 import assembler.structure.Instruction;
@@ -21,7 +22,10 @@ class ParsingValidations {
 
     static boolean validateInstruction(Instruction instruction) {
         ParsingValidations.instruction = instruction;
-        return validateLabel() && validateMnemonic() && validateOperands();
+        if(validateLabel())
+            if(validateMnemonic())
+                return validateOperands();
+        return false;
     }
 
     private static boolean validateLabel() {
@@ -45,14 +49,37 @@ class ParsingValidations {
 
     private static boolean validateMnemonic() {
         if (instruction.getMnemonic() == null) {
-            errorHandler.setHasError(false);
-            return true;
+            errorHandler.setHasError(true);
+            errorHandler.setCurrentError(ErrorHandler.MISSING_MNEMONIC);
+            return false;
         }
-        if (!isMnemonic(instruction.getMnemonic())) {
+
+        // removes format four symbol first to check existence of mnemonic
+        String mnemonic = instruction.getMnemonic();
+        boolean hasFormatFourSymbol = false;
+        if (mnemonic.startsWith("+")) {
+            mnemonic = mnemonic.replace("+", "");
+            hasFormatFourSymbol = true;
+            System.out.println(mnemonic);
+        }
+
+        if (!isMnemonic(mnemonic)) {
             errorHandler.setHasError(true);
             errorHandler.setCurrentError(ErrorHandler.UNRECOGNIZED_OPERATION);
             return false;
         }
+
+        // if mnemonic exists check it's format
+        if (hasFormatFourSymbol) {
+            mnemonic = "+" + mnemonic;
+            if (!OperationTable.containsMnemonic(mnemonic)
+                    || OperationTable.getOperation(mnemonic).getFormat() != Format.FOUR) {
+                errorHandler.setHasError(true);
+                errorHandler.setCurrentError(ErrorHandler.NOT_FORMAT_FOUR);
+                return false;
+            }
+        }
+
         errorHandler.setHasError(false);
         return true;
     }

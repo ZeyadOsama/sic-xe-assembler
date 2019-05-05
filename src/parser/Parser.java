@@ -47,29 +47,6 @@ public class Parser {
     private SymbolTable symbolTable = SymbolTable.getInstance();
     private ErrorHandler errorHandler = ErrorHandler.getInstance();
 
-//    /**
-//     * Parses the file specified in the path.
-//     * Reads it line by line and creates a list of instructions in the same order
-//     * they appear in the file
-//     *
-//     * @param bufferedReader file being read
-//     * @return ArrayList containing parsed instructions
-//     * @throws ParsingException in case the input file contains unexpected text
-//     * @see Instruction class
-//     */
-//    public ArrayList<Instruction> parse(@NotNull BufferedReader bufferedReader) throws ParsingException {
-//        String line;
-//        try {
-//            while ((line = bufferedReader.readLine()) != null) {
-//                Program.getInstructionsList().add(line);
-//                parsedInstructionsList.add(parseInstruction(line));
-//            }
-//        } catch (IOException e) {
-//            e.getCause();
-//        }
-//        return parsedInstructionsList;
-//    }
-
     /**
      * Parses the file specified in the path.
      * Reads it line by line and creates a list of instructions in the same order
@@ -79,7 +56,7 @@ public class Parser {
      * @return ArrayList containing parsed instructions
      * @see Instruction class
      */
-    public ArrayList<Instruction> parse(@NotNull ArrayList<String> instructions){
+    public ArrayList<Instruction> parse(@NotNull ArrayList<String> instructions) {
         for (String instruction : instructions)
             parsedInstructionsList.add(parseInstruction(instruction));
         return parsedInstructionsList;

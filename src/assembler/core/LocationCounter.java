@@ -18,11 +18,11 @@ public final class LocationCounter {
 
     private static LocationCounter instance = new LocationCounter();
 
-    private LocationCounter() {
-    }
-
     public static LocationCounter getInstance() {
         return instance;
+    }
+
+    private LocationCounter() {
     }
 
     private final int WORD_LENGTH = 3;
@@ -81,6 +81,8 @@ public final class LocationCounter {
             previousAddress = currentAddress;
         } else if (isOperation(mnemonic)) {
             switch (Objects.requireNonNull(OperationTable.getOperation(mnemonic).getFormat())) {
+                case ONE:
+                    currentAddress += 1;
                 case TWO:
                     currentAddress += 2;
                     break;
@@ -95,7 +97,13 @@ public final class LocationCounter {
             previousAddress = currentAddress;
         } else
             enabled = false;
-//            throw new ParsingException("Could not find specific format", programCounter);
+
+        if (programCounter == Program.getProgramCount())
+            if (!instruction.getMnemonic().equals(DirectiveTable.END)) {
+                ErrorHandler errorHandler = ErrorHandler.getInstance();
+                errorHandler.setHasError(true);
+                errorHandler.setCurrentError(ErrorHandler.MISSING_END);
+            }
     }
 
 

@@ -6,6 +6,7 @@ import assembler.tables.DirectiveTable;
 import assembler.tables.OperationTable;
 import assembler.tables.RegisterTable;
 import assembler.tables.SymbolTable;
+import misc.utils.ConsoleColors;
 import parser.Parser;
 
 import java.util.ArrayList;
@@ -23,6 +24,7 @@ public class ObjectCodeGenerator {
     private static Record headerRecord;
     private static Record textRecord;
     private static Record endRecord;
+
     private ArrayList<String> objectCode;
     public Terminal terminal = new Terminal();
 
@@ -30,6 +32,10 @@ public class ObjectCodeGenerator {
     private ArrayList<Instruction> parsedInstructions;
 
     public void generate() {
+        if (Program.hasError()) {
+            System.out.println(ConsoleColors.RED + "Can not generate object code due to parsing errors." + ConsoleColors.RESET);
+            return;
+        }
         generateHeaderRecord();
         generateTextRecord();
         generateEndRecord();

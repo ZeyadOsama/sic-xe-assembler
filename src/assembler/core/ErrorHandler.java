@@ -7,7 +7,6 @@ public final class ErrorHandler {
 
     private static ErrorHandler instance = new ErrorHandler();
 
-    private boolean hasError = false;
 
     public final static int MISPLACED_LABEL = 0;
     public final static int MISPLACED_OPERATION = 1;
@@ -30,9 +29,13 @@ public final class ErrorHandler {
     public final static int SHOULD_HAVE_FIRST_OPERAND = 18;
     public final static int SHOULD_HAVE_SECOND_OPERAND = 19;
     public final static int WRONG_OPERAND_TYPE = 20;
+    public final static int MISSING_MNEMONIC = 21;
 
-    private final static String[] errorList = new String[21];
+
+    private final static String[] errorList = new String[22];
+    private boolean hasError = false;
     private int currentError;
+    private boolean isNonExecutable = false;
 
     private ErrorHandler() {
     }
@@ -51,18 +54,6 @@ public final class ErrorHandler {
 
     public void setCurrentError(int currentError) {
         this.currentError = currentError;
-    }
-
-    public void setHasError(boolean hasError) {
-        this.hasError = hasError;
-    }
-
-    public boolean hasError() {
-        return hasError;
-    }
-
-    public String generate() {
-        return ConsoleColors.RED + Constants.TAB + errorList[currentError] + ConsoleColors.RESET;
     }
 
     private static void load() {
@@ -87,6 +78,25 @@ public final class ErrorHandler {
         errorList[18] = "***ERROR: should have an operand***";
         errorList[19] = "***ERROR: should have second operand***";
         errorList[20] = "***ERROR: wrong operand type***";
+        errorList[21] = "***ERROR: missing mnemonic***";
+    }
+
+    public boolean hasError() {
+        return hasError;
+    }
+
+    public void setHasError(boolean hasError) {
+        this.hasError = hasError;
+        if (hasError)
+            isNonExecutable = true;
+    }
+
+    public String generate() {
+        return ConsoleColors.RED + Constants.TAB + errorList[currentError] + ConsoleColors.RESET;
+    }
+
+    public boolean isNonExecutable() {
+        return isNonExecutable;
     }
 
     static {

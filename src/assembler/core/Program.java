@@ -32,7 +32,8 @@ public class Program {
 
     public static String getEndAddress() {
         return extendLength(removeHexadecimalNotation(
-                LocationCounter.getInstance().getHexAddresses().get(getProgramCount() - 1)), 6);
+                LocationCounter.getInstance().getHexAddresses().get(
+                        LocationCounter.getInstance().getHexAddresses().size() - 1)), 6);
     }
 
     public static boolean hasBaseDirective() {
@@ -55,5 +56,9 @@ public class Program {
 
     public static int getProgramCount() {
         return instructionsList.size();
+    }
+
+    public static boolean hasError() {
+        return ErrorHandler.getInstance().isNonExecutable();
     }
 }
