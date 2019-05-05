@@ -8,7 +8,11 @@ import java.util.ArrayList;
 import static misc.utils.Utils.extendLength;
 import static misc.utils.Utils.removeHexadecimalNotation;
 
-public class Program {
+
+/**
+ * Responsible for having all details of current read program.
+ */
+public final class Program {
 
     private static String name;
     private static String startAddress;

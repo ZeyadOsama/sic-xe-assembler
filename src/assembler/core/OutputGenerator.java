@@ -15,13 +15,13 @@ import static misc.utils.Utils.addHexadecimalNotation;
  */
 public final class OutputGenerator {
 
-    private static ErrorHandler errorHandler = ErrorHandler.getInstance();
-
     private String filePath;
     private String fileName;
 
     private static ArrayList<String> addressFileLines = new ArrayList<>();
     private static ArrayList<String> symbolFileLines = new ArrayList<>();
+
+    private static ErrorHandler errorHandler = ErrorHandler.getInstance();
 
     /**
      * @param filePath parsed file absolute parent path
@@ -80,6 +80,9 @@ public final class OutputGenerator {
 
     public Terminal terminal = new Terminal();
 
+    /**
+     * Utility class to print files content in terminal
+     */
     public class Terminal {
 
         private Terminal() {

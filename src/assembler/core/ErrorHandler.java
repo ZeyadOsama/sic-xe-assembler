@@ -5,10 +5,18 @@ import misc.utils.ConsoleColors;
 
 public final class ErrorHandler {
 
+    /**
+     * Constants
+     */
+    public final static int MISPLACED_LABEL = 0;
+    public static Out out = new Out();
+    /**
+     * Singleton class
+     */
     private static ErrorHandler instance = new ErrorHandler();
 
-
-    public final static int MISPLACED_LABEL = 0;
+    private ErrorHandler() {
+    }
     public final static int MISPLACED_OPERATION = 1;
     public final static int MISPLACED_OPERAND = 2;
     public final static int DUPLICATE_LABEL = 3;
@@ -36,13 +44,6 @@ public final class ErrorHandler {
     private boolean hasError = false;
     private int currentError;
     private boolean isNonExecutable = false;
-
-    private ErrorHandler() {
-    }
-
-    public static ErrorHandler getInstance() {
-        return instance;
-    }
 
     public String getErrorString(int error) {
         return errorList[error];
@@ -95,11 +96,34 @@ public final class ErrorHandler {
         return ConsoleColors.RED + Constants.TAB + errorList[currentError] + ConsoleColors.RESET;
     }
 
+    public static ErrorHandler getInstance() {
+        return instance;
+    }
+
     public boolean isNonExecutable() {
         return isNonExecutable;
     }
 
     static {
         load();
+    }
+
+    public String generate(String error) {
+        return ConsoleColors.RED + Constants.TAB + error + ConsoleColors.RESET;
+    }
+
+    /**
+     * Utility class to print red error messages in terminal
+     */
+    public static class Out {
+
+        private Out() {
+        }
+
+        public void println(String error) {
+            System.out.println(ConsoleColors.RED
+                    + error
+                    + ConsoleColors.RESET);
+        }
     }
 }

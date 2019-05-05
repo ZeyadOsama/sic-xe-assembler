@@ -6,7 +6,6 @@ import assembler.tables.DirectiveTable;
 import assembler.tables.OperationTable;
 import assembler.tables.RegisterTable;
 import assembler.tables.SymbolTable;
-import misc.utils.ConsoleColors;
 import parser.Parser;
 
 import java.util.ArrayList;
@@ -19,27 +18,18 @@ import static misc.utils.Validations.Operand.*;
 import static misc.utils.Validations.isManipulativeOperation;
 import static misc.utils.Validations.isOperation;
 
-public class ObjectCodeGenerator {
+public final class ObjectCodeGenerator {
 
     private static Record headerRecord;
     private static Record textRecord;
     private static Record endRecord;
 
     private ArrayList<String> objectCode;
-    public Terminal terminal = new Terminal();
 
     private SymbolTable symbolTable = SymbolTable.getInstance();
     private ArrayList<Instruction> parsedInstructions;
 
-    public void generate() {
-        if (Program.hasError()) {
-            System.out.println(ConsoleColors.RED + "Can not generate object code due to parsing errors." + ConsoleColors.RESET);
-            return;
-        }
-        generateHeaderRecord();
-        generateTextRecord();
-        generateEndRecord();
-    }
+    public Terminal terminal = new Terminal();
 
     private void generateHeaderRecord() {
         headerRecord.addContent(Program.getName());
@@ -230,18 +220,20 @@ public class ObjectCodeGenerator {
         return new StringBuilder().append(b).append(p).append(e).toString();
     }
 
-    public class Terminal {
-
-        private Terminal() {
+    public void generate() {
+        if (Program.hasError()) {
+            ErrorHandler.out.println("Can not generate object code due to parsing errors.");
+            return;
         }
-
-        public void show() {
-            System.out.println(headerRecord);
-            System.out.println(textRecord);
-            System.out.println(endRecord);
-        }
+        generateHeaderRecord();
+        generateTextRecord();
+        generateEndRecord();
     }
 
+    /**
+     * Inner class for generating and handling single record
+     */
+    // TODO
     private class Record {
         private static final char SEPARATOR = '^';
         private static final String HEADER = "H";
@@ -273,6 +265,21 @@ public class ObjectCodeGenerator {
 
         private int getLength() {
             return content.length();
+        }
+    }
+
+    /**
+     * Utility class to print files content in terminal
+     */
+    public class Terminal {
+
+        private Terminal() {
+        }
+
+        public void show() {
+            System.out.println(headerRecord);
+            System.out.println(textRecord);
+            System.out.println(endRecord);
         }
     }
 }

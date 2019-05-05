@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 
-public class DirectiveTable {
+public final class DirectiveTable {
 
     /**
      * Constants

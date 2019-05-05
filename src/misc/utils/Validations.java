@@ -9,7 +9,10 @@ import org.jetbrains.annotations.NotNull;
  * Utility class for parsing validations.
  * Needed for error detection.
  */
-public class Validations {
+public final class Validations {
+
+    private Validations() {
+    }
 
     public static boolean isComment(@NotNull String line) {
         return line.startsWith(".");

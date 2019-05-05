@@ -2,7 +2,10 @@ package misc.utils;
 
 import java.util.regex.Pattern;
 
-public class Utils {
+public final class Utils {
+
+    private Utils() {
+    }
 
     public static String addHexadecimalNotation(String string) {
         return "0x" + string;

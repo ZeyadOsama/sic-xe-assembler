@@ -1,6 +1,6 @@
 package assembler.structure;
 
-public class Register {
+public final class Register {
 
     private final int address;
     private int value;

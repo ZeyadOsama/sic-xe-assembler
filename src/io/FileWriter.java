@@ -1,18 +1,25 @@
 package io;
 
+import assembler.core.ErrorHandler;
 import assembler.core.OutputGenerator;
+import assembler.core.Program;
 
 import java.io.IOException;
 
-public class FileWriter {
+public final class FileWriter {
 
-    OutputGenerator outputGenerator;
+    private OutputGenerator outputGenerator;
 
     public FileWriter(OutputGenerator outputGenerator) {
         this.outputGenerator = outputGenerator;
     }
 
     public void writeAddressFile() {
+        if (Program.hasError()) {
+            ErrorHandler.out.println("Can not write address file due to parsing errors.");
+            return;
+        }
+
         String file = outputGenerator.getFilePath() + "/"
                 + outputGenerator.getFileName().replaceAll(".txt", "") + "-addresses.txt";
         System.out.println(file);
@@ -28,6 +35,11 @@ public class FileWriter {
     }
 
     public void writeSymbolFile() {
+        if (Program.hasError()) {
+            ErrorHandler.out.println("Can not write symbol file due to parsing errors.");
+            return;
+        }
+
         String file = outputGenerator.getFilePath() + "/"
                 + outputGenerator.getFileName().replaceAll(".txt", "") + "-symbol-table.txt";
         System.out.println(file);

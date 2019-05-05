@@ -16,14 +16,13 @@ import static misc.utils.Validations.isOperation;
 
 class ParsingValidations {
 
-    private static Instruction instruction;
-
     private static ErrorHandler errorHandler = ErrorHandler.getInstance();
+    private static Instruction instruction;
 
     static boolean validateInstruction(Instruction instruction) {
         ParsingValidations.instruction = instruction;
-        if(validateLabel())
-            if(validateMnemonic())
+        if (validateLabel())
+            if (validateMnemonic())
                 return validateOperands();
         return false;
     }

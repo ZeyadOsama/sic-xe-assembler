@@ -2,9 +2,10 @@ package assembler.structure;
 
 import assembler.constants.Format;
 import assembler.constants.OperandType;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class Operation {
+public final class Operation {
 
     private final OperandType firstOperandType;
     private final OperandType secondOperandType;
@@ -13,8 +14,8 @@ public class Operation {
     private int opcode;
     private boolean indexable;
 
-    public Operation(String name, int opcode, Format format,
-                     OperandType firstOperandType, OperandType secondOperandType) {
+    public Operation(@NotNull String name, int opcode, @NotNull Format format,
+                     @NotNull OperandType firstOperandType, @NotNull OperandType secondOperandType) {
         setName(name);
         this.opcode = opcode;
         this.format = format;

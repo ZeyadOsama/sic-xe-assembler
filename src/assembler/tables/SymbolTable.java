@@ -8,8 +8,11 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 
-public class SymbolTable {
+public final class SymbolTable {
 
+    /**
+     * Singleton class
+     */
     private static SymbolTable instance = new SymbolTable();
 
     public static SymbolTable getInstance() {

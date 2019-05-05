@@ -4,7 +4,7 @@ import assembler.tables.RegisterTable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class Instruction {
+public final class Instruction {
 
     private String label;
     private String mnemonic;

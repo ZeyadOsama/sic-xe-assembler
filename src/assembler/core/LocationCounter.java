@@ -16,6 +16,9 @@ import static misc.utils.Validations.isOperation;
 
 public final class LocationCounter {
 
+    /**
+     * Singleton class
+     */
     private static LocationCounter instance = new LocationCounter();
 
     public static LocationCounter getInstance() {

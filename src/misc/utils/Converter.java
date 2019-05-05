@@ -2,7 +2,13 @@ package misc.utils;
 
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Utility class to convert numbers from one form to another
+ */
 public final class Converter {
+
+    private Converter() {
+    }
 
     private final static int RADIX_HEX = 16;
     private final static int RADIX_BIN = 2;

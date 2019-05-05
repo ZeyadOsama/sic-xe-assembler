@@ -16,14 +16,6 @@ public final class OperationTable {
     private static HashMap<String, Operation> operationTable = new HashMap<>();
     private static HashSet<String> manipulativeOperations = new HashSet<>();
 
-    /**
-     * Cache op-table before starting program
-     */
-    static {
-        load();
-        loadManipulativeOperations();
-    }
-
     public static HashMap<String, Operation> get() {
         return operationTable;
     }
@@ -210,5 +202,13 @@ public final class OperationTable {
         manipulativeOperations.add("+JSUB");
         manipulativeOperations.add("RSUB");
         manipulativeOperations.add("+RSUB");
+    }
+
+    /**
+     * Cache op-table before starting program
+     */
+    static {
+        load();
+        loadManipulativeOperations();
     }
 }

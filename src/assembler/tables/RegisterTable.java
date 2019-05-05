@@ -4,8 +4,11 @@ import assembler.structure.Register;
 
 import java.util.HashMap;
 
-public class RegisterTable {
+public final class RegisterTable {
 
+    /**
+     * Constants
+     */
     public static final String A = "A";
     public static final String X = "X";
     public static final String L = "L";
@@ -17,10 +20,6 @@ public class RegisterTable {
     public static final String SW = "SW";
 
     private static HashMap<String, Register> registers = new HashMap<>();
-
-    static {
-        load();
-    }
 
     public static String getRegisterName(int registerNumber) {
         switch (registerNumber) {
@@ -49,8 +48,11 @@ public class RegisterTable {
     private RegisterTable() {
     }
 
-    public static Register getRegister(String registerName){
-        return registers.get(registerName);
+    /**
+     * Cache op-table before starting program
+     */
+    static {
+        load();
     }
 
     public static boolean contains(String register) {
@@ -70,5 +72,9 @@ public class RegisterTable {
         registers.put("F", new Register(6));
         registers.put("PC", new Register(8));
         registers.put("SW", new Register(9));
+    }
+
+    public static Register getRegister(String registerName) {
+        return registers.get(registerName);
     }
 }
