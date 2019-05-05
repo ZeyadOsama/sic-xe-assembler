@@ -6,6 +6,7 @@ import assembler.structure.Operation;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
+import java.util.HashSet;
 
 public final class OperationTable {
 
@@ -13,16 +14,22 @@ public final class OperationTable {
     }
 
     private static HashMap<String, Operation> operationTable = new HashMap<>();
+    private static HashSet<String> manipulativeOperations = new HashSet<>();
 
     /**
      * Cache op-table before starting program
      */
     static {
         load();
+        loadManipulativeOperations();
     }
 
     public static HashMap<String, Operation> get() {
         return operationTable;
+    }
+
+    public static HashSet<String> getManipulativeOperations() {
+        return manipulativeOperations;
     }
 
     public static Operation getOperation(@NotNull String mnemonic) {
@@ -184,5 +191,24 @@ public final class OperationTable {
                 new Operation("WD", 0xDC, Format.THREE, OperandType.VALUE, OperandType.NONE));
         operationTable.put("+WD",
                 new Operation("+WD", 0xDC, Format.FOUR, OperandType.VALUE, OperandType.NONE));
+    }
+
+    /**
+     * Load all mnemonics of operations that may be manipulative to
+     * program counter.
+     */
+    private static void loadManipulativeOperations() {
+        manipulativeOperations.add("J");
+        manipulativeOperations.add("+J");
+        manipulativeOperations.add("JLT");
+        manipulativeOperations.add("+JLT");
+        manipulativeOperations.add("JGT");
+        manipulativeOperations.add("+JGT");
+        manipulativeOperations.add("JEQ");
+        manipulativeOperations.add("+JEQ");
+        manipulativeOperations.add("JSUB");
+        manipulativeOperations.add("+JSUB");
+        manipulativeOperations.add("RSUB");
+        manipulativeOperations.add("+RSUB");
     }
 }

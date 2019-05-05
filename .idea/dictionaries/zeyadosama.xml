@@ -1,16 +1,27 @@
 <component name="ProjectDictionaryState">
   <dictionary name="zeyadosama">
     <words>
+      <w>addr</w>
+      <w>compr</w>
       <w>csect</w>
+      <w>divr</w>
       <w>extdef</w>
       <w>extref</w>
       <w>indexabilty</w>
       <w>indexable</w>
+      <w>jsub</w>
+      <w>ldch</w>
       <w>ltorg</w>
+      <w>mulr</w>
       <w>nobase</w>
       <w>opcode</w>
       <w>resb</w>
       <w>resw</w>
+      <w>rsub</w>
+      <w>shiftl</w>
+      <w>shiftr</w>
+      <w>stch</w>
+      <w>subr</w>
     </words>
   </dictionary>
 </component>

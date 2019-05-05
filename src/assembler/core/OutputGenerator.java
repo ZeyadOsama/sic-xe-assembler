@@ -7,6 +7,9 @@ import parser.Parser;
 
 import java.util.ArrayList;
 
+import static misc.utils.Converter.Decimal.toHexadecimal;
+import static misc.utils.Utils.addHexadecimalNotation;
+
 /**
  * Responsible for generating addresses file and symbol table file
  */
@@ -42,7 +45,7 @@ public final class OutputGenerator {
         for (int i = 0; i < locationCounter.getProgramCounter(); i++) {
             addressFileLines.add(locationCounter.getHexAddresses().get(i)
                     + "\t\t"
-                    + Parser.getInstance().getInstructions().get(i));
+                    + Program.getInstructionsList().get(i));
         }
     }
 
@@ -50,7 +53,8 @@ public final class OutputGenerator {
         SymbolTable symbolTable = SymbolTable.getInstance();
         for (String name : symbolTable.get().keySet()) {
             Symbol symbol = symbolTable.getSymbol(name);
-            String string = symbol.getAddress() + "\t\t" + symbol.getLabel() + "\t\t";
+            String string = addHexadecimalNotation(toHexadecimal(symbol.getAddress()))
+                    + Constants.TAB + symbol.getLabel() + Constants.TAB;
             symbolFileLines.add(string);
         }
     }
@@ -74,10 +78,12 @@ public final class OutputGenerator {
     }
 
 
-
     public Terminal terminal = new Terminal();
 
     public class Terminal {
+
+        private Terminal() {
+        }
 
         public void showAddressFile() {
             for (String line : addressFileLines)

@@ -15,6 +15,7 @@ import static misc.utils.Converter.Decimal;
 import static misc.utils.Utils.extendLength;
 import static misc.utils.Utils.parseDataOperand;
 import static misc.utils.Validations.Operand.*;
+import static misc.utils.Validations.isManipulativeOperation;
 import static misc.utils.Validations.isOperation;
 
 public class ObjectCodeGenerator {
@@ -22,20 +23,11 @@ public class ObjectCodeGenerator {
     private static Record headerRecord;
     private static Record textRecord;
     private static Record endRecord;
-    private int startAddress;
-    private int endAddress;
     private ArrayList<String> objectCode;
-    private ArrayList<Instruction> instructions;
+    public Terminal terminal = new Terminal();
 
     private SymbolTable symbolTable = SymbolTable.getInstance();
-
-    public ObjectCodeGenerator() {
-        objectCode = new ArrayList<>();
-        headerRecord = new Record(Record.HEADER);
-        textRecord = new Record(Record.TEXT);
-        endRecord = new Record(Record.END);
-        instructions = Parser.getInstance().getParsedInstructions();
-    }
+    private ArrayList<Instruction> parsedInstructions;
 
     public void generate() {
         generateHeaderRecord();
@@ -50,17 +42,74 @@ public class ObjectCodeGenerator {
         System.out.println(headerRecord.content);
     }
 
-    public Terminal terminal = new Terminal();
+    public ObjectCodeGenerator() {
+        objectCode = new ArrayList<>();
+        headerRecord = new Record(Record.HEADER);
+        textRecord = new Record(Record.TEXT);
+        endRecord = new Record(Record.END);
+        parsedInstructions = Parser.getInstance().getParsedInstructions();
+    }
 
     private void generateEndRecord() {
 
     }
 
+    private ArrayList<String> generateTextRecord() {
+        Record record = new Record();
+        int recordLength = 0;
+
+        for (Instruction instruction : parsedInstructions) {
+            String objectCode = null;
+            if (isOperation(instruction.getMnemonic())) {
+                switch (OperationTable.getOperation(instruction.getMnemonic()).getFormat()) {
+                    case ONE:
+                        objectCode = generateFormatOne(instruction);
+                        recordLength += 1;
+                        break;
+                    case TWO:
+                        objectCode = generateFormatTwo(instruction);
+                        recordLength += 2;
+                        break;
+                    case THREE:
+                        objectCode = generateFormatThree(instruction);
+                        recordLength += 3;
+                        break;
+                    case FOUR:
+                        objectCode = generateFormatFour(instruction);
+                        recordLength += 4;
+                        break;
+                }
+            } else if (instruction.getMnemonic().equals(DirectiveTable.BYTE) && instruction.hasFirstOperand()) {
+                String operand = instruction.getFirstOperand();
+                if (isLiteral(operand))
+                    operand = parseDataOperand(operand);
+                objectCode = extendLength(Decimal.toHexadecimal(operand), 2);
+            } else if (instruction.getMnemonic().equals(DirectiveTable.WORD) && instruction.hasFirstOperand()) {
+                String operand = instruction.getFirstOperand();
+                if (isLiteral(operand))
+                    operand = parseDataOperand(operand);
+                objectCode = extendLength(Decimal.toHexadecimal(operand), 6);
+            }
+
+            textRecord.addContent(objectCode);
+        }
+        System.out.println(textRecord.content);
+        return null;
+    }
+
+    /**
+     * @param instruction parsed
+     * @return object code for a single instruction of format one
+     */
     private String generateFormatOne(Instruction instruction) {
         String opcode = String.valueOf(OperationTable.getOperation(instruction.getMnemonic()).getOpcode());
         return extendLength(Decimal.toBinary(opcode), 8);
     }
 
+    /**
+     * @param instruction parsed
+     * @return object code for a single instruction of format two
+     */
     private String generateFormatTwo(Instruction instruction) {
         String opcode = String.valueOf(OperationTable.getOperation(instruction.getMnemonic()).getOpcode());
         opcode = extendLength(Decimal.toBinary(opcode), 8);
@@ -77,6 +126,10 @@ public class ObjectCodeGenerator {
         return extendLength(Binary.toHexadecimal(opcode + firstOperand + secondOperand), 4);
     }
 
+    /**
+     * @param instruction parsed
+     * @return object code for a single instruction of format three
+     */
     private String generateFormatThree(Instruction instruction) {
         String opcode = String.valueOf(OperationTable.getOperation(instruction.getMnemonic()).getOpcode());
         opcode = extendLength(Decimal.toBinary(opcode), 6);
@@ -95,6 +148,10 @@ public class ObjectCodeGenerator {
                 + operand), 6);
     }
 
+    /**
+     * @param instruction parsed
+     * @return object code for a single instruction of format four
+     */
     private String generateFormatFour(Instruction instruction) {
         String opcode = String.valueOf(OperationTable.getOperation(instruction.getMnemonic()).getOpcode());
         opcode = extendLength(Decimal.toBinary(opcode), 6);
@@ -121,39 +178,19 @@ public class ObjectCodeGenerator {
             n = '1';
         } else {
             x = '0';
-            if (isDirect(instruction)) {
-                i = '1';
+            if (isIndirect(instruction)) {
+                i = '0';
                 n = '1';
             } else if (isImmediate(instruction)) {
                 i = '1';
                 n = '0';
             } else {
-                i = '0';
+                i = '1';
                 n = '1';
             }
         }
         ;
         return new StringBuilder().append(n).append(i).append(x).toString();
-    }
-
-    private String getBPE(Instruction instruction) {
-        // TODO: p bit not set right now
-        char b, p, e;
-        if (OperationTable.getOperation(instruction.getMnemonic()).getFormat() == Format.FOUR) {
-            b = '0';
-            p = '0';
-            e = '1';
-        } else {
-            e = '1';
-            if (Program.hasBaseDirective()) {
-                b = '1';
-                p = '0';
-            } else {
-                b = '0';
-                p = '1';
-            }
-        }
-        return new StringBuilder().append(b).append(p).append(e).toString();
     }
 
 
@@ -165,56 +202,37 @@ public class ObjectCodeGenerator {
         return operand.replace("@", "");
     }
 
-    private ArrayList<String> generateTextRecord() {
-        Record record = new Record();
-        int recordLength = 0;
-
-        for (Instruction instruction : instructions) {
-            String objectCode = null;
-            if (isOperation(instruction.getMnemonic())) {
-                switch (OperationTable.getOperation(instruction.getMnemonic()).getFormat()) {
-                    case ONE:
-                        objectCode = generateFormatOne(instruction);
-                        recordLength += 1;
-                        break;
-                    case TWO:
-                        objectCode = generateFormatTwo(instruction);
-                        recordLength += 2;
-                        break;
-                    case THREE:
-                        objectCode = generateFormatThree(instruction);
-                        recordLength += 3;
-                        break;
-                    case FOUR:
-                        objectCode = generateFormatFour(instruction);
-                        recordLength += 4;
-                        break;
-                }
-            } else if (instruction.getMnemonic().equals(DirectiveTable.BYTE) && instruction.hasFirstOperand()){
-                String operand = instruction.getFirstOperand();
-                if(isLiteral(operand))
-                    operand = parseDataOperand(operand);
-                objectCode = extendLength(Decimal.toHexadecimal(operand), 2);
+    private String getBPE(Instruction instruction) {
+        char b, p, e;
+        if (OperationTable.getOperation(instruction.getMnemonic()).getFormat() == Format.FOUR) {
+            b = '0';
+            p = '0';
+            e = '1';
+        } else {
+            if (Program.hasBaseDirective()) {
+                b = '1';
+                p = '0';
+            } else if (isManipulativeOperation(instruction.getMnemonic())) {
+                b = '0';
+                p = '1';
+            } else {
+                b = '0';
+                p = '0';
             }
-            else if (instruction.getMnemonic().equals(DirectiveTable.WORD) && instruction.hasFirstOperand()){
-                String operand = instruction.getFirstOperand();
-                if(isLiteral(operand))
-                    operand = parseDataOperand(operand);
-                objectCode = extendLength(Decimal.toHexadecimal(operand), 6);
-            }
-
-            textRecord.addContent(objectCode);
+            e = '0';
         }
-        System.out.println(textRecord.content);
-        return null;
+        return new StringBuilder().append(b).append(p).append(e).toString();
     }
 
     public class Terminal {
 
+        private Terminal() {
+        }
+
         public void show() {
             System.out.println(headerRecord);
             System.out.println(textRecord);
-            System.out.println(endAddress);
+            System.out.println(endRecord);
         }
     }
 
@@ -251,65 +269,4 @@ public class ObjectCodeGenerator {
             return content.length();
         }
     }
-
-
-//        public void sic(){
-//            if (isOperation(instruction.getMnemonic())) {
-//                opcode = String.valueOf(OperationTable.getOperation(instruction.getMnemonic()).getOpcode());
-//                index = instruction.isIndexed() ? "1" : "0";
-//
-//                if (instruction.hasFirstOperand()) {
-//                    String temp;
-//                    if (instruction.getFirstOperand().startsWith("#"))
-//                        temp = instruction.getFirstOperand().replace("#", "");
-//                    else temp = instruction.getFirstOperand();
-//
-//                    if (symbolTable.containsSymbol(temp))
-//                        firstOperand = String.valueOf(symbolTable.getSymbol(temp).getAddress());
-//                    else if (RegisterTable.contains(temp))
-//                        firstOperand = String.valueOf(RegisterTable.getRegister(temp).getAddress());
-//                    else
-//                        firstOperand = temp;
-//                }
-//
-//                if (instruction.hasSecondOperand()) {
-//                    String temp;
-//                    if (instruction.getSecondOperand().startsWith("#"))
-//                        temp = instruction.getSecondOperand().replace("#", "");
-//                    else temp = instruction.getSecondOperand();
-//
-//                    if (symbolTable.containsSymbol(temp)) {
-//                        secondOperand = String.valueOf(symbolTable.getSymbol(temp).getAddress());
-//                    } else if (RegisterTable.contains(temp)) {
-//                        secondOperand = String.valueOf(RegisterTable.getRegister(temp).getAddress());
-//                    } else {
-//                        secondOperand = temp;
-//                    }
-//                }
-//            } else if (isDirective(instruction.getMnemonic()) && !isReservationDirective(instruction.getMnemonic()) && instruction.hasFirstOperand()) {
-//                firstOperand = instruction.getFirstOperand();
-//            }
-//
-//
-//            String objectCode;
-//            if (instruction.getMnemonic().equals(DirectiveTable.START))
-//                objectCode = extendLength(firstOperand, 6);
-//            else {
-//                if (opcode != null)
-//                    opcode = extendLength(Decimal.toBinary(opcode), 8);
-//                else opcode = extendLength(Decimal.toBinary(0), 8);
-//
-//                if (index != null)
-//                    index = Decimal.toBinary(index);
-//                else index = "0";
-//
-//                if (firstOperand != null)
-//                    firstOperand = extendLength(Decimal.toBinary(firstOperand), 15);
-//                else firstOperand = extendLength(Decimal.toBinary("0"), 15);
-//
-//                objectCode = extendLength(Binary.toHexadecimal(opcode + index + firstOperand), 6);
-//            }
-//            System.out.println(objectCode);
-//            textRecord.addContent(objectCode);
-//        }
 }

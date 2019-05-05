@@ -10,8 +10,6 @@ import misc.exceptions.ParsingException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.BufferedReader;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Objects;
 import java.util.StringTokenizer;
@@ -41,7 +39,6 @@ public class Parser {
     }
 
     private ArrayList<Instruction> parsedInstructionsList = new ArrayList<>();
-    private ArrayList<String> instructions = new ArrayList<>();
     private Instruction parsedInstruction;
     private String currentInstruction;
     private boolean hasBaseDirective = false;
@@ -50,26 +47,41 @@ public class Parser {
     private SymbolTable symbolTable = SymbolTable.getInstance();
     private ErrorHandler errorHandler = ErrorHandler.getInstance();
 
+//    /**
+//     * Parses the file specified in the path.
+//     * Reads it line by line and creates a list of instructions in the same order
+//     * they appear in the file
+//     *
+//     * @param bufferedReader file being read
+//     * @return ArrayList containing parsed instructions
+//     * @throws ParsingException in case the input file contains unexpected text
+//     * @see Instruction class
+//     */
+//    public ArrayList<Instruction> parse(@NotNull BufferedReader bufferedReader) throws ParsingException {
+//        String line;
+//        try {
+//            while ((line = bufferedReader.readLine()) != null) {
+//                Program.getInstructionsList().add(line);
+//                parsedInstructionsList.add(parseInstruction(line));
+//            }
+//        } catch (IOException e) {
+//            e.getCause();
+//        }
+//        return parsedInstructionsList;
+//    }
+
     /**
      * Parses the file specified in the path.
      * Reads it line by line and creates a list of instructions in the same order
      * they appear in the file
      *
-     * @param bufferedReader file being read
+     * @param instructions as un-parsed {String} line by line
      * @return ArrayList containing parsed instructions
-     * @throws ParsingException in case the input file contains unexpected text
      * @see Instruction class
      */
-    public ArrayList<Instruction> parse(@NotNull BufferedReader bufferedReader) throws ParsingException {
-        String line;
-        try {
-            while ((line = bufferedReader.readLine()) != null) {
-                instructions.add(line);
-                parsedInstructionsList.add(parseInstruction(line));
-            }
-        } catch (IOException e) {
-            e.getCause();
-        }
+    public ArrayList<Instruction> parse(@NotNull ArrayList<String> instructions){
+        for (String instruction : instructions)
+            parsedInstructionsList.add(parseInstruction(instruction));
         return parsedInstructionsList;
     }
 
@@ -172,14 +184,6 @@ public class Parser {
      */
     public ArrayList<Instruction> getParsedInstructions() {
         return parsedInstructionsList;
-    }
-
-    /**
-     * @return ArrayList containing all instructions of the given program in
-     * it's original form {String}
-     */
-    public ArrayList<String> getInstructions() {
-        return instructions;
     }
 
     public Instruction getCurrentParsedInstruction() {

@@ -10,9 +10,9 @@ public class Main {
 
     public static void main(String[] args) {
         FileLoader fileLoader = new FileLoader();
+        fileLoader.openChooserDialogue();
 
-        Parser parser = Parser.getInstance();
-        parser.parse(fileLoader.loadFile());
+        Parser.getInstance().parse(fileLoader.loadFile());
 
         OutputGenerator outputGenerator = new OutputGenerator(fileLoader.getFileParentPath(), fileLoader.getFileName());
         outputGenerator.generateSymbolFile();

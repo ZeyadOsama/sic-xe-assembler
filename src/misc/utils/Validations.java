@@ -41,6 +41,15 @@ public class Validations {
         return (operation != null) && OperationTable.containsMnemonic(operation);
     }
 
+    public static boolean isManipulativeOperation(String operation) {
+        return (operation != null) && OperationTable.getManipulativeOperations().contains(operation);
+    }
+
+
+    /**
+     * Utility class for object code bits detection.
+     * Used to detect n i x b p e bits.
+     */
     public static class Operand {
 
         public static boolean isImmediate(Instruction instruction) {
