@@ -29,8 +29,6 @@ public final class ObjectCodeGenerator {
     private SymbolTable symbolTable = SymbolTable.getInstance();
     private ArrayList<Instruction> parsedInstructions;
 
-    public Terminal terminal = new Terminal();
-
     private void generateHeaderRecord() {
         headerRecord.addContent(Program.getName());
         headerRecord.addContent(Program.getStartAddress());
@@ -267,6 +265,8 @@ public final class ObjectCodeGenerator {
             return content.length();
         }
     }
+
+    public Terminal terminal = new Terminal();
 
     /**
      * Utility class to print files content in terminal

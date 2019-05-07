@@ -59,7 +59,6 @@ class ParsingValidations {
         if (mnemonic.startsWith("+")) {
             mnemonic = mnemonic.replace("+", "");
             hasFormatFourSymbol = true;
-            System.out.println(mnemonic);
         }
 
         if (!isMnemonic(mnemonic)) {

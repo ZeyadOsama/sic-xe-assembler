@@ -3,6 +3,7 @@ package io;
 import assembler.core.ErrorHandler;
 import assembler.core.OutputGenerator;
 import assembler.core.Program;
+import misc.utils.ConsoleColors;
 
 import java.io.IOException;
 
@@ -19,10 +20,7 @@ public final class FileWriter {
             ErrorHandler.out.println("Can not write address file due to parsing errors.");
             return;
         }
-
-        String file = outputGenerator.getFilePath() + "/"
-                + outputGenerator.getFileName().replaceAll(".txt", "") + "-addresses.txt";
-        System.out.println(file);
+        String file = generateFileName("addresses");
         try {
             java.io.FileWriter writer = new java.io.FileWriter(file);
             for (String string : OutputGenerator.getAddressFileLines()) {
@@ -32,17 +30,15 @@ public final class FileWriter {
         } catch (IOException e) {
             e.getCause();
         }
+        acceptMessage("Address file written successfully to " + file);
     }
 
     public void writeSymbolFile() {
         if (Program.hasError()) {
-            ErrorHandler.out.println("Can not write symbol file due to parsing errors.");
+            ErrorHandler.out.println("Can not write symbol table file due to parsing errors.");
             return;
         }
-
-        String file = outputGenerator.getFilePath() + "/"
-                + outputGenerator.getFileName().replaceAll(".txt", "") + "-symbol-table.txt";
-        System.out.println(file);
+        String file = generateFileName("symbol-table");
         try {
             java.io.FileWriter writer = new java.io.FileWriter(file);
             for (String string : OutputGenerator.getSymbolFileLines()) {
@@ -52,9 +48,20 @@ public final class FileWriter {
         } catch (IOException e) {
             e.getCause();
         }
+        acceptMessage("Symbol table file written successfully to " + file);
     }
 
     public void writeObjectCodeFile() {
         // TODO
+    }
+
+    private String generateFileName(String fileName) {
+        return outputGenerator.getFilePath() + "/"
+                + outputGenerator.getFileName().replaceAll(".txt", "")
+                + "-" + fileName + ".txt";
+    }
+
+    private void acceptMessage(String message) {
+        System.out.println(ConsoleColors.GREEN + message + ConsoleColors.RESET);
     }
 }

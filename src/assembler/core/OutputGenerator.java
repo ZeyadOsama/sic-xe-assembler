@@ -3,6 +3,7 @@ package assembler.core;
 import assembler.structure.Symbol;
 import assembler.tables.SymbolTable;
 import misc.constants.Constants;
+import misc.utils.ConsoleColors;
 import parser.Parser;
 
 import java.util.ArrayList;
@@ -89,13 +90,19 @@ public final class OutputGenerator {
         }
 
         public void showAddressFile() {
+            headerMessage("Address File");
             for (String line : addressFileLines)
                 System.out.println(line);
         }
 
         public void showSymbolFile() {
+            headerMessage("Symbol Table File");
             for (String line : symbolFileLines)
                 System.out.println(line);
+        }
+
+        private void headerMessage(String message) {
+            System.out.println(ConsoleColors.PURPLE + message + ConsoleColors.RESET);
         }
     }
 }
