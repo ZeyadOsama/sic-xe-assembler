@@ -48,6 +48,14 @@ public final class Validations {
         return (operation != null) && OperationTable.getManipulativeOperations().contains(operation);
     }
 
+    public static boolean containsNumber(String string) {
+        return (string != null) && string.matches(".*\\d.*");
+    }
+
+    public static boolean startsWithNumber(String string) {
+        return (string != null) && Character.isDigit(string.charAt(0));
+    }
+
 
     /**
      * Utility class for object code bits detection.

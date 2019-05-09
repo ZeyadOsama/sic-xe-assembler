@@ -1,6 +1,5 @@
 package main;
 
-import assembler.core.ObjectCodeGenerator;
 import assembler.core.OutputGenerator;
 import io.FileLoader;
 import io.FileWriter;
@@ -22,7 +21,5 @@ public class Main {
         FileWriter fileWriter = new FileWriter(outputGenerator);
         fileWriter.writeAddressFile();
         fileWriter.writeSymbolFile();
-
-        new ObjectCodeGenerator().generate();
     }
 }

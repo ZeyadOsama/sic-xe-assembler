@@ -11,8 +11,7 @@ import misc.constants.Constants;
 
 import java.util.StringTokenizer;
 
-import static misc.utils.Validations.isMnemonic;
-import static misc.utils.Validations.isOperation;
+import static misc.utils.Validations.*;
 
 class ParsingValidations {
 
@@ -28,22 +27,31 @@ class ParsingValidations {
     }
 
     private static boolean validateLabel() {
-        if (instruction.getLabel() != null) {
-            byte cnt = 0;
-            StringTokenizer tokenizer = new StringTokenizer(instruction.getLabel(), Constants.SPACE);
-            while (tokenizer.hasMoreTokens()) {
-                tokenizer.nextToken();
-                cnt++;
-            }
-            if (cnt > 1) {
-                errorHandler.setHasError(true);
-                errorHandler.setCurrentError(ErrorHandler.LABELS_CAN_NOT_HAVE_SPACES);
-                return false;
-            }
-            instruction.setLabel(instruction.getLabel().replaceAll("\\s", ""));
+        if (instruction.getLabel() == null) {
+            errorHandler.setHasError(false);
+            return true;
         }
-        errorHandler.setHasError(false);
+
+        if (startsWithNumber(instruction.getLabel())) {
+            errorHandler.setHasError(true);
+            errorHandler.setCurrentError(ErrorHandler.LABEL_STARTING_WITH_DIGIT);
+            return false;
+        }
+
+        byte cnt = 0;
+        StringTokenizer tokenizer = new StringTokenizer(instruction.getLabel(), Constants.SPACE);
+        while (tokenizer.hasMoreTokens()) {
+            tokenizer.nextToken();
+            cnt++;
+        }
+        if (cnt > 1) {
+            errorHandler.setHasError(true);
+            errorHandler.setCurrentError(ErrorHandler.LABELS_CAN_NOT_HAVE_SPACES);
+            return false;
+        }
+        instruction.setLabel(instruction.getLabel().replaceAll("\\s", ""));
         return true;
+
     }
 
     private static boolean validateMnemonic() {

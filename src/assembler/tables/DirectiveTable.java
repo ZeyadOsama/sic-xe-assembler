@@ -58,7 +58,7 @@ public final class DirectiveTable {
      * @see Directive
      */
     private static void load() {
-        directiveTable.put(BYTE, new Directive(BYTE, Length.ONE, true));
+        directiveTable.put(BYTE, new Directive(BYTE, Length.VARIABLE, true));
         directiveTable.put(RESB, new Directive(BYTE, Length.VARIABLE, true));
         directiveTable.put(WORD, new Directive(BYTE, Length.THREE, true));
         directiveTable.put(RESW, new Directive(BYTE, Length.VARIABLE, true));

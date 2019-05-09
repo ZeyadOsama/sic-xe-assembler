@@ -5,6 +5,7 @@ import assembler.tables.DirectiveTable;
 import assembler.tables.OperationTable;
 import misc.exceptions.FormatException;
 import misc.utils.Utils;
+import misc.utils.Validations;
 
 import java.util.ArrayList;
 import java.util.Objects;
@@ -54,17 +55,21 @@ public final class LocationCounter {
         if (mnemonic == null)
             return;
 
-        if (mnemonic.equals(DirectiveTable.START)) {
-            currentAddress = Hexadecimal.toDecimal(instruction.getFirstOperand());
-            addAddress(currentAddress);
-            previousAddress = currentAddress;
-            Program.setName(instruction.getLabel());
-            Program.setStartAddress(instruction.getFirstOperand());
-            return;
-        }
-
         if (isDirective(mnemonic)) {
             switch (DirectiveTable.getDirective(mnemonic).getLength()) {
+                case NONE:
+                    switch (mnemonic) {
+                        case DirectiveTable.START:
+                            currentAddress = Hexadecimal.toDecimal(instruction.getFirstOperand());
+                            addAddress(currentAddress);
+                            previousAddress = currentAddress;
+                            Program.setName(instruction.getLabel());
+                            Program.setStartAddress(instruction.getFirstOperand());
+                            return;
+                        case DirectiveTable.EQU:
+                            break;
+                    }
+                    break;
                 case ONE:
                     currentAddress += 1;
                     break;
@@ -75,13 +80,26 @@ public final class LocationCounter {
                     currentAddress += 3;
                     break;
                 case VARIABLE:
-                    if (mnemonic.equals(DirectiveTable.RESW))
-                        currentAddress += (Integer.parseInt(Objects.requireNonNull(instruction.getFirstOperand())) * WORD_LENGTH);
-                    else currentAddress += (Integer.parseInt(Objects.requireNonNull(instruction.getFirstOperand())));
+                    switch (mnemonic) {
+                        case DirectiveTable.RESW:
+                            currentAddress +=
+                                    (Integer.parseInt(Objects.requireNonNull(instruction.getFirstOperand()))
+                                            * WORD_LENGTH);
+                            break;
+                        case DirectiveTable.RESB:
+                            currentAddress +=
+                                    (Integer.parseInt(Objects.requireNonNull(instruction.getFirstOperand())));
+                            break;
+                        case DirectiveTable.BYTE:
+                            if (Validations.Operand.isLiteral(instruction.getFirstOperand()))
+                                currentAddress += (instruction.getFirstOperand().length() - 3);
+                            else
+                                currentAddress += 1;
+                            break;
+                    }
                     break;
             }
-            addAddress(previousAddress);
-            previousAddress = currentAddress;
+            update();
         } else if (isOperation(mnemonic)) {
             switch (Objects.requireNonNull(OperationTable.getOperation(mnemonic).getFormat())) {
                 case ONE:
@@ -96,13 +114,18 @@ public final class LocationCounter {
                     currentAddress += 4;
                     break;
             }
-            addAddress(previousAddress);
-            previousAddress = currentAddress;
+            update();
         } else
             enabled = false;
 
         if (programCounter == Program.getProgramCount())
-            if (!instruction.getMnemonic().equals(DirectiveTable.END)) {
+            if (instruction.getMnemonic().equals(DirectiveTable.END)) {
+                if (instruction.hasLabel()) {
+                    ErrorHandler errorHandler = ErrorHandler.getInstance();
+                    errorHandler.setHasError(true);
+                    errorHandler.setCurrentError(ErrorHandler.CAN_NOT_HAVE_LABEL);
+                }
+            } else {
                 ErrorHandler errorHandler = ErrorHandler.getInstance();
                 errorHandler.setHasError(true);
                 errorHandler.setCurrentError(ErrorHandler.MISSING_END);
