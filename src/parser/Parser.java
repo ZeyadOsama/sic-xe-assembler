@@ -8,6 +8,7 @@ import assembler.tables.DirectiveTable;
 import assembler.tables.SymbolTable;
 import misc.constants.Constants;
 import misc.exceptions.ParsingException;
+import misc.utils.Utils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -41,7 +42,6 @@ public class Parser {
     }
 
     private ArrayList<Instruction> parsedInstructionsList = new ArrayList<>();
-    private Instruction parsedInstruction;
     private String currentInstruction;
     private boolean hasBaseDirective = false;
 
@@ -60,9 +60,13 @@ public class Parser {
      * @see Instruction class
      * @see Mode enum
      */
-    public ArrayList<Instruction> parse(@NotNull ArrayList<String> instructions, Mode mode) {
-        for (String instruction : instructions)
-            parsedInstructionsList.add(parseInstruction(instruction, mode));
+    public ArrayList<Instruction> parse(@NotNull ArrayList<String> instructions, @NotNull Mode mode) {
+        Instruction parsedInstruction;
+        for (String instruction : instructions) {
+            parsedInstruction = parseInstruction(instruction, mode);
+            if (parsedInstruction != null)
+                parsedInstructionsList.add(parsedInstruction);
+        }
         return parsedInstructionsList;
     }
 
@@ -77,17 +81,22 @@ public class Parser {
      * @see Instruction class
      * @see Mode enum
      */
-    public Instruction parseInstruction(String instruction, Mode mode) {
+    @Nullable
+    public Instruction parseInstruction(@NotNull String instruction, @NotNull Mode mode) {
         errorHandler.setHasError(false);
         if (isComment(instruction)) {
             locationCounter.update();
             OutputGenerator.update();
             return new Instruction();
         }
+        Instruction parsedInstruction = null;
         if (mode == Mode.FREE)
             parsedInstruction = parseInstructionFree(instruction);
         else if (mode == Mode.CONSTRAINED)
             parsedInstruction = parseInstructionConstrained(instruction);
+
+        if (parsedInstruction == null)
+            return null;
 
         currentInstruction = parsedInstruction.toString();
         parsedInstruction.errorFree(validateInstruction(parsedInstruction));
@@ -107,13 +116,15 @@ public class Parser {
      * @see Instruction class
      * @see Mode enum
      */
-    private Instruction parseInstructionConstrained(String instruction) throws ParsingException {
+    @NotNull
+    private Instruction parseInstructionConstrained(@NotNull String instruction) throws ParsingException {
         String label = determineLabel(instruction);
         String mnemonic = determineMnemonic(instruction);
         String[] operandsList = determineOperands(instruction);
         String comment = determineComment(instruction);
 
-        return new Instruction(label, mnemonic,
+        return new Instruction(label,
+                Objects.requireNonNull(mnemonic),
                 Objects.requireNonNull(operandsList)[FIRST_OPERAND],
                 Objects.requireNonNull(operandsList)[SECOND_OPERAND],
                 comment);
@@ -129,24 +140,19 @@ public class Parser {
      * @see Instruction class
      * @see Mode enum
      */
-    private Instruction parseInstructionFree(String instruction) throws ParsingException {
-        String label = null;
-        String mnemonic = null;
-        String operands = null;
+    @Nullable
+    private Instruction parseInstructionFree(@NotNull String instruction) throws ParsingException {
+        String label = null, mnemonic = null, operands = null, comment = null;
         String[] operandsList = new String[2];
-        String comment = null;
 
         Stack<String> instructionElements = new Stack<>();
         StringTokenizer tokenizer = new StringTokenizer(instruction, Constants.SPACE);
         while (tokenizer.hasMoreTokens())
             instructionElements.push(tokenizer.nextToken());
 
-        for (String s : instructionElements)
-            System.out.println(s);
-
         switch (instructionElements.size()) {
             case 0:
-                break;
+                return null;
             case 1:
                 mnemonic = instructionElements.pop();
                 break;
@@ -158,26 +164,28 @@ public class Parser {
                 operands = instructionElements.pop();
                 mnemonic = instructionElements.pop();
                 label = instructionElements.pop();
-
                 break;
             default:
                 StringBuilder commentBuilder = new StringBuilder();
                 while (instructionElements.size() > 3)
-                    commentBuilder.append(instructionElements.pop() + Constants.SPACE);
-                comment = commentBuilder.toString();
+                    commentBuilder.append(instructionElements.pop()).append(Constants.SPACE);
+                comment = Utils.reverseWords(commentBuilder.toString());
                 operands = instructionElements.pop();
                 mnemonic = instructionElements.pop();
                 label = instructionElements.pop();
                 break;
         }
-
         if (operands != null) {
             int i = 0;
             StringTokenizer operandsTokenizer = new StringTokenizer(operands, Constants.COMMA);
             while (operandsTokenizer.hasMoreTokens())
                 operandsList[i++] = operandsTokenizer.nextToken();
         }
-        return new Instruction(label, mnemonic,
+        if (mnemonic != null && mnemonic.equals(DirectiveTable.BASE))
+            hasBaseDirective = true;
+
+        return new Instruction(label,
+                Objects.requireNonNull(mnemonic),
                 Objects.requireNonNull(operandsList)[FIRST_OPERAND],
                 Objects.requireNonNull(operandsList)[SECOND_OPERAND],
                 comment);
@@ -249,10 +257,6 @@ public class Parser {
      */
     public ArrayList<Instruction> getParsedInstructions() {
         return parsedInstructionsList;
-    }
-
-    public Instruction getCurrentParsedInstruction() {
-        return parsedInstruction;
     }
 
     public String getCurrentInstruction() {

@@ -1,5 +1,7 @@
 package misc.utils;
 
+import misc.constants.Constants;
+
 import java.util.regex.Pattern;
 
 public final class Utils {
@@ -21,9 +23,7 @@ public final class Utils {
      * @return extended String
      */
     public static String extendLength(String string, int length) {
-        StringBuilder zeroes = new StringBuilder();
-        for (int i = 0; i < length; i++) zeroes.append("0");
-        return (zeroes.toString() + string).substring(string.length());
+        return ("0".repeat(Math.max(0, length)) + string).substring(string.length());
     }
 
     /**
@@ -32,9 +32,15 @@ public final class Utils {
      * @return extended String
      */
     public static String extendSpaces(String string, int length) {
-        StringBuilder zeroes = new StringBuilder();
-        for (int i = string.length(); i < length; i++) zeroes.append(" ");
-        return (zeroes.toString() + string).substring(string.length());
+        return ((Constants.SPACE).repeat(Math.max(0, length - string.length())) + string).substring(string.length());
+    }
+
+    public static String reverseWords(String string) {
+        String[] stringChars = string.split(" ");
+        StringBuilder builder = new StringBuilder();
+        for (int i = stringChars.length - 1; i >= 0; i--)
+            builder.append(stringChars[i]).append(Constants.SPACE);
+        return builder.toString().substring(0, builder.length() - 1);
     }
 
     /**

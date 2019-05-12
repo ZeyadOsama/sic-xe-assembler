@@ -4,8 +4,7 @@ import assembler.tables.RegisterTable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import static misc.constants.Constants.COMMA;
-import static misc.constants.Constants.EMPTY;
+import static misc.constants.Constants.*;
 
 public final class Instruction {
 
@@ -119,12 +118,13 @@ public final class Instruction {
     public String toString() {
         StringBuilder string = new StringBuilder();
         string.setLength(50);
-        return string.insert(0, hasLabel() ? label : EMPTY)
+        return string
+                .insert(0, hasLabel() ? label : EMPTY)
                 .insert(10, hasMnemonic() ? mnemonic : EMPTY)
                 .insert(18, hasFirstOperand() ? firstOperand : EMPTY)
                 .insert(25, hasSecondOperand() ? COMMA + secondOperand : EMPTY)
                 .insert(36, hasComment() ? comment : EMPTY)
                 .toString()
-                .replaceAll("[^a-zA-Z0-9]", " ");
+                .replaceAll("[^a-zA-Z0-9]", SPACE);
     }
 }
