@@ -31,14 +31,14 @@ public class Parser {
 
     private static Parser instance = new Parser();
 
+    public static Parser getInstance() {
+        return instance;
+    }
+
     private final static int FIRST_OPERAND = 0;
     private final static int SECOND_OPERAND = 1;
 
     private Parser() {
-    }
-
-    public static Parser getInstance() {
-        return instance;
     }
 
     private ArrayList<Instruction> parsedInstructionsList = new ArrayList<>();
@@ -123,11 +123,8 @@ public class Parser {
         String[] operandsList = determineOperands(instruction);
         String comment = determineComment(instruction);
 
-        return new Instruction(label,
-                Objects.requireNonNull(mnemonic),
-                Objects.requireNonNull(operandsList)[FIRST_OPERAND],
-                Objects.requireNonNull(operandsList)[SECOND_OPERAND],
-                comment);
+        return new Instruction(label, Objects.requireNonNull(mnemonic),
+                operandsList[FIRST_OPERAND], operandsList[SECOND_OPERAND], comment);
     }
 
     /**
@@ -142,7 +139,7 @@ public class Parser {
      */
     @Nullable
     private Instruction parseInstructionFree(@NotNull String instruction) throws ParsingException {
-        String label = null, mnemonic = null, operands = null, comment = null;
+        String label = null, mnemonic, operands = null, comment = null;
         String[] operandsList = new String[2];
 
         Stack<String> instructionElements = new Stack<>();
@@ -181,14 +178,10 @@ public class Parser {
             while (operandsTokenizer.hasMoreTokens())
                 operandsList[i++] = operandsTokenizer.nextToken();
         }
-        if (mnemonic != null && mnemonic.equals(DirectiveTable.BASE))
+        if (mnemonic.equals(DirectiveTable.BASE))
             hasBaseDirective = true;
 
-        return new Instruction(label,
-                Objects.requireNonNull(mnemonic),
-                Objects.requireNonNull(operandsList)[FIRST_OPERAND],
-                Objects.requireNonNull(operandsList)[SECOND_OPERAND],
-                comment);
+        return new Instruction(label, mnemonic, operandsList[FIRST_OPERAND], operandsList[SECOND_OPERAND], comment);
     }
 
     @Nullable
@@ -219,7 +212,7 @@ public class Parser {
         return mnemonic;
     }
 
-    @Nullable
+    @NotNull
     private String[] determineOperands(@NotNull String instruction) {
         String operands = null;
         if (instruction.length() > Range.OPERANDS[Range.END])
@@ -281,6 +274,9 @@ public class Parser {
         return hasBaseDirective;
     }
 
+    /**
+     * enum to control parsing mode
+     */
     public enum Mode {
         CONSTRAINED, FREE
     }

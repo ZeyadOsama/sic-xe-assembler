@@ -35,6 +35,10 @@ public final class Utils {
         return ((Constants.SPACE).repeat(Math.max(0, length - string.length())) + string).substring(string.length());
     }
 
+    /**
+     * @param string to be reversed
+     * @return reversed string
+     */
     public static String reverseWords(String string) {
         String[] stringChars = string.split(" ");
         StringBuilder builder = new StringBuilder();
@@ -48,17 +52,18 @@ public final class Utils {
      * @return its integer value
      */
     public static String parseDataOperand(String operand) {
-        String parsedOperand = "";
+        StringBuilder parsedOperand = new StringBuilder();
+
         if (operand.startsWith("X"))
-            parsedOperand = operand.substring(1).replace("'", "");
+            parsedOperand.append(operand.substring(1).replace("'", ""));
 
         else if (operand.startsWith("C"))
             for (int i = 2; i < operand.length() - 1; i++)
-                parsedOperand += Integer.toHexString(operand.charAt(i));
+                parsedOperand.append(Integer.toHexString(operand.charAt(i)));
 
         else if (Pattern.matches("0x[0-9A-F]+", operand))
-            parsedOperand = operand.substring(2);
+            parsedOperand.append(operand.substring(2));
 
-        return String.valueOf(Integer.parseInt(parsedOperand, 16));
+        return String.valueOf(Integer.parseInt(parsedOperand.toString(), 16));
     }
 }

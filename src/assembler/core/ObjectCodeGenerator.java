@@ -193,7 +193,7 @@ public final class ObjectCodeGenerator {
                 n = '1';
             }
         }
-        return new StringBuilder().append(n).append(i).append(x).toString();
+        return String.valueOf(n) + i + x;
     }
 
     private String getBPE(Instruction instruction) {
@@ -215,7 +215,7 @@ public final class ObjectCodeGenerator {
             }
             e = '0';
         }
-        return new StringBuilder().append(b).append(p).append(e).toString();
+        return String.valueOf(b) + p + e;
     }
 
     private String getImmediateValue(String operand) {
