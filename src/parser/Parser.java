@@ -108,10 +108,10 @@ public class Parser {
      * @see Mode enum
      */
     private Instruction parseInstructionConstrained(String instruction) throws ParsingException {
-        String label = determineLabel(currentInstruction);
-        String mnemonic = determineMnemonic(currentInstruction);
-        String[] operandsList = determineOperands(currentInstruction);
-        String comment = determineComment(currentInstruction);
+        String label = determineLabel(instruction);
+        String mnemonic = determineMnemonic(instruction);
+        String[] operandsList = determineOperands(instruction);
+        String comment = determineComment(instruction);
 
         return new Instruction(label, mnemonic,
                 Objects.requireNonNull(operandsList)[FIRST_OPERAND],
@@ -141,6 +141,9 @@ public class Parser {
         while (tokenizer.hasMoreTokens())
             instructionElements.push(tokenizer.nextToken());
 
+        for (String s : instructionElements)
+            System.out.println(s);
+
         switch (instructionElements.size()) {
             case 0:
                 break;
@@ -157,16 +160,20 @@ public class Parser {
                 label = instructionElements.pop();
 
                 break;
-            case 4:
-                comment = instructionElements.pop();
+            default:
+                StringBuilder commentBuilder = new StringBuilder();
+                while (instructionElements.size() > 3)
+                    commentBuilder.append(instructionElements.pop() + Constants.SPACE);
+                comment = commentBuilder.toString();
                 operands = instructionElements.pop();
                 mnemonic = instructionElements.pop();
                 label = instructionElements.pop();
                 break;
         }
+
         if (operands != null) {
             int i = 0;
-            StringTokenizer operandsTokenizer = new StringTokenizer(operands, ",");
+            StringTokenizer operandsTokenizer = new StringTokenizer(operands, Constants.COMMA);
             while (operandsTokenizer.hasMoreTokens())
                 operandsList[i++] = operandsTokenizer.nextToken();
         }
@@ -192,11 +199,11 @@ public class Parser {
         String mnemonic = null;
         if (instruction.length() > Range.MNEMONIC[Range.END])
             mnemonic = instruction.substring(Range.MNEMONIC[Range.START], Range.MNEMONIC[Range.END])
-                    .replaceAll("\\s", "");
+                    .replaceAll("\\s", Constants.EMPTY);
 
         else if (instruction.length() > Range.MNEMONIC[Range.START])
             mnemonic = instruction.substring(Range.MNEMONIC[Range.START])
-                    .replaceAll("\\s", "");
+                    .replaceAll("\\s", Constants.EMPTY);
 
         if (mnemonic != null && mnemonic.equals(DirectiveTable.BASE))
             hasBaseDirective = true;
@@ -209,16 +216,16 @@ public class Parser {
         String operands = null;
         if (instruction.length() > Range.OPERANDS[Range.END])
             operands = instruction.substring(Range.MNEMONIC[Range.START], Range.MNEMONIC[Range.END])
-                    .replaceAll("\\s", "");
+                    .replaceAll("\\s", Constants.EMPTY);
 
         else if (instruction.length() > Range.OPERANDS[Range.START])
             operands = instruction.substring(Range.OPERANDS[Range.START])
-                    .replaceAll("\\s", "");
+                    .replaceAll("\\s", Constants.EMPTY);
 
         String[] operandsList = new String[2];
         if (operands != null) {
             int i = 0;
-            StringTokenizer tokenizer = new StringTokenizer(operands, ",");
+            StringTokenizer tokenizer = new StringTokenizer(operands, Constants.COMMA);
             while (tokenizer.hasMoreTokens())
                 operandsList[i++] = tokenizer.nextToken();
         }

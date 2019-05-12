@@ -9,7 +9,6 @@ import parser.Parser;
 public class Main {
 
     public static void main(String[] args) {
-//        Parser.getInstance().parseInstructionFree("LABEL ADD X,4 DX");
         FileLoader fileLoader = new FileLoader();
         fileLoader.openChooserDialogue();
 
@@ -27,7 +26,5 @@ public class Main {
         FileWriter fileWriter = new FileWriter(outputGenerator);
         fileWriter.writeAddressFile();
         fileWriter.writeSymbolFile();
-
-        Parser.getInstance().showParsedInstructions();
     }
 }
