@@ -1,6 +1,8 @@
 package assembler.core;
 
+import assembler.structure.Instruction;
 import misc.utils.Converter;
+import misc.utils.Validations;
 import parser.Parser;
 
 import java.util.ArrayList;
@@ -38,6 +40,16 @@ public final class Program {
         return extendLength(removeHexadecimalNotation(
                 LocationCounter.getInstance().getHexAddresses().get(
                         LocationCounter.getInstance().getHexAddresses().size() - 1)), 6);
+    }
+
+    public static String getFirstExecutableInstructionAddress() {
+        ArrayList<Instruction> instructionsList = Parser.getInstance().getParsedInstructions();
+        ArrayList<Integer> addressesList = LocationCounter.getInstance().getAddresses();
+        for (int i = 0; i < addressesList.size(); i++)
+            if (Validations.isOperation(instructionsList.get(i).getMnemonic()))
+                if (!addressesList.get(i).equals(addressesList.get(i + 1)))
+                    return extendLength(Converter.Decimal.toHexadecimal(addressesList.get(i)), 6);
+        return null;
     }
 
     public static boolean hasBaseDirective() {

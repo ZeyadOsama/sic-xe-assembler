@@ -6,6 +6,7 @@ import assembler.tables.DirectiveTable;
 import assembler.tables.OperationTable;
 import assembler.tables.RegisterTable;
 import assembler.tables.SymbolTable;
+import misc.utils.ConsoleColors;
 import parser.Parser;
 
 import java.util.ArrayList;
@@ -24,53 +25,50 @@ public final class ObjectCodeGenerator {
     private static Record textRecord;
     private static Record endRecord;
 
-    private ArrayList<String> objectCode;
-
     private SymbolTable symbolTable = SymbolTable.getInstance();
     private ArrayList<Instruction> parsedInstructions;
 
-    private void generateHeaderRecord() {
-        headerRecord.addContent(Program.getName());
-        headerRecord.addContent(Program.getStartAddress());
-        headerRecord.addContent(Program.getObjectCodeLength());
-        System.out.println(headerRecord.content);
-    }
-
     public ObjectCodeGenerator() {
-        objectCode = new ArrayList<>();
         headerRecord = new Record(Record.HEADER);
         textRecord = new Record(Record.TEXT);
         endRecord = new Record(Record.END);
         parsedInstructions = Parser.getInstance().getParsedInstructions();
     }
 
-    private void generateEndRecord() {
-
+    public void generate() {
+        if (Program.hasError()) {
+            ErrorHandler.out.println("Can not generate object code due to parsing errors.");
+            return;
+        }
+        generateHeaderRecord();
+        generateTextRecord();
+        generateEndRecord();
     }
 
-    private ArrayList<String> generateTextRecord() {
-        Record record = new Record();
-        int recordLength = 0;
+    private void generateHeaderRecord() {
+        headerRecord.addContent(Program.getName());
+        headerRecord.addContent(Program.getStartAddress());
+        headerRecord.addContent(Program.getObjectCodeLength());
+    }
 
+    private void generateTextRecord() {
+        ArrayList<String> objectCodes = new ArrayList<>();
+        int recordLength = 0;
         for (Instruction instruction : parsedInstructions) {
             String objectCode = null;
             if (isOperation(instruction.getMnemonic())) {
                 switch (OperationTable.getOperation(instruction.getMnemonic()).getFormat()) {
                     case ONE:
                         objectCode = generateFormatOne(instruction);
-                        recordLength += 1;
                         break;
                     case TWO:
                         objectCode = generateFormatTwo(instruction);
-                        recordLength += 2;
                         break;
                     case THREE:
                         objectCode = generateFormatThree(instruction);
-                        recordLength += 3;
                         break;
                     case FOUR:
                         objectCode = generateFormatFour(instruction);
-                        recordLength += 4;
                         break;
                 }
             } else if (instruction.getMnemonic().equals(DirectiveTable.BYTE) && instruction.hasFirstOperand()) {
@@ -84,11 +82,23 @@ public final class ObjectCodeGenerator {
                     operand = parseDataOperand(operand);
                 objectCode = extendLength(Decimal.toHexadecimal(operand), 6);
             }
-
-            textRecord.addContent(objectCode);
+            recordLength += objectCode != null ? objectCode.length() : 0;
+            if (textRecord.isLengthExceeding()) {
+                textRecord.addContent(extendLength(Decimal.toHexadecimal(recordLength), 2));
+                recordLength = 0;
+                for (String i : objectCodes)
+                    textRecord.addContent(i);
+                objectCodes.clear();
+            }
+            objectCodes.add(objectCode);
         }
-        System.out.println(textRecord.content);
-        return null;
+        textRecord.addContent(extendLength(String.valueOf(recordLength), 2));
+        for (String i : objectCodes)
+            textRecord.addContent(i);
+    }
+
+    private void generateEndRecord() {
+        endRecord.addContent(Program.getFirstExecutableInstructionAddress());
     }
 
     /**
@@ -183,17 +193,7 @@ public final class ObjectCodeGenerator {
                 n = '1';
             }
         }
-        ;
         return new StringBuilder().append(n).append(i).append(x).toString();
-    }
-
-
-    private String getImmediateValue(String operand) {
-        return operand.replace("#", "");
-    }
-
-    private String getIndirectValue(String operand) {
-        return operand.replace("@", "");
     }
 
     private String getBPE(Instruction instruction) {
@@ -218,14 +218,12 @@ public final class ObjectCodeGenerator {
         return new StringBuilder().append(b).append(p).append(e).toString();
     }
 
-    public void generate() {
-        if (Program.hasError()) {
-            ErrorHandler.out.println("Can not generate object code due to parsing errors.");
-            return;
-        }
-        generateHeaderRecord();
-        generateTextRecord();
-        generateEndRecord();
+    private String getImmediateValue(String operand) {
+        return operand.replace("#", "");
+    }
+
+    private String getIndirectValue(String operand) {
+        return operand.replace("@", "");
     }
 
     /**
@@ -233,6 +231,7 @@ public final class ObjectCodeGenerator {
      */
     // TODO
     private class Record {
+
         private static final char SEPARATOR = '^';
         private static final String HEADER = "H";
         private static final String TEXT = "T";
@@ -246,10 +245,6 @@ public final class ObjectCodeGenerator {
             content.append(recordTitle);
         }
 
-        private Record() {
-            content = new StringBuilder();
-        }
-
         private void addContent(String record) {
             if (record == null) return;
 
@@ -261,8 +256,8 @@ public final class ObjectCodeGenerator {
             content.append(string);
         }
 
-        private int getLength() {
-            return content.length();
+        private boolean isLengthExceeding() {
+            return content.length() - (lines * 68) >= 0;
         }
     }
 
@@ -277,9 +272,14 @@ public final class ObjectCodeGenerator {
         }
 
         public void show() {
-            System.out.println(headerRecord);
-            System.out.println(textRecord);
-            System.out.println(endRecord);
+            headerMessage("Object Code");
+            System.out.println(headerRecord.content.toString());
+            System.out.println(textRecord.content.toString());
+            System.out.println(endRecord.content.toString());
+        }
+
+        private void headerMessage(String message) {
+            System.out.println(ConsoleColors.PURPLE + message + ConsoleColors.RESET);
         }
     }
 }

@@ -6,12 +6,14 @@ import assembler.core.OutputGenerator;
 import assembler.structure.Instruction;
 import assembler.tables.DirectiveTable;
 import assembler.tables.SymbolTable;
+import misc.constants.Constants;
 import misc.exceptions.ParsingException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Objects;
+import java.util.Stack;
 import java.util.StringTokenizer;
 
 import static misc.utils.Validations.isBlank;
@@ -52,47 +54,126 @@ public class Parser {
      * Reads it line by line and creates a list of instructions in the same order
      * they appear in the file
      *
-     * @param instructions as un-parsed {String} line by line
+     * @param instructions as un-parsed ArrayList {String} containing program line by line
+     * @param mode         either free format or constrained format
      * @return ArrayList containing parsed instructions
      * @see Instruction class
+     * @see Mode enum
      */
-    public ArrayList<Instruction> parse(@NotNull ArrayList<String> instructions) {
+    public ArrayList<Instruction> parse(@NotNull ArrayList<String> instructions, Mode mode) {
         for (String instruction : instructions)
-            parsedInstructionsList.add(parseInstruction(instruction));
+            parsedInstructionsList.add(parseInstruction(instruction, mode));
         return parsedInstructionsList;
     }
+
 
     /**
      * Parses a single instruction given in the form of a String into Instruction form
      *
      * @param instruction is a String which is read from file
-     * @return parsed instructions
+     * @param mode        either free format or constrained format
+     * @return parsed instruction
      * @throws ParsingException in case the input file contains unexpected text
      * @see Instruction class
+     * @see Mode enum
      */
-    public Instruction parseInstruction(String instruction) throws ParsingException {
+    public Instruction parseInstruction(String instruction, Mode mode) {
         errorHandler.setHasError(false);
-        currentInstruction = instruction;
-        if (isComment(currentInstruction)) {
+        if (isComment(instruction)) {
             locationCounter.update();
             OutputGenerator.update();
             return new Instruction();
         }
+        if (mode == Mode.FREE)
+            parsedInstruction = parseInstructionFree(instruction);
+        else if (mode == Mode.CONSTRAINED)
+            parsedInstruction = parseInstructionConstrained(instruction);
+
+        currentInstruction = parsedInstruction.toString();
+        parsedInstruction.errorFree(validateInstruction(parsedInstruction));
+        locationCounter.update(parsedInstruction);
+        symbolTable.update(parsedInstruction);
+        OutputGenerator.update();
+        return parsedInstruction;
+    }
+
+    /**
+     * Parses a single constrained format instruction given in the form of a String into Instruction form
+     * Gets called internally according to parsing mode
+     *
+     * @param instruction is a String which is read from file
+     * @return parsed instructions
+     * @throws ParsingException in case the input file contains unexpected text
+     * @see Instruction class
+     * @see Mode enum
+     */
+    private Instruction parseInstructionConstrained(String instruction) throws ParsingException {
         String label = determineLabel(currentInstruction);
         String mnemonic = determineMnemonic(currentInstruction);
         String[] operandsList = determineOperands(currentInstruction);
         String comment = determineComment(currentInstruction);
 
-        parsedInstruction = new Instruction(label, mnemonic,
+        return new Instruction(label, mnemonic,
                 Objects.requireNonNull(operandsList)[FIRST_OPERAND],
                 Objects.requireNonNull(operandsList)[SECOND_OPERAND],
                 comment);
-        parsedInstruction.errorFree(validateInstruction(parsedInstruction));
-        locationCounter.update(parsedInstruction);
-        symbolTable.update(parsedInstruction);
-        OutputGenerator.update();
+    }
 
-        return parsedInstruction;
+    /**
+     * Parses a single free format instruction given in the form of a String into Instruction form
+     * Gets called internally according to parsing mode
+     *
+     * @param instruction is a String which is read from file
+     * @return parsed instructions
+     * @throws ParsingException in case the input file contains unexpected text
+     * @see Instruction class
+     * @see Mode enum
+     */
+    private Instruction parseInstructionFree(String instruction) throws ParsingException {
+        String label = null;
+        String mnemonic = null;
+        String operands = null;
+        String[] operandsList = new String[2];
+        String comment = null;
+
+        Stack<String> instructionElements = new Stack<>();
+        StringTokenizer tokenizer = new StringTokenizer(instruction, Constants.SPACE);
+        while (tokenizer.hasMoreTokens())
+            instructionElements.push(tokenizer.nextToken());
+
+        switch (instructionElements.size()) {
+            case 0:
+                break;
+            case 1:
+                mnemonic = instructionElements.pop();
+                break;
+            case 2:
+                operands = instructionElements.pop();
+                mnemonic = instructionElements.pop();
+                break;
+            case 3:
+                operands = instructionElements.pop();
+                mnemonic = instructionElements.pop();
+                label = instructionElements.pop();
+
+                break;
+            case 4:
+                comment = instructionElements.pop();
+                operands = instructionElements.pop();
+                mnemonic = instructionElements.pop();
+                label = instructionElements.pop();
+                break;
+        }
+        if (operands != null) {
+            int i = 0;
+            StringTokenizer operandsTokenizer = new StringTokenizer(operands, ",");
+            while (operandsTokenizer.hasMoreTokens())
+                operandsList[i++] = operandsTokenizer.nextToken();
+        }
+        return new Instruction(label, mnemonic,
+                Objects.requireNonNull(operandsList)[FIRST_OPERAND],
+                Objects.requireNonNull(operandsList)[SECOND_OPERAND],
+                comment);
     }
 
     @Nullable
@@ -187,6 +268,10 @@ public class Parser {
 
     public boolean hasBaseDirective() {
         return hasBaseDirective;
+    }
+
+    public enum Mode {
+        CONSTRAINED, FREE
     }
 
     /**

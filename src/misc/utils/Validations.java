@@ -56,6 +56,20 @@ public final class Validations {
         return (string != null) && Character.isDigit(string.charAt(0));
     }
 
+    public static boolean isExpression(String string) {
+        if (string == null)
+            return false;
+
+        char[] chars = string.toCharArray();
+        for (char c : chars)
+            if (!Character.isDigit(c) || isOperator(c))
+                return false;
+        return true;
+    }
+
+    private static boolean isOperator(char o) {
+        return o == '%' || o == '/' || o == '*' || o == '+' || o == '-';
+    }
 
     /**
      * Utility class for object code bits detection.
