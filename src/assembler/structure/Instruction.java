@@ -13,6 +13,7 @@ public final class Instruction {
     private String firstOperand;
     private String secondOperand;
     private String comment;
+    private int address;
     private boolean indexed;
     private boolean hasError;
 
@@ -73,9 +74,16 @@ public final class Instruction {
             this.secondOperand = secondOperand.toUpperCase();
     }
 
-    @Nullable
     public String getComment() {
         return comment;
+    }
+
+    public int getAddress() {
+        return address;
+    }
+
+    public void setAddress(int address) {
+        this.address = address;
     }
 
     public boolean hasLabel() {

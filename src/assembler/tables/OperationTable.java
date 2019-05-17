@@ -144,7 +144,7 @@ public final class OperationTable {
         operationTable.put("+STB",
                 new Operation("+STB", 0x78, Format.FOUR, OperandType.VALUE, OperandType.NONE));
         operationTable.put("STCH",
-                new Operation("STCH", 0x54, Format.THREE, OperandType.VALUE, OperandType.NONE));
+                new Operation("STCH", 0x54, Format.THREE, OperandType.VALUE, OperandType.DONT_CARE));
         operationTable.put("+STCH",
                 new Operation("+STCH", 0x54, Format.FOUR, OperandType.VALUE, OperandType.NONE));
         operationTable.put("STL",

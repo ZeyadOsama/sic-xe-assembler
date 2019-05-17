@@ -100,14 +100,14 @@ class ParsingValidations {
     }
 
     private static boolean validateDirectiveOperands() {
+        System.out.println(instruction.getMnemonic());
         if (DirectiveTable.getDirective(instruction.getMnemonic()).hasOperand()) {
             if (!instruction.hasFirstOperand()) {
                 errorHandler.setHasError(true);
                 errorHandler.setCurrentError(ErrorHandler.SHOULD_HAVE_FIRST_OPERAND);
                 return false;
             }
-        } else if (instruction.hasFirstOperand()
-                && OperationTable.getOperation(instruction.getMnemonic()).getFirstOperandType() != OperandType.DONT_CARE) {
+        } else if (instruction.hasFirstOperand()) {
             errorHandler.setHasError(true);
             errorHandler.setCurrentError(ErrorHandler.NO_FIRST_OPERAND);
             return false;

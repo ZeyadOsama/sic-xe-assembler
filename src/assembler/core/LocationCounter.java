@@ -133,9 +133,10 @@ public final class LocationCounter {
     }
 
 
-    public void update() {
+    public int update() {
         addAddress(previousAddress);
         previousAddress = currentAddress;
+        return currentAddress;
     }
 
     public void addAddress(int address) {

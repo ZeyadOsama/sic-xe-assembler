@@ -1,6 +1,7 @@
 package io;
 
 import assembler.core.ErrorHandler;
+import assembler.core.ObjectCodeGenerator;
 import assembler.core.OutputGenerator;
 import assembler.core.Program;
 import misc.utils.ConsoleColors;
@@ -23,9 +24,8 @@ public final class FileWriter {
         String file = generateFileName("addresses");
         try {
             java.io.FileWriter writer = new java.io.FileWriter(file);
-            for (String string : OutputGenerator.getAddressFileLines()) {
+            for (String string : OutputGenerator.getAddressFileLines())
                 writer.write(string + "\n");
-            }
             writer.close();
         } catch (IOException e) {
             e.getCause();
@@ -41,9 +41,8 @@ public final class FileWriter {
         String file = generateFileName("symbol-table");
         try {
             java.io.FileWriter writer = new java.io.FileWriter(file);
-            for (String string : OutputGenerator.getSymbolFileLines()) {
+            for (String string : OutputGenerator.getSymbolFileLines())
                 writer.write(string + "\n");
-            }
             writer.close();
         } catch (IOException e) {
             e.getCause();
@@ -52,7 +51,20 @@ public final class FileWriter {
     }
 
     public void writeObjectCodeFile() {
-        // TODO
+        if (Program.hasError()) {
+            ErrorHandler.out.println("Can not write object code file due to parsing errors.");
+            return;
+        }
+        String file = generateFileName("object-code");
+        try {
+            java.io.FileWriter writer = new java.io.FileWriter(file);
+            for (String string : ObjectCodeGenerator.getRecords())
+                writer.write(string + "\n");
+            writer.close();
+        } catch (IOException e) {
+            e.getCause();
+        }
+        acceptMessage("Symbol table file written successfully to " + file);
     }
 
     private String generateFileName(String fileName) {

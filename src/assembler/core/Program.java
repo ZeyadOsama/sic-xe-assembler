@@ -56,6 +56,10 @@ public final class Program {
         return Parser.getInstance().hasBaseDirective();
     }
 
+    public static int getBaseRegisterValue() {
+        return Parser.getInstance().getBaseRegisterValue();
+    }
+
     public static String getObjectCodeLength() {
         int startAddress = Converter.Hexadecimal.toDecimal(getStartAddress());
         int endAddress = Converter.Hexadecimal.toDecimal(getEndAddress());

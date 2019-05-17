@@ -7,6 +7,7 @@ import assembler.tables.OperationTable;
 import assembler.tables.RegisterTable;
 import assembler.tables.SymbolTable;
 import misc.utils.ConsoleColors;
+import misc.utils.Utils;
 import parser.Parser;
 
 import java.util.ArrayList;
@@ -16,23 +17,29 @@ import static misc.utils.Converter.Decimal;
 import static misc.utils.Utils.extendLength;
 import static misc.utils.Utils.parseDataOperand;
 import static misc.utils.Validations.Operand.*;
-import static misc.utils.Validations.isManipulativeOperation;
+import static misc.utils.Validations.isNumeric;
 import static misc.utils.Validations.isOperation;
 
 public final class ObjectCodeGenerator {
 
-    private static Record headerRecord;
-    private static Record textRecord;
-    private static Record endRecord;
+    private static ArrayList<String> records;
+    private Record headerRecord;
+    private Record textRecord;
+    private Record endRecord;
 
     private SymbolTable symbolTable = SymbolTable.getInstance();
     private ArrayList<Instruction> parsedInstructions;
+    private ArrayList<Integer> addresses;
+    private int PC;
+    private int displacement;
 
     public ObjectCodeGenerator() {
         headerRecord = new Record(Record.HEADER);
         textRecord = new Record(Record.TEXT);
         endRecord = new Record(Record.END);
         parsedInstructions = Parser.getInstance().getParsedInstructions();
+        records = new ArrayList<>();
+        addresses = LocationCounter.getInstance().getAddresses();
     }
 
     public void generate() {
@@ -51,10 +58,29 @@ public final class ObjectCodeGenerator {
         headerRecord.addContent(Program.getObjectCodeLength());
     }
 
+    public static ArrayList<String> getRecords() {
+        return records;
+    }
+
+    private void generateEndRecord() {
+        endRecord.addContent(Program.getFirstExecutableInstructionAddress());
+    }
+
+    /**
+     * @param instruction parsed
+     * @return object code for a single instruction of format one
+     */
+    private String generateFormatOne(Instruction instruction) {
+        String opcode = String.valueOf(OperationTable.getOperation(instruction.getMnemonic()).getOpcode());
+        return extendLength(Decimal.toBinary(opcode), 8);
+    }
+
     private void generateTextRecord() {
         ArrayList<String> objectCodes = new ArrayList<>();
-        int recordLength = 0;
+        int recordLength = 0, i = 0;
         for (Instruction instruction : parsedInstructions) {
+            if (i < addresses.size() - 1)
+                PC = addresses.get(++i);
             String objectCode = null;
             if (isOperation(instruction.getMnemonic())) {
                 switch (OperationTable.getOperation(instruction.getMnemonic()).getFormat()) {
@@ -86,28 +112,15 @@ public final class ObjectCodeGenerator {
             if (textRecord.isLengthExceeding()) {
                 textRecord.addContent(extendLength(Decimal.toHexadecimal(recordLength), 2));
                 recordLength = 0;
-                for (String i : objectCodes)
-                    textRecord.addContent(i);
+                for (String oc : objectCodes)
+                    textRecord.addContent(oc);
                 objectCodes.clear();
             }
             objectCodes.add(objectCode);
         }
         textRecord.addContent(extendLength(String.valueOf(recordLength), 2));
-        for (String i : objectCodes)
-            textRecord.addContent(i);
-    }
-
-    private void generateEndRecord() {
-        endRecord.addContent(Program.getFirstExecutableInstructionAddress());
-    }
-
-    /**
-     * @param instruction parsed
-     * @return object code for a single instruction of format one
-     */
-    private String generateFormatOne(Instruction instruction) {
-        String opcode = String.valueOf(OperationTable.getOperation(instruction.getMnemonic()).getOpcode());
-        return extendLength(Decimal.toBinary(opcode), 8);
+        for (String oc : objectCodes)
+            textRecord.addContent(oc);
     }
 
     /**
@@ -118,6 +131,7 @@ public final class ObjectCodeGenerator {
         String opcode = String.valueOf(OperationTable.getOperation(instruction.getMnemonic()).getOpcode());
         opcode = extendLength(Decimal.toBinary(opcode), 8);
 
+        System.out.println("OPCODE:" + opcode);
         String firstOperand = String.valueOf(RegisterTable.getRegister(instruction.getFirstOperand()).getAddress());
         firstOperand = extendLength(Decimal.toBinary(firstOperand), 4);
 
@@ -136,20 +150,12 @@ public final class ObjectCodeGenerator {
      */
     private String generateFormatThree(Instruction instruction) {
         String opcode = String.valueOf(OperationTable.getOperation(instruction.getMnemonic()).getOpcode());
-        opcode = extendLength(Decimal.toBinary(opcode), 6);
+        opcode = extendLength(removeZeros(Decimal.toBinary(opcode)), 6);
 
-        String operand = instruction.getFirstOperand();
-        if (isIndirect(operand))
-            operand = getIndirectValue(operand);
-        else if (isImmediate(operand))
-            operand = getImmediateValue(operand);
-        if (symbolTable.containsSymbol(operand))
-            operand = String.valueOf(symbolTable.getSymbol(operand).getAddress());
-        operand = extendLength(Decimal.toBinary(operand), 12);
-
+        System.out.println("OPCODE:" + opcode);
         return extendLength(Binary.toHexadecimal(opcode
                 + getNIX(instruction) + getBPE(instruction)
-                + operand), 6);
+                + extendLength(Decimal.toBinary(displacement), 12)), 6);
     }
 
     /**
@@ -158,7 +164,7 @@ public final class ObjectCodeGenerator {
      */
     private String generateFormatFour(Instruction instruction) {
         String opcode = String.valueOf(OperationTable.getOperation(instruction.getMnemonic()).getOpcode());
-        opcode = extendLength(Decimal.toBinary(opcode), 6);
+        opcode = extendLength(removeZeros(Decimal.toBinary(opcode)), 6);
 
         String operand = instruction.getFirstOperand();
         if (isIndirect(operand))
@@ -181,17 +187,17 @@ public final class ObjectCodeGenerator {
             i = '1';
             n = '1';
         } else {
-            x = '0';
             if (isIndirect(instruction)) {
+                n = '1';
                 i = '0';
-                n = '1';
             } else if (isImmediate(instruction)) {
-                i = '1';
                 n = '0';
-            } else {
                 i = '1';
+            } else {
                 n = '1';
+                i = '1';
             }
+            x = '0';
         }
         return String.valueOf(n) + i + x;
     }
@@ -202,20 +208,47 @@ public final class ObjectCodeGenerator {
             b = '0';
             p = '0';
             e = '1';
+            return String.valueOf(b) + p + e;
         } else {
-            if (Program.hasBaseDirective()) {
-                b = '1';
-                p = '0';
-            } else if (isManipulativeOperation(instruction.getMnemonic())) {
-                b = '0';
-                p = '1';
-            } else {
-                b = '0';
-                p = '0';
-            }
+            String operand = instruction.getFirstOperand();
+            if (isIndirect(operand))
+                operand = getIndirectValue(operand);
+            else if (isImmediate(operand))
+                operand = getImmediateValue(operand);
+
             e = '0';
+            if (!symbolTable.containsSymbol(operand)) {
+                operand = Utils.removeSpecialSymbol(operand);
+                if (isNumeric(operand)) {
+                    b = '0';
+                    p = '0';
+                    displacement = Integer.parseInt(operand);
+                    return String.valueOf(b) + p + e;
+                }
+            } else {
+                int targetAddress = symbolTable.getSymbol(operand).getAddress();
+
+                displacement = targetAddress - PC;
+                if (isPCRelative(displacement)) {
+                    b = '0';
+                    p = '1';
+                    return String.valueOf(b) + p + e;
+                }
+
+                displacement = targetAddress - Program.getBaseRegisterValue();
+                if (isBaseRelative(targetAddress)) {
+                    b = '1';
+                    p = '0';
+                    return String.valueOf(b) + p + e;
+                }
+            }
         }
-        return String.valueOf(b) + p + e;
+        displacement = 0;
+        return null;
+    }
+
+    private boolean isPCRelative(int displacement) {
+        return displacement >= -2048 && displacement <= 2047;
     }
 
     private String getImmediateValue(String operand) {
@@ -224,6 +257,15 @@ public final class ObjectCodeGenerator {
 
     private String getIndirectValue(String operand) {
         return operand.replace("@", "");
+    }
+
+    public boolean isBaseRelative(int displacement) {
+        if (Program.hasBaseDirective()) return displacement >= 0 && displacement <= 4095;
+        return false;
+    }
+
+    private String removeZeros(String string) {
+        return string.substring(0, string.length() - 2);
     }
 
     /**

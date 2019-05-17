@@ -1,6 +1,7 @@
 package misc.utils;
 
 import misc.constants.Constants;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.regex.Pattern;
 
@@ -15,6 +16,14 @@ public final class Utils {
 
     public static String removeHexadecimalNotation(String string) {
         return string.replace("0x", "");
+    }
+
+    public static String removeSpecialSymbol(@NotNull String string) {
+        if (Validations.Operand.isIndirect(string))
+            return string.replace("@", "");
+        if (Validations.Operand.isImmediate(string))
+            return string.replace("#", "");
+        return string;
     }
 
     /**
@@ -64,6 +73,6 @@ public final class Utils {
         else if (Pattern.matches("0x[0-9A-F]+", operand))
             parsedOperand.append(operand.substring(2));
 
-        return String.valueOf(Integer.parseInt(parsedOperand.toString(), 16));
+        return parsedOperand.toString();
     }
 }

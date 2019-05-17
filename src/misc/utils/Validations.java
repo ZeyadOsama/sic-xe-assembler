@@ -71,6 +71,10 @@ public final class Validations {
         return o == '%' || o == '/' || o == '*' || o == '+' || o == '-';
     }
 
+    public static boolean isNumeric(String string) {
+        return string.matches("-?\\d+(\\.\\d+)?");
+    }
+
     /**
      * Utility class for object code bits detection.
      * Used to detect n i x b p e bits.

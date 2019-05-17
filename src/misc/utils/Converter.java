@@ -2,6 +2,8 @@ package misc.utils;
 
 import org.jetbrains.annotations.NotNull;
 
+import static misc.utils.Utils.extendLength;
+
 /**
  * Utility class to convert numbers from one form to another
  */
@@ -17,12 +19,12 @@ public final class Converter {
 
         @NotNull
         public static String toBinary(int decimal) {
-            return Integer.toBinaryString(decimal);
+            return extendLength(Integer.toBinaryString(decimal), String.valueOf(decimal).length() * 4);
         }
 
         @NotNull
         public static String toBinary(@NotNull String number) {
-            return Integer.toBinaryString(Integer.parseInt(number));
+            return extendLength(Integer.toBinaryString(Integer.parseInt(number)), number.length() * 4);
         }
 
         @NotNull

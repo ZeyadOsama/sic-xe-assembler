@@ -8,6 +8,7 @@ import assembler.tables.DirectiveTable;
 import assembler.tables.SymbolTable;
 import misc.constants.Constants;
 import misc.exceptions.ParsingException;
+import misc.utils.Converter;
 import misc.utils.Utils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -30,6 +31,7 @@ import static parser.ParsingValidations.validateInstruction;
 public class Parser {
 
     private static Parser instance = new Parser();
+    private int baseRegisterValue;
 
     public static Parser getInstance() {
         return instance;
@@ -64,8 +66,10 @@ public class Parser {
         Instruction parsedInstruction;
         for (String instruction : instructions) {
             parsedInstruction = parseInstruction(instruction, mode);
-            if (parsedInstruction != null)
+            if (parsedInstruction != null) {
+                parsedInstruction.setAddress(locationCounter.getCurrentAddress());
                 parsedInstructionsList.add(parsedInstruction);
+            }
         }
         return parsedInstructionsList;
     }
@@ -123,6 +127,9 @@ public class Parser {
         String[] operandsList = determineOperands(instruction);
         String comment = determineComment(instruction);
 
+        if (hasBaseDirective)
+            baseRegisterValue = Integer.parseInt(operandsList[FIRST_OPERAND]);
+
         return new Instruction(label, Objects.requireNonNull(mnemonic),
                 operandsList[FIRST_OPERAND], operandsList[SECOND_OPERAND], comment);
     }
@@ -178,8 +185,10 @@ public class Parser {
             while (operandsTokenizer.hasMoreTokens())
                 operandsList[i++] = operandsTokenizer.nextToken();
         }
-        if (mnemonic.equals(DirectiveTable.BASE))
+        if (mnemonic.equals(DirectiveTable.BASE)) {
             hasBaseDirective = true;
+            baseRegisterValue = Integer.parseInt(operandsList[FIRST_OPERAND]);
+        }
 
         return new Instruction(label, mnemonic, operandsList[FIRST_OPERAND], operandsList[SECOND_OPERAND], comment);
     }
@@ -266,12 +275,17 @@ public class Parser {
             System.out.println(i.getMnemonic());
             System.out.println(i.getFirstOperand());
             System.out.println(i.getSecondOperand());
-            System.out.println(i.getComment() + "\n");
+            System.out.println(i.getComment());
+            System.out.println(Converter.Decimal.toHexadecimal(i.getAddress()) + "\n");
         }
     }
 
     public boolean hasBaseDirective() {
         return hasBaseDirective;
+    }
+
+    public int getBaseRegisterValue() {
+        return baseRegisterValue;
     }
 
     /**
