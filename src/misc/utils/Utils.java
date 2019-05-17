@@ -5,6 +5,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.regex.Pattern;
 
+import static misc.utils.Validations.Operand.*;
+
 public final class Utils {
 
     private Utils() {
@@ -18,12 +20,19 @@ public final class Utils {
         return string.replace("0x", "");
     }
 
-    public static String removeSpecialSymbol(@NotNull String string) {
-        if (Validations.Operand.isIndirect(string))
-            return string.replace("@", "");
-        if (Validations.Operand.isImmediate(string))
-            return string.replace("#", "");
-        return string;
+    /**
+     * @param operand to be parsed
+     * @return operand value without any special symbols
+     */
+    @NotNull
+    public static String removeSpecialSymbol(@NotNull String operand) {
+        if (isIndirect(operand))
+            return operand.replace("@", "");
+        if (isImmediate(operand))
+            return operand.replace("#", "");
+        if (isLiteral(operand))
+            return parseDataOperand(operand);
+        return operand;
     }
 
     /**

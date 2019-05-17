@@ -62,7 +62,7 @@ public final class Validations {
 
         char[] chars = string.toCharArray();
         for (char c : chars)
-            if (!Character.isDigit(c) || isOperator(c))
+            if (!Character.isDigit(c) && !isOperator(c))
                 return false;
         return true;
     }
@@ -73,10 +73,6 @@ public final class Validations {
 
     public static boolean isNumeric(String string) {
         return string.matches("-?\\d+(\\.\\d+)?");
-    }
-
-    public static boolean isAddressSymbol(String string) {
-        return (string != null) && string.charAt(0) == '*';
     }
 
     /**
@@ -113,6 +109,10 @@ public final class Validations {
 
         public static boolean isLiteral(String operand) {
             return operand != null && (operand.startsWith("X'") || operand.startsWith("C'")) && operand.endsWith("'");
+        }
+
+        public static boolean isAddressSymbol(String string) {
+            return (string != null) && string.charAt(0) == '*';
         }
     }
 }

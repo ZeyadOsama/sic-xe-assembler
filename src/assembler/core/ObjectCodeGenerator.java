@@ -7,6 +7,7 @@ import assembler.tables.OperationTable;
 import assembler.tables.RegisterTable;
 import assembler.tables.SymbolTable;
 import misc.utils.ConsoleColors;
+import misc.utils.ExpressionEvaluator;
 import misc.utils.Utils;
 import org.jetbrains.annotations.NotNull;
 import parser.Parser;
@@ -18,7 +19,7 @@ import static misc.utils.Converter.Decimal;
 import static misc.utils.Utils.extendLength;
 import static misc.utils.Utils.parseDataOperand;
 import static misc.utils.Validations.Operand.*;
-import static misc.utils.Validations.isNumeric;
+import static misc.utils.Validations.isExpression;
 import static misc.utils.Validations.isOperation;
 
 public final class ObjectCodeGenerator {
@@ -32,6 +33,7 @@ public final class ObjectCodeGenerator {
     private ArrayList<Instruction> parsedInstructions;
     private ArrayList<Integer> addresses;
     private int PC;
+    private int PC_LAST;
     private int displacement;
 
     public ObjectCodeGenerator() {
@@ -82,8 +84,10 @@ public final class ObjectCodeGenerator {
         for (Instruction instruction : parsedInstructions) {
             if (recordLength == 0)
                 startAddress = instruction.getAddress();
-            if (i < addresses.size() - 1)
+            if (i < addresses.size() - 1) {
+                PC_LAST = addresses.get(i);
                 PC = addresses.get(++i);
+            }
             String objectCode = null;
             if (isOperation(instruction.getMnemonic())) {
                 switch (OperationTable.getOperation(instruction.getMnemonic()).getFormat()) {
@@ -168,19 +172,9 @@ public final class ObjectCodeGenerator {
     private String generateFormatFour(Instruction instruction) {
         String opcode = String.valueOf(OperationTable.getOperation(instruction.getMnemonic()).getOpcode());
         opcode = extendLength(removeZeros(Decimal.toBinary(opcode)), 6);
-
-        String operand = instruction.getFirstOperand();
-        if (isIndirect(operand))
-            operand = getIndirectValue(operand);
-        else if (isImmediate(operand))
-            operand = getImmediateValue(operand);
-        if (symbolTable.containsSymbol(operand))
-            operand = String.valueOf(symbolTable.getSymbol(operand).getAddress());
-        operand = extendLength(Decimal.toBinary(operand), 20);
-
         return extendLength(Binary.toHexadecimal(opcode
                 + getNIX(instruction) + getBPE(instruction)
-                + operand), 8);
+                + extendLength(Decimal.toBinary(displacement), 20)), 8);
     }
 
     /**
@@ -210,7 +204,7 @@ public final class ObjectCodeGenerator {
     }
 
     /**
-     * @param instruction to be calculated
+     * @param instruction parsed
      * @return b p e bits
      */
     private String getBPE(Instruction instruction) {
@@ -221,22 +215,10 @@ public final class ObjectCodeGenerator {
             e = '1';
             return String.valueOf(b) + p + e;
         } else {
-            String operand = instruction.getFirstOperand();
-            if (isIndirect(operand))
-                operand = getIndirectValue(operand);
-            else if (isImmediate(operand))
-                operand = getImmediateValue(operand);
-
+            String operand = Utils.removeSpecialSymbol(instruction.getFirstOperand());
             e = '0';
-            if (!symbolTable.containsSymbol(operand)) {
-                operand = Utils.removeSpecialSymbol(operand);
-                if (isNumeric(operand)) {
-                    b = '0';
-                    p = '0';
-                    displacement = Integer.parseInt(operand);
-                    return String.valueOf(b) + p + e;
-                }
-            } else {
+
+            if (symbolTable.containsSymbol(operand)) {
                 int targetAddress = symbolTable.getSymbol(operand).getAddress();
 
                 displacement = targetAddress - PC;
@@ -252,28 +234,21 @@ public final class ObjectCodeGenerator {
                     p = '0';
                     return String.valueOf(b) + p + e;
                 }
+            } else {
+                b = '0';
+                p = '0';
+                if (isAddressSymbol(operand)) {
+                    if (isExpression(operand))
+                        displacement = ExpressionEvaluator.evaluate(PC_LAST + operand.substring(1));
+                    else
+                        displacement = PC_LAST;
+                } else
+                    displacement = Integer.parseInt(operand);
+                return String.valueOf(b) + p + e;
             }
         }
         displacement = 0;
         return null;
-    }
-
-    /**
-     * @param operand to be parsed
-     * @return operand value without any special symbols
-     */
-    @NotNull
-    private String getImmediateValue(@NotNull String operand) {
-        return operand.replace("#", "");
-    }
-
-    /**
-     * @param operand to be parsed
-     * @return operand value without any special symbols
-     */
-    @NotNull
-    private String getIndirectValue(@NotNull String operand) {
-        return operand.replace("@", "");
     }
 
     /**
