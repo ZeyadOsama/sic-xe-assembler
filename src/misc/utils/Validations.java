@@ -75,6 +75,10 @@ public final class Validations {
         return string.matches("-?\\d+(\\.\\d+)?");
     }
 
+    public static boolean isAddressSymbol(String string) {
+        return (string != null) && string.charAt(0) == '*';
+    }
+
     /**
      * Utility class for object code bits detection.
      * Used to detect n i x b p e bits.

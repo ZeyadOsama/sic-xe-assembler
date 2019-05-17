@@ -8,6 +8,7 @@ import assembler.tables.RegisterTable;
 import assembler.tables.SymbolTable;
 import misc.utils.ConsoleColors;
 import misc.utils.Utils;
+import org.jetbrains.annotations.NotNull;
 import parser.Parser;
 
 import java.util.ArrayList;
@@ -77,8 +78,10 @@ public final class ObjectCodeGenerator {
 
     private void generateTextRecord() {
         ArrayList<String> objectCodes = new ArrayList<>();
-        int recordLength = 0, i = 0;
+        int startAddress = 0, recordLength = 0, i = 0;
         for (Instruction instruction : parsedInstructions) {
+            if (recordLength == 0)
+                startAddress = instruction.getAddress();
             if (i < addresses.size() - 1)
                 PC = addresses.get(++i);
             String objectCode = null;
@@ -108,17 +111,20 @@ public final class ObjectCodeGenerator {
                     operand = parseDataOperand(operand);
                 objectCode = extendLength(Decimal.toHexadecimal(operand), 6);
             }
-            recordLength += objectCode != null ? objectCode.length() : 0;
+            recordLength += objectCode != null ? objectCode.length() / 2 : 0;
             if (textRecord.isLengthExceeding()) {
-                textRecord.addContent(extendLength(Decimal.toHexadecimal(recordLength), 2));
                 recordLength = 0;
+                startAddress = instruction.getAddress();
+                textRecord.addContent(extendLength(Decimal.toHexadecimal(startAddress), 6));
+                textRecord.addContent(extendLength(Decimal.toHexadecimal(recordLength), 2));
                 for (String oc : objectCodes)
                     textRecord.addContent(oc);
                 objectCodes.clear();
             }
             objectCodes.add(objectCode);
         }
-        textRecord.addContent(extendLength(String.valueOf(recordLength), 2));
+        textRecord.addContent(extendLength(Decimal.toHexadecimal(startAddress), 6));
+        textRecord.addContent(extendLength(Decimal.toHexadecimal(recordLength), 2));
         for (String oc : objectCodes)
             textRecord.addContent(oc);
     }
@@ -131,7 +137,6 @@ public final class ObjectCodeGenerator {
         String opcode = String.valueOf(OperationTable.getOperation(instruction.getMnemonic()).getOpcode());
         opcode = extendLength(Decimal.toBinary(opcode), 8);
 
-        System.out.println("OPCODE:" + opcode);
         String firstOperand = String.valueOf(RegisterTable.getRegister(instruction.getFirstOperand()).getAddress());
         firstOperand = extendLength(Decimal.toBinary(firstOperand), 4);
 
@@ -151,8 +156,6 @@ public final class ObjectCodeGenerator {
     private String generateFormatThree(Instruction instruction) {
         String opcode = String.valueOf(OperationTable.getOperation(instruction.getMnemonic()).getOpcode());
         opcode = extendLength(removeZeros(Decimal.toBinary(opcode)), 6);
-
-        System.out.println("OPCODE:" + opcode);
         return extendLength(Binary.toHexadecimal(opcode
                 + getNIX(instruction) + getBPE(instruction)
                 + extendLength(Decimal.toBinary(displacement), 12)), 6);
@@ -180,6 +183,10 @@ public final class ObjectCodeGenerator {
                 + operand), 8);
     }
 
+    /**
+     * @param instruction to be calculated
+     * @return n i x bits
+     */
     private String getNIX(Instruction instruction) {
         char n, i, x;
         if (instruction.isIndexed()) {
@@ -202,6 +209,10 @@ public final class ObjectCodeGenerator {
         return String.valueOf(n) + i + x;
     }
 
+    /**
+     * @param instruction to be calculated
+     * @return b p e bits
+     */
     private String getBPE(Instruction instruction) {
         char b, p, e;
         if (OperationTable.getOperation(instruction.getMnemonic()).getFormat() == Format.FOUR) {
@@ -247,25 +258,42 @@ public final class ObjectCodeGenerator {
         return null;
     }
 
+    /**
+     * @param operand to be parsed
+     * @return operand value without any special symbols
+     */
+    @NotNull
+    private String getImmediateValue(@NotNull String operand) {
+        return operand.replace("#", "");
+    }
+
+    /**
+     * @param operand to be parsed
+     * @return operand value without any special symbols
+     */
+    @NotNull
+    private String getIndirectValue(@NotNull String operand) {
+        return operand.replace("@", "");
+    }
+
+    /**
+     * SIC/XE opcode for format 3 and 4 gets rid of last two zeros in them.
+     *
+     * @param string which is the opcode
+     * @return string without last two chars
+     */
+    @NotNull
+    private String removeZeros(@NotNull String string) {
+        return string.substring(0, string.length() - 2);
+    }
+
     private boolean isPCRelative(int displacement) {
         return displacement >= -2048 && displacement <= 2047;
     }
 
-    private String getImmediateValue(String operand) {
-        return operand.replace("#", "");
-    }
-
-    private String getIndirectValue(String operand) {
-        return operand.replace("@", "");
-    }
-
-    public boolean isBaseRelative(int displacement) {
+    private boolean isBaseRelative(int displacement) {
         if (Program.hasBaseDirective()) return displacement >= 0 && displacement <= 4095;
         return false;
-    }
-
-    private String removeZeros(String string) {
-        return string.substring(0, string.length() - 2);
     }
 
     /**
