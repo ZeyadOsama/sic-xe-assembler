@@ -129,10 +129,10 @@ public final class Instruction {
         return string
                 .insert(0, hasLabel() ? label : EMPTY)
                 .insert(10, hasMnemonic() ? mnemonic : EMPTY)
-                .insert(18, hasFirstOperand() ? firstOperand : EMPTY)
-                .insert(25, hasSecondOperand() ? COMMA + secondOperand : EMPTY)
+                .insert(18, hasFirstOperand() ? firstOperand + (hasSecondOperand() ? COMMA : EMPTY) : EMPTY)
+                .insert(string.indexOf(COMMA) + 1, hasSecondOperand() ? secondOperand : EMPTY)
                 .insert(36, hasComment() ? comment : EMPTY)
                 .toString()
-                .replaceAll("[^a-zA-Z0-9]", SPACE);
+                .replaceAll("[^a-zA-Z0-9@#,']", SPACE);
     }
 }

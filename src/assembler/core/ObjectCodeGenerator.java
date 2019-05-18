@@ -24,26 +24,20 @@ import static misc.utils.Validations.isOperation;
 
 public final class ObjectCodeGenerator {
 
-    private static ArrayList<String> records;
-    private Record headerRecord;
-    private Record textRecord;
-    private Record endRecord;
-
-    private SymbolTable symbolTable = SymbolTable.getInstance();
-    private ArrayList<Instruction> parsedInstructions;
-    private ArrayList<Integer> addresses;
+    private static ArrayList<String> records = new ArrayList<>();
+    /**
+     * Terminal instance
+     */
+    public Terminal terminal = new Terminal();
     private int PC;
     private int PC_LAST;
     private int displacement;
-
-    public ObjectCodeGenerator() {
-        headerRecord = new Record(Record.HEADER);
-        textRecord = new Record(Record.TEXT);
-        endRecord = new Record(Record.END);
-        parsedInstructions = Parser.getInstance().getParsedInstructions();
-        records = new ArrayList<>();
-        addresses = LocationCounter.getInstance().getAddresses();
-    }
+    private Record headerRecord;
+    private Record endRecord;
+    private ArrayList<Record> textRecords;
+    private ArrayList<Instruction> parsedInstructions;
+    private ArrayList<Integer> addresses;
+    private SymbolTable symbolTable;
 
     public void generate() {
         if (Program.hasError()) {
@@ -61,12 +55,90 @@ public final class ObjectCodeGenerator {
         headerRecord.addContent(Program.getObjectCodeLength());
     }
 
-    public static ArrayList<String> getRecords() {
-        return records;
+    public ObjectCodeGenerator() {
+        PC = PC_LAST = displacement = 0;
+
+        textRecords = new ArrayList<>();
+        headerRecord = new Record(Record.HEADER);
+        endRecord = new Record(Record.END);
+
+        symbolTable = SymbolTable.getInstance();
+        parsedInstructions = Parser.getInstance().getParsedInstructions();
+        addresses = LocationCounter.getInstance().getAddresses();
     }
 
-    private void generateEndRecord() {
-        endRecord.addContent(Program.getFirstExecutableInstructionAddress());
+    private void generateTextRecord() {
+        ArrayList<ObjectCode> objectCodes = new ArrayList<>();
+        int i = 0;
+        for (Instruction instruction : parsedInstructions) {
+            if (i < addresses.size() - 1) {
+                PC_LAST = addresses.get(i);
+                PC = addresses.get(++i);
+            }
+            String objectCode = null;
+            if (isOperation(instruction.getMnemonic())) {
+                switch (OperationTable.getOperation(instruction.getMnemonic()).getFormat()) {
+                    case ONE:
+                        objectCode = generateFormatOne(instruction);
+                        break;
+                    case TWO:
+                        objectCode = generateFormatTwo(instruction);
+                        break;
+                    case THREE:
+                        objectCode = generateFormatThree(instruction);
+                        break;
+                    case FOUR:
+                        objectCode = generateFormatFour(instruction);
+                        break;
+                }
+            } else if (instruction.getMnemonic().equals(DirectiveTable.BYTE)) {
+                String operand = instruction.getFirstOperand();
+                if (isLiteral(operand)) {
+                    String[] ocStream = Utils.splitAfter(parseDataOperand(operand), 6);
+                    for (String oc : ocStream)
+                        objectCodes.add(
+                                new ObjectCode(extendLength(oc, Utils.ceilToEven(oc.length())),
+                                        instruction.getAddress()));
+                } else
+                    objectCode = extendLength(Decimal.toHexadecimal(operand), Utils.ceilToEven(operand.length()));
+            } else if (instruction.getMnemonic().equals(DirectiveTable.WORD)) {
+                String operand = instruction.getFirstOperand();
+                if (isLiteral(operand))
+                    operand = parseDataOperand(operand);
+                objectCode = extendLength(Decimal.toHexadecimal(operand), 6);
+            }
+            if (objectCode != null)
+                objectCodes.add(new ObjectCode(objectCode, instruction.getAddress()));
+        }
+
+        int recordLength = 0, addressIndex = 0;
+        Record textRecord = new Record(Record.TEXT);
+        for (int j = 0; j < objectCodes.size(); j++) {
+
+            String objectCode = objectCodes.get(j).getObjectCode();
+            if ((textRecord.content.length() + (objectCode.length())) > 59) {
+                textRecord.insertFirst(extendLength(Decimal.toHexadecimal(recordLength), 2));
+                textRecord.insertFirst(extendLength(
+                        Decimal.toHexadecimal(objectCodes.get(addressIndex).getInstructionAddress()), 6));
+                textRecords.add(textRecord);
+                textRecord = new Record(Record.TEXT);
+                addressIndex = j;
+                recordLength = 0;
+            }
+            recordLength += objectCode.length() / 2;
+            textRecord.addContent(objectCode);
+
+            if (j == objectCodes.size() - 1) {
+                textRecord.insertFirst(extendLength(Decimal.toHexadecimal(recordLength), 2));
+                textRecord.insertFirst(extendLength(
+                        Decimal.toHexadecimal(objectCodes.get(j).getInstructionAddress()), 6));
+                textRecords.add(textRecord);
+            }
+        }
+    }
+
+    public static ArrayList<String> getRecords() {
+        return records;
     }
 
     /**
@@ -77,11 +149,6 @@ public final class ObjectCodeGenerator {
         String opcode = String.valueOf(OperationTable.getOperation(instruction.getMnemonic()).getOpcode());
         return extendLength(Decimal.toBinary(opcode), 8);
     }
-
-    /**
-     * Terminal instance
-     */
-    public Terminal terminal = new Terminal();
 
     /**
      * @param instruction parsed
@@ -221,111 +288,8 @@ public final class ObjectCodeGenerator {
         return false;
     }
 
-    private void generateTextRecord() {
-        ArrayList<ObjectCode> objectCodes = new ArrayList<>();
-        int i = 0;
-        for (Instruction instruction : parsedInstructions) {
-            if (i < addresses.size() - 1) {
-                PC_LAST = addresses.get(i);
-                PC = addresses.get(++i);
-            }
-            String objectCode = null;
-            if (isOperation(instruction.getMnemonic())) {
-                switch (OperationTable.getOperation(instruction.getMnemonic()).getFormat()) {
-                    case ONE:
-                        objectCode = generateFormatOne(instruction);
-                        break;
-                    case TWO:
-                        objectCode = generateFormatTwo(instruction);
-                        break;
-                    case THREE:
-                        objectCode = generateFormatThree(instruction);
-                        break;
-                    case FOUR:
-                        objectCode = generateFormatFour(instruction);
-                        break;
-                }
-            } else if (instruction.getMnemonic().equals(DirectiveTable.BYTE)) {
-                String operand = instruction.getFirstOperand();
-                if (isLiteral(operand)) {
-                    String[] ocStream = Utils.splitAfter(parseDataOperand(operand), 4);
-                    for (String oc : ocStream)
-                        objectCodes.add(
-                                new ObjectCode(extendLength(oc, Utils.ceilToEven(oc.length())),
-                                        instruction.getAddress()));
-                } else
-                    objectCode = extendLength(Decimal.toHexadecimal(operand), Utils.ceilToEven(operand.length()));
-            } else if (instruction.getMnemonic().equals(DirectiveTable.WORD)) {
-                String operand = instruction.getFirstOperand();
-                if (isLiteral(operand))
-                    operand = parseDataOperand(operand);
-                objectCode = extendLength(Decimal.toHexadecimal(operand), 6);
-            }
-            if (objectCode != null)
-                objectCodes.add(new ObjectCode(objectCode, instruction.getAddress()));
-        }
-
-        // TODO
-        int recordLength = 0;
-        for (ObjectCode code : objectCodes) {
-            if (textRecord.isLengthExceeding()) {
-                textRecord.insertFirst(extendLength(Decimal.toHexadecimal(recordLength), 2));
-                textRecord.insertFirst(extendLength(Decimal.toHexadecimal(code.getInstructionAddress()), 6));
-                recordLength = 0;
-            }
-            String objectCode = code.getObjectCode();
-            textRecord.addContent(objectCode);
-            recordLength += objectCode.length() / 2;
-        }
-    }
-
-    /**
-     * Inner class for generating and handling single record
-     */
-    private class Record {
-
-        private static final String SEPARATOR = "^";
-        private static final String HEADER = "H";
-        private static final String TEXT = "T";
-        private static final String END = "E";
-
-        private StringBuilder content;
-        private int lines = 1;
-        private int offset = 2;
-
-        private Record(String recordTitle) {
-            content = new StringBuilder();
-            content.append(recordTitle);
-        }
-
-        private void addContent(String record) {
-            if (record == null) return;
-            String string;
-            if (isLengthExceeding()) {
-                lines++;
-                offset = 3 + content.length();
-                string = "\n" + TEXT + SEPARATOR + record;
-            } else string = SEPARATOR + record;
-            content.append(string);
-
-            // TODO
-            if (isLengthExceeding()) {
-                int index = content.lastIndexOf(SEPARATOR);
-                String reserved = content.substring(index + 1);
-                content.substring(0, index);
-                lines++;
-                offset = 3 + content.length();
-                content.append("\n" + TEXT + SEPARATOR).append(reserved);
-            }
-        }
-
-        private boolean isLengthExceeding() {
-            return content.length() - (lines * 58) > 0;
-        }
-
-        private void insertFirst(String record) {
-            content.insert(offset, record + SEPARATOR);
-        }
+    private void generateEndRecord() {
+        endRecord.addContent(Program.getFirstExecutableInstructionAddress());
     }
 
     /**
@@ -352,6 +316,34 @@ public final class ObjectCodeGenerator {
     }
 
     /**
+     * Inner class for generating and handling single record
+     */
+    private class Record {
+
+        private static final String SEPARATOR = "^";
+        private static final String HEADER = "H";
+        private static final String TEXT = "T";
+        private static final String END = "E";
+
+        private StringBuilder content;
+
+        private Record(String recordTitle) {
+            content = new StringBuilder();
+            content.append(recordTitle);
+        }
+
+        private void addContent(String record) {
+            if (record == null)
+                return;
+            content.append(SEPARATOR).append(record);
+        }
+
+        private void insertFirst(String record) {
+            content.insert(2, record + SEPARATOR);
+        }
+    }
+
+    /**
      * Utility class to print files content in terminal
      */
     public class Terminal {
@@ -362,7 +354,8 @@ public final class ObjectCodeGenerator {
         public void show() {
             headerMessage("Object Code");
             System.out.println(headerRecord.content.toString());
-            System.out.println(textRecord.content.toString());
+            for (Record textRecord : textRecords)
+                System.out.println(textRecord.content.toString());
             System.out.println(endRecord.content.toString());
         }
 
