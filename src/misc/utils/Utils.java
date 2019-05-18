@@ -82,6 +82,14 @@ public final class Utils {
         else if (Pattern.matches("0x[0-9A-F]+", operand))
             parsedOperand.append(operand.substring(2));
 
-        return parsedOperand.toString();
+        return parsedOperand.toString().toUpperCase();
+    }
+
+    public static int ceilToEven(int i) {
+        return i % 2 == 0 ? i : i + 1;
+    }
+
+    public static String[] splitAfter(String input, int length) {
+        return input.split(String.format("(?<=\\G.{%1$d})", length));
     }
 }

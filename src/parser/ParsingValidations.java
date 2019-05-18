@@ -100,7 +100,6 @@ class ParsingValidations {
     }
 
     private static boolean validateDirectiveOperands() {
-        System.out.println(instruction.getMnemonic());
         if (DirectiveTable.getDirective(instruction.getMnemonic()).hasOperand()) {
             if (!instruction.hasFirstOperand()) {
                 errorHandler.setHasError(true);
