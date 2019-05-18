@@ -23,12 +23,6 @@ import static misc.utils.Validations.isExpression;
 import static misc.utils.Validations.isOperation;
 
 public final class ObjectCodeGenerator {
-
-    private static ArrayList<String> records = new ArrayList<>();
-    /**
-     * Terminal instance
-     */
-    public Terminal terminal = new Terminal();
     private int PC;
     private int PC_LAST;
     private int displacement;
@@ -38,6 +32,38 @@ public final class ObjectCodeGenerator {
     private ArrayList<Instruction> parsedInstructions;
     private ArrayList<Integer> addresses;
     private SymbolTable symbolTable;
+
+    public ObjectCodeGenerator() {
+        PC = PC_LAST = displacement = 0;
+
+        textRecords = new ArrayList<>();
+        headerRecord = new Record(Record.HEADER);
+        endRecord = new Record(Record.END);
+
+        symbolTable = SymbolTable.getInstance();
+        parsedInstructions = Parser.getInstance().getParsedInstructions();
+        addresses = LocationCounter.getInstance().getAddresses();
+    }
+
+    /**
+     * Terminal instance
+     */
+    public Terminal terminal = new Terminal();
+
+    public String getHeaderRecord() {
+        return headerRecord.getContent().append("\n").toString();
+    }
+
+    public String getTextRecords() {
+        StringBuilder builder = new StringBuilder();
+        for (Record record : textRecords)
+            builder.append(record.getContent().toString()).append("\n");
+        return builder.toString();
+    }
+
+    public String getEndRecord() {
+        return endRecord.getContent().append("\n").toString();
+    }
 
     public void generate() {
         if (Program.hasError()) {
@@ -53,18 +79,6 @@ public final class ObjectCodeGenerator {
         headerRecord.addContent(Program.getName());
         headerRecord.addContent(Program.getStartAddress());
         headerRecord.addContent(Program.getObjectCodeLength());
-    }
-
-    public ObjectCodeGenerator() {
-        PC = PC_LAST = displacement = 0;
-
-        textRecords = new ArrayList<>();
-        headerRecord = new Record(Record.HEADER);
-        endRecord = new Record(Record.END);
-
-        symbolTable = SymbolTable.getInstance();
-        parsedInstructions = Parser.getInstance().getParsedInstructions();
-        addresses = LocationCounter.getInstance().getAddresses();
     }
 
     private void generateTextRecord() {
@@ -114,9 +128,8 @@ public final class ObjectCodeGenerator {
         int recordLength = 0, addressIndex = 0;
         Record textRecord = new Record(Record.TEXT);
         for (int j = 0; j < objectCodes.size(); j++) {
-
             String objectCode = objectCodes.get(j).getObjectCode();
-            if ((textRecord.content.length() + (objectCode.length())) > 59) {
+            if ((textRecord.getContent().length() + (objectCode.length())) > Record.MAX_STORAGE) {
                 textRecord.insertFirst(extendLength(Decimal.toHexadecimal(recordLength), 2));
                 textRecord.insertFirst(extendLength(
                         Decimal.toHexadecimal(objectCodes.get(addressIndex).getInstructionAddress()), 6));
@@ -135,10 +148,6 @@ public final class ObjectCodeGenerator {
                 textRecords.add(textRecord);
             }
         }
-    }
-
-    public static ArrayList<String> getRecords() {
-        return records;
     }
 
     /**
@@ -288,9 +297,6 @@ public final class ObjectCodeGenerator {
         return false;
     }
 
-    private void generateEndRecord() {
-        endRecord.addContent(Program.getFirstExecutableInstructionAddress());
-    }
 
     /**
      * Holds object code for a given instruction
@@ -315,6 +321,10 @@ public final class ObjectCodeGenerator {
         }
     }
 
+    private void generateEndRecord() {
+        endRecord.addContent(Program.getFirstExecutableInstructionAddress());
+    }
+
     /**
      * Inner class for generating and handling single record
      */
@@ -325,11 +335,17 @@ public final class ObjectCodeGenerator {
         private static final String TEXT = "T";
         private static final String END = "E";
 
+        private static final int MAX_STORAGE = 59;
+
         private StringBuilder content;
 
         private Record(String recordTitle) {
             content = new StringBuilder();
             content.append(recordTitle);
+        }
+
+        public StringBuilder getContent() {
+            return content;
         }
 
         private void addContent(String record) {

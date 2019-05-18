@@ -50,7 +50,7 @@ public final class FileWriter {
         acceptMessage("Symbol table file written successfully to " + file);
     }
 
-    public void writeObjectCodeFile() {
+    public void writeObjectCodeFile(ObjectCodeGenerator objectCodeGenerator) {
         if (Program.hasError()) {
             ErrorHandler.out.println("Can not write object code file due to parsing errors.");
             return;
@@ -58,8 +58,9 @@ public final class FileWriter {
         String file = generateFileName("object-code");
         try {
             java.io.FileWriter writer = new java.io.FileWriter(file);
-            for (String string : ObjectCodeGenerator.getRecords())
-                writer.write(string + "\n");
+            writer.write(objectCodeGenerator.getHeaderRecord());
+            writer.write(objectCodeGenerator.getTextRecords());
+            writer.write(objectCodeGenerator.getEndRecord());
             writer.close();
         } catch (IOException e) {
             e.getCause();

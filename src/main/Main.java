@@ -26,6 +26,6 @@ public class Main {
         FileWriter fileWriter = new FileWriter(outputGenerator);
         fileWriter.writeAddressFile();
         fileWriter.writeSymbolFile();
-        fileWriter.writeObjectCodeFile();
+        fileWriter.writeObjectCodeFile(objectCodeGenerator);
     }
 }
