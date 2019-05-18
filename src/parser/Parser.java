@@ -150,9 +150,25 @@ public class Parser {
         String[] operandsList = new String[2];
 
         Stack<String> instructionElements = new Stack<>();
-        StringTokenizer tokenizer = new StringTokenizer(instruction, Constants.SPACE);
-        while (tokenizer.hasMoreTokens())
-            instructionElements.push(tokenizer.nextToken());
+        String[] tokens = instruction.trim().split("\\s+");
+
+        // adding literals having spaces as one operand
+        StringBuilder operand = new StringBuilder();
+        for (int i = 0; i < tokens.length; i++) {
+            if (tokens[i].contains(Constants.APOSTROPHE))
+                for (int j = i + 1; j < tokens.length; j++) {
+                    i++;
+                    operand.append(tokens[j - 1]).append(Constants.SPACE);
+                    if (tokens[j].contains(Constants.APOSTROPHE)) {
+                        i++;
+                        operand.append(tokens[j]);
+                        instructionElements.push(operand.toString());
+                        break;
+                    }
+                }
+            if (i < tokens.length)
+                instructionElements.push(tokens[i]);
+        }
 
         switch (instructionElements.size()) {
             case 0:
@@ -189,7 +205,6 @@ public class Parser {
             hasBaseDirective = true;
             baseRegisterValue = Integer.parseInt(operandsList[FIRST_OPERAND]);
         }
-
         return new Instruction(label, mnemonic, operandsList[FIRST_OPERAND], operandsList[SECOND_OPERAND], comment);
     }
 
