@@ -33,8 +33,8 @@ public final class SymbolTable {
         return symbolTable.get(label);
     }
 
-    public boolean containsSymbol(@NotNull String label) {
-        return symbolTable.containsKey(label.toUpperCase());
+    public boolean containsSymbol(String label) {
+        return label != null && symbolTable.containsKey(label.toUpperCase());
     }
 
     public void update(@NotNull Instruction instruction) {
@@ -46,7 +46,7 @@ public final class SymbolTable {
                 return;
             }
             symbolTable.put(label,
-                    new Symbol(label, LocationCounter.getInstance().getCurrentAddress()));
+                    new Symbol(label, LocationCounter.getInstance().getCurrentAddress(), instruction.getFirstOperand()));
         }
     }
 }

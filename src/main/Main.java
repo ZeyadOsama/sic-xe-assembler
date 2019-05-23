@@ -1,31 +1,32 @@
 package main;
 
-import assembler.core.ObjectCodeGenerator;
-import assembler.core.OutputGenerator;
-import io.FileLoader;
-import io.FileWriter;
-import parser.Parser;
+import views.MainUI;
 
 public class Main {
 
     public static void main(String[] args) {
-        FileLoader fileLoader = new FileLoader();
-        fileLoader.openChooserDialogue();
+        MainUI mainUI = new MainUI();
+        mainUI.setVisible(true);
 
-        Parser.getInstance().parse(fileLoader.loadFile(), Parser.Mode.FREE);
+//        FileLoader fileLoader = new FileLoader();
+//        fileLoader.openChooserDialogue();
 
-        OutputGenerator outputGenerator = new OutputGenerator(fileLoader.getFileParentPath(), fileLoader.getFileName());
-        outputGenerator.generateSymbolFile();
-        outputGenerator.terminal.showAddressFile();
-        outputGenerator.terminal.showSymbolFile();
+//        Parser.getInstance().parse(fileLoader.loadFile(), Parser.Mode.FREE);
+//        Parser.getInstance().parse(mainUI.loadFile(), Parser.Mode.FREE);
 
-        ObjectCodeGenerator objectCodeGenerator = new ObjectCodeGenerator();
-        objectCodeGenerator.generate();
-        objectCodeGenerator.terminal.show();
-
-        FileWriter fileWriter = new FileWriter(outputGenerator);
-        fileWriter.writeAddressFile();
-        fileWriter.writeSymbolFile();
-        fileWriter.writeObjectCodeFile(objectCodeGenerator);
+//        OutputGenerator outputGenerator = new OutputGenerator(fileLoader.getFileParentPath(), fileLoader.getFileName());
+//        OutputGenerator outputGenerator = new OutputGenerator();
+//        outputGenerator.generateSymbolFile();
+//        outputGenerator.terminal.showAddressFile();
+//        outputGenerator.terminal.showSymbolFile();
+//
+//        ObjectCodeGenerator objectCodeGenerator = new ObjectCodeGenerator();
+//        objectCodeGenerator.generate();
+//        objectCodeGenerator.terminal.show();
+//
+//        FileWriter fileWriter = new FileWriter(outputGenerator);
+//        fileWriter.writeAddressFile();
+//        fileWriter.writeSymbolFile();
+//        fileWriter.writeObjectCodeFile(objectCodeGenerator);
     }
 }

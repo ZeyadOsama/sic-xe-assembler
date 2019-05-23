@@ -31,7 +31,7 @@ import static parser.ParsingValidations.validateInstruction;
 public class Parser {
 
     private static Parser instance = new Parser();
-    private int baseRegisterValue;
+    private String baseRegisterValue;
 
     public static Parser getInstance() {
         return instance;
@@ -128,7 +128,7 @@ public class Parser {
         String comment = determineComment(instruction);
 
         if (hasBaseDirective)
-            baseRegisterValue = Integer.parseInt(operandsList[FIRST_OPERAND]);
+            baseRegisterValue = operandsList[FIRST_OPERAND];
 
         return new Instruction(label, Objects.requireNonNull(mnemonic),
                 operandsList[FIRST_OPERAND], operandsList[SECOND_OPERAND], comment);
@@ -203,7 +203,7 @@ public class Parser {
         }
         if (mnemonic.equals(DirectiveTable.BASE)) {
             hasBaseDirective = true;
-            baseRegisterValue = Integer.parseInt(operandsList[FIRST_OPERAND]);
+            baseRegisterValue = operandsList[FIRST_OPERAND];
         }
         return new Instruction(label, mnemonic, operandsList[FIRST_OPERAND], operandsList[SECOND_OPERAND], comment);
     }
@@ -299,7 +299,8 @@ public class Parser {
         return hasBaseDirective;
     }
 
-    public int getBaseRegisterValue() {
+    @Nullable
+    public String getBaseRegisterValue() {
         return baseRegisterValue;
     }
 

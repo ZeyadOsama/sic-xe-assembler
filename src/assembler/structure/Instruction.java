@@ -133,6 +133,6 @@ public final class Instruction {
                 .insert(string.indexOf(COMMA) + 1, hasSecondOperand() ? secondOperand : EMPTY)
                 .insert(36, hasComment() ? comment : EMPTY)
                 .toString()
-                .replaceAll("[^a-zA-Z0-9@#,']", SPACE);
+                .replaceAll("[^a-zA-Z0-9@#,'*+-]", SPACE);
     }
 }

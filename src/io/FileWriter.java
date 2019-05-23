@@ -50,6 +50,9 @@ public final class FileWriter {
         acceptMessage("Symbol table file written successfully to " + file);
     }
 
+    /**
+     * @param objectCodeGenerator which contains all records
+     */
     public void writeObjectCodeFile(ObjectCodeGenerator objectCodeGenerator) {
         if (Program.hasError()) {
             ErrorHandler.out.println("Can not write object code file due to parsing errors.");

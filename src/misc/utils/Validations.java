@@ -60,11 +60,10 @@ public final class Validations {
         if (string == null)
             return false;
 
-        char[] chars = string.toCharArray();
-        for (char c : chars)
-            if (!Character.isDigit(c) && !isOperator(c))
-                return false;
-        return true;
+        for (char c : string.toCharArray())
+            if (isOperator(c))
+                return true;
+        return false;
     }
 
     private static boolean isOperator(char o) {

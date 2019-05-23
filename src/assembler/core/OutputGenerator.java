@@ -33,6 +33,9 @@ public final class OutputGenerator {
         this.fileName = fileName;
     }
 
+    public OutputGenerator() {
+    }
+
     public static ArrayList<String> getAddressFileLines() {
         return addressFileLines;
     }

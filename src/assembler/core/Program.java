@@ -3,6 +3,7 @@ package assembler.core;
 import assembler.structure.Instruction;
 import misc.utils.Converter;
 import misc.utils.Validations;
+import org.jetbrains.annotations.Nullable;
 import parser.Parser;
 
 import java.util.ArrayList;
@@ -56,7 +57,8 @@ public final class Program {
         return Parser.getInstance().hasBaseDirective();
     }
 
-    public static int getBaseRegisterValue() {
+    @Nullable
+    public static String getBaseRegisterValue() {
         return Parser.getInstance().getBaseRegisterValue();
     }
 

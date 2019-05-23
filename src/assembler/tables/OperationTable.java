@@ -152,7 +152,7 @@ public final class OperationTable {
         operationTable.put("+STL",
                 new Operation("+STL", 0x14, Format.FOUR, OperandType.VALUE, OperandType.NONE));
         operationTable.put("STS",
-                new Operation("STS", 0x7C, Format.THREE, OperandType.VALUE, OperandType.NONE));
+                new Operation("STS", 0x7C, Format.THREE, OperandType.VALUE, OperandType.DONT_CARE));
         operationTable.put("+STS",
                 new Operation("+STS", 0x7C, Format.FOUR, OperandType.VALUE, OperandType.NONE));
         operationTable.put("STT",
