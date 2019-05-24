@@ -12,7 +12,7 @@ The Simplified Instructional Computer (also abbreviated SIC) is a hypothetical c
 |ADDF m       |  3/4   |  58    |F ← (F) + (m..m+5)               |F
 |ADDR r1,r2   |   2    |  90    |r2 ← (r2) + (r1)                 
 |AND m        |  3/4   |  40    |A ← (A) & (m..m+2)               
-|CLEAR r1     |   2    |   4    |r1 ← 0                           
+|CLEAR r1     |   2    |  B4    |r1 ← 0                           
 |COMP m       |  3/4   |  28    |A : (m..m+2)                     |C
 |COMPF m      |  3/4   |  88    |F : (m..m+5)                     |CF
 |COMPR r1,r2  |   2    |  A0    |(r1) : (r2)                      |C
@@ -68,3 +68,5 @@ The Simplified Instructional Computer (also abbreviated SIC) is a hypothetical c
 |TIXR r1      |   2    |  B8    |X ← (X) + 1; (X) : (r1)            |C
 |WD m         |  3/4   |  DC    |Device specified by (m) ← (A)      |P
 
+## License
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
