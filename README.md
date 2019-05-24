@@ -1,10 +1,13 @@
 # SIC/XE Asembler
 The Simplified Instructional Computer (also abbreviated SIC) is a hypothetical computer system introduced in System Software: An Introduction to Systems Programming, by Leland Beck.
 
-![Screenshot](screenshot.png)
+## Samples
+### Themes
+<img src="samples/screenshot-dark.png" width="425"/> <img src="samples/screenshot-light.png" width="425"/> 
 
+## Operation Table
 |Mnemonic     |Format  |Opcode  |Effect                           |Notes
-|-----------  |------  |------  |-------------------------------  |-----
+|-------------|:------:|:------:|---------------------------------|:-----:
 |ADD m        |  3/4   |  18    |A ← (A) + (m..m+2)               |
 |ADDF m       |  3/4   |  58    |F ← (F) + (m..m+5)               |F
 |ADDR r1,r2   |   2    |  90    |r2 ← (r2) + (r1)                 
