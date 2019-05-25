@@ -13,7 +13,7 @@ final class UIUtils {
 
     static void addImageIcon(JButton button, String imagePath) {
         try {
-            Image image = ImageIO.read(MainUI.class.getResource(imagePath));
+            Image image = ImageIO.read(MainFrame.class.getResource(imagePath));
             button.setIcon(
                     new ImageIcon(image.getScaledInstance(15, 15, java.awt.Image.SCALE_SMOOTH)));
         } catch (Exception ignored) {

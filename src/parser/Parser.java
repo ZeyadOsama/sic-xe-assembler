@@ -1,5 +1,6 @@
 package parser;
 
+import assembler.core.Assembler;
 import assembler.core.ErrorHandler;
 import assembler.core.LocationCounter;
 import assembler.core.OutputGenerator;
@@ -9,6 +10,7 @@ import assembler.tables.SymbolTable;
 import misc.constants.Constants;
 import misc.exceptions.ParsingException;
 import misc.utils.Converter;
+import misc.utils.Terminal;
 import misc.utils.Utils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -28,17 +30,16 @@ import static parser.ParsingValidations.validateInstruction;
  * Possibly containing comments or unexpected characters. parses it an creates
  * an arrayList of Instruction in the order they appear in the input file.
  */
-public class Parser {
+public class Parser implements Assembler.Interface {
 
+    /**
+     * Singleton class
+     */
     private static Parser instance = new Parser();
-    private String baseRegisterValue;
 
     public static Parser getInstance() {
         return instance;
     }
-
-    private final static int FIRST_OPERAND = 0;
-    private final static int SECOND_OPERAND = 1;
 
     private Parser() {
     }
@@ -46,8 +47,25 @@ public class Parser {
     private ArrayList<Instruction> parsedInstructionsList = new ArrayList<>();
     private String currentInstruction;
     private boolean hasBaseDirective = false;
+    /**
+     * Terminal instance
+     */
+    public Terminal terminal = new Terminal() {
+        @Override
+        public void print() {
+            for (Instruction i : parsedInstructionsList) {
+                System.out.println(i.getLabel());
+                System.out.println(i.getMnemonic());
+                System.out.println(i.getFirstOperand());
+                System.out.println(i.getSecondOperand());
+                System.out.println(i.getComment());
+                System.out.println(Converter.Decimal.toHexadecimal(i.getAddress()) + "\n");
+            }
+        }
+    };
 
     private LocationCounter locationCounter = LocationCounter.getInstance();
+    private String baseRegisterValue;
     private SymbolTable symbolTable = SymbolTable.getInstance();
     private ErrorHandler errorHandler = ErrorHandler.getInstance();
 
@@ -74,6 +92,7 @@ public class Parser {
         return parsedInstructionsList;
     }
 
+    private OutputGenerator outputGenerator = OutputGenerator.getInstance();
 
     /**
      * Parses a single instruction given in the form of a String into Instruction form
@@ -90,7 +109,7 @@ public class Parser {
         errorHandler.setHasError(false);
         if (isComment(instruction)) {
             locationCounter.update();
-            OutputGenerator.update();
+            outputGenerator.update();
             return new Instruction();
         }
         Instruction parsedInstruction = null;
@@ -106,7 +125,7 @@ public class Parser {
         parsedInstruction.errorFree(validateInstruction(parsedInstruction));
         locationCounter.update(parsedInstruction);
         symbolTable.update(parsedInstruction);
-        OutputGenerator.update();
+        outputGenerator.update();
         return parsedInstruction;
     }
 
@@ -128,84 +147,10 @@ public class Parser {
         String comment = determineComment(instruction);
 
         if (hasBaseDirective)
-            baseRegisterValue = operandsList[FIRST_OPERAND];
+            baseRegisterValue = operandsList[Range.FIRST_OPERAND];
 
         return new Instruction(label, Objects.requireNonNull(mnemonic),
-                operandsList[FIRST_OPERAND], operandsList[SECOND_OPERAND], comment);
-    }
-
-    /**
-     * Parses a single free format instruction given in the form of a String into Instruction form
-     * Gets called internally according to parsing mode
-     *
-     * @param instruction is a String which is read from file
-     * @return parsed instructions
-     * @throws ParsingException in case the input file contains unexpected text
-     * @see Instruction class
-     * @see Mode enum
-     */
-    @Nullable
-    private Instruction parseInstructionFree(@NotNull String instruction) throws ParsingException {
-        String label = null, mnemonic, operands = null, comment = null;
-        String[] operandsList = new String[2];
-
-        Stack<String> instructionElements = new Stack<>();
-        String[] tokens = instruction.trim().split("\\s+");
-
-        // adding literals having spaces as one operand
-        StringBuilder operand = new StringBuilder();
-        for (int i = 0; i < tokens.length; i++) {
-            if (tokens[i].contains(Constants.APOSTROPHE))
-                for (int j = i + 1; j < tokens.length; j++) {
-                    i++;
-                    operand.append(tokens[j - 1]).append(Constants.SPACE);
-                    if (tokens[j].contains(Constants.APOSTROPHE)) {
-                        i++;
-                        operand.append(tokens[j]);
-                        instructionElements.push(operand.toString());
-                        break;
-                    }
-                }
-            if (i < tokens.length)
-                instructionElements.push(tokens[i]);
-        }
-
-        switch (instructionElements.size()) {
-            case 0:
-                return null;
-            case 1:
-                mnemonic = instructionElements.pop();
-                break;
-            case 2:
-                operands = instructionElements.pop();
-                mnemonic = instructionElements.pop();
-                break;
-            case 3:
-                operands = instructionElements.pop();
-                mnemonic = instructionElements.pop();
-                label = instructionElements.pop();
-                break;
-            default:
-                StringBuilder commentBuilder = new StringBuilder();
-                while (instructionElements.size() > 3)
-                    commentBuilder.append(instructionElements.pop()).append(Constants.SPACE);
-                comment = Utils.reverseWords(commentBuilder.toString());
-                operands = instructionElements.pop();
-                mnemonic = instructionElements.pop();
-                label = instructionElements.pop();
-                break;
-        }
-        if (operands != null) {
-            int i = 0;
-            StringTokenizer operandsTokenizer = new StringTokenizer(operands, Constants.COMMA);
-            while (operandsTokenizer.hasMoreTokens())
-                operandsList[i++] = operandsTokenizer.nextToken();
-        }
-        if (mnemonic.equals(DirectiveTable.BASE)) {
-            hasBaseDirective = true;
-            baseRegisterValue = operandsList[FIRST_OPERAND];
-        }
-        return new Instruction(label, mnemonic, operandsList[FIRST_OPERAND], operandsList[SECOND_OPERAND], comment);
+                operandsList[Range.FIRST_OPERAND], operandsList[Range.SECOND_OPERAND], comment);
     }
 
     @Nullable
@@ -280,21 +225,6 @@ public class Parser {
         return currentInstruction;
     }
 
-    /**
-     * Utility method.
-     * Show all instructions of read program in form of their details.
-     */
-    public void showParsedInstructions() {
-        for (Instruction i : parsedInstructionsList) {
-            System.out.println(i.getLabel());
-            System.out.println(i.getMnemonic());
-            System.out.println(i.getFirstOperand());
-            System.out.println(i.getSecondOperand());
-            System.out.println(i.getComment());
-            System.out.println(Converter.Decimal.toHexadecimal(i.getAddress()) + "\n");
-        }
-    }
-
     public boolean hasBaseDirective() {
         return hasBaseDirective;
     }
@@ -302,6 +232,86 @@ public class Parser {
     @Nullable
     public String getBaseRegisterValue() {
         return baseRegisterValue;
+    }
+
+    /**
+     * Parses a single free format instruction given in the form of a String into Instruction form
+     * Gets called internally according to parsing mode
+     *
+     * @param instruction is a String which is read from file
+     * @return parsed instructions
+     * @throws ParsingException in case the input file contains unexpected text
+     * @see Instruction class
+     * @see Mode enum
+     */
+    @Nullable
+    private Instruction parseInstructionFree(@NotNull String instruction) throws ParsingException {
+        String label = null, mnemonic, operands = null, comment = null;
+        String[] operandsList = new String[2];
+
+        Stack<String> instructionElements = new Stack<>();
+        String[] tokens = instruction.trim().split("\\s+");
+
+        // adding literals having spaces as one operand
+        StringBuilder operand = new StringBuilder();
+        for (int i = 0; i < tokens.length; i++) {
+            if (tokens[i].contains(Constants.APOSTROPHE))
+                for (int j = i + 1; j < tokens.length; j++) {
+                    i++;
+                    operand.append(tokens[j - 1]).append(Constants.SPACE);
+                    if (tokens[j].contains(Constants.APOSTROPHE)) {
+                        i++;
+                        operand.append(tokens[j]);
+                        instructionElements.push(operand.toString());
+                        break;
+                    }
+                }
+            if (i < tokens.length)
+                instructionElements.push(tokens[i]);
+        }
+
+        switch (instructionElements.size()) {
+            case 0:
+                return null;
+            case 1:
+                mnemonic = instructionElements.pop();
+                break;
+            case 2:
+                operands = instructionElements.pop();
+                mnemonic = instructionElements.pop();
+                break;
+            case 3:
+                operands = instructionElements.pop();
+                mnemonic = instructionElements.pop();
+                label = instructionElements.pop();
+                break;
+            default:
+                StringBuilder commentBuilder = new StringBuilder();
+                while (instructionElements.size() > 3)
+                    commentBuilder.append(instructionElements.pop()).append(Constants.SPACE);
+                comment = Utils.reverseWords(commentBuilder.toString());
+                operands = instructionElements.pop();
+                mnemonic = instructionElements.pop();
+                label = instructionElements.pop();
+                break;
+        }
+        if (operands != null) {
+            int i = 0;
+            StringTokenizer operandsTokenizer = new StringTokenizer(operands, Constants.COMMA);
+            while (operandsTokenizer.hasMoreTokens())
+                operandsList[i++] = operandsTokenizer.nextToken();
+        }
+        if (mnemonic.equals(DirectiveTable.BASE)) {
+            hasBaseDirective = true;
+            baseRegisterValue = operandsList[Range.FIRST_OPERAND];
+        }
+        return new Instruction(label, mnemonic, operandsList[Range.FIRST_OPERAND], operandsList[Range.SECOND_OPERAND], comment);
+    }
+
+    @Override
+    public void reset() {
+        parsedInstructionsList = new ArrayList<>();
+        hasBaseDirective = false;
     }
 
     /**
@@ -317,6 +327,10 @@ public class Parser {
     private static class Range {
         private final static int START = 0;
         private final static int END = 1;
+
+        private final static int FIRST_OPERAND = 0;
+        private final static int SECOND_OPERAND = 1;
+
         private final static int[] LABEL = {0, 9};
         private final static int[] MNEMONIC = {9, 16};
         private final static int[] OPERANDS = {17, 36};

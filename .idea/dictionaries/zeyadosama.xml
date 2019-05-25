@@ -20,8 +20,10 @@
       <w>rsub</w>
       <w>shiftl</w>
       <w>shiftr</w>
+      <w>solaris</w>
       <w>stch</w>
       <w>subr</w>
+      <w>sunos</w>
       <w>tixr</w>
     </words>
   </dictionary>

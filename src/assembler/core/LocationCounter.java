@@ -15,7 +15,7 @@ import static misc.utils.Converter.Hexadecimal;
 import static misc.utils.Validations.isDirective;
 import static misc.utils.Validations.isOperation;
 
-public final class LocationCounter {
+public final class LocationCounter implements Assembler.Interface {
 
     /**
      * Singleton class
@@ -38,13 +38,12 @@ public final class LocationCounter {
     private ArrayList<Integer> addresses = new ArrayList<>();
     private ArrayList<String> convertedAddresses = new ArrayList<>();
 
-    public void set(int address) {
-        currentAddress = address;
-    }
-
+    @Override
     public void reset() {
-        currentAddress = 0;
-        programCounter = 0;
+        enabled = true;
+        previousAddress = currentAddress = programCounter = 0;
+        addresses = new ArrayList<>();
+        convertedAddresses = new ArrayList<>();
     }
 
     public void update(Instruction instruction) throws FormatException {

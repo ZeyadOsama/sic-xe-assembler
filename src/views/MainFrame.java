@@ -1,8 +1,10 @@
 package views;
 
+import assembler.core.Assembler;
 import assembler.core.ObjectCodeGenerator;
 import assembler.core.OutputGenerator;
 import assembler.core.Program;
+import assembler.tables.SymbolTable;
 import org.jetbrains.annotations.Nullable;
 import parser.Parser;
 
@@ -10,7 +12,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 
-public class MainUI extends JFrame {
+public class MainFrame extends JFrame {
 
     private static final String TITLE = "SIC/XE Assembler";
 
@@ -19,7 +21,7 @@ public class MainUI extends JFrame {
     private JButton btnRun;
     private JButton btnDebug;
 
-    public MainUI() {
+    public MainFrame() {
         setTitle(TITLE);
         setSize(new Dimension(500, 500));
         Dimension dimension = Toolkit.getDefaultToolkit().getScreenSize();
@@ -42,17 +44,6 @@ public class MainUI extends JFrame {
         initMenuBar();
 
         add(rootPanel);
-    }
-
-    private void initLookAndFeel() {
-        try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e) {
-            e.printStackTrace();
-        }
-
-        if (getOS() != null && getOS().equals("MAC"))
-            System.setProperty("apple.laf.useScreenMenuBar", "true");
     }
 
     private void initMenuBar() {
@@ -79,10 +70,10 @@ public class MainUI extends JFrame {
         preferenceMenu.add(themeMenu);
 
         dark.addActionListener(e -> {
-            rootPanel.setBackground(new Color(60, 63, 65));
-            editorTextPane.setCaretColor(new Color(165, 179, 193));
-            editorTextPane.setForeground(new Color(165, 179, 193));
-            editorTextPane.setBackground(new Color(43, 43, 43));
+            rootPanel.setBackground(Theme.Dark.BACKGROUND_OUTER);
+            editorTextPane.setCaretColor(Theme.Dark.FOREGROUND);
+            editorTextPane.setForeground(Theme.Dark.FOREGROUND);
+            editorTextPane.setBackground(Theme.Dark.BACKGROUND_INNER);
         });
 
         light.addActionListener(e -> {
@@ -105,21 +96,41 @@ public class MainUI extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 String program = editorTextPane.getText();
                 String[] lines = program.split("\n");
+
+                Assembler.reset();
+
                 for (String line : lines)
                     Program.getInstructionsList().add(line);
 
                 Parser.getInstance().parse(Program.getInstructionsList(), Parser.Mode.FREE);
 
-                OutputGenerator outputGenerator = new OutputGenerator();
+                OutputGenerator outputGenerator = OutputGenerator.getInstance();
                 outputGenerator.generateSymbolFile();
-                outputGenerator.terminal.showAddressFile();
-                outputGenerator.terminal.showSymbolFile();
+                outputGenerator.terminal.print();
 
-                ObjectCodeGenerator objectCodeGenerator = new ObjectCodeGenerator();
+                ObjectCodeGenerator objectCodeGenerator = ObjectCodeGenerator.getInstance();
                 objectCodeGenerator.generate();
-                objectCodeGenerator.terminal.show();
+                objectCodeGenerator.terminal.print();
+
+                TerminalFrame terminalFrame =
+                        new TerminalFrame(outputGenerator.getAddressFileLines(),
+                                SymbolTable.getInstance().getSymbolList(),
+                                objectCodeGenerator.getRecords());
+                terminalFrame.setVisible(true);
+                terminalFrame.run();
             }
         });
+    }
+
+    private void initLookAndFeel() {
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e) {
+            e.printStackTrace();
+        }
+
+        if (getOS() != null && getOS().equals("MAC"))
+            System.setProperty("apple.laf.useScreenMenuBar", "true");
     }
 
     @Nullable

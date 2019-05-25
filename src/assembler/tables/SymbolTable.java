@@ -1,14 +1,16 @@
 package assembler.tables;
 
+import assembler.core.Assembler;
 import assembler.core.ErrorHandler;
 import assembler.core.LocationCounter;
 import assembler.structure.Instruction;
 import assembler.structure.Symbol;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
-public final class SymbolTable {
+public final class SymbolTable implements Assembler.Interface {
 
     /**
      * Singleton class
@@ -22,8 +24,15 @@ public final class SymbolTable {
     private SymbolTable() {
     }
 
+    private ArrayList<Symbol> symbolList = new ArrayList<>();
     private HashMap<String, Symbol> symbolTable = new HashMap<>();
     private ErrorHandler errorHandler = ErrorHandler.getInstance();
+
+    @Override
+    public void reset() {
+        symbolList.clear();
+        symbolTable.clear();
+    }
 
     public HashMap<String, Symbol> get() {
         return symbolTable;
@@ -31,6 +40,10 @@ public final class SymbolTable {
 
     public Symbol getSymbol(@NotNull String label) {
         return symbolTable.get(label);
+    }
+
+    public ArrayList<Symbol> getSymbolList() {
+        return symbolList;
     }
 
     public boolean containsSymbol(String label) {
@@ -45,8 +58,9 @@ public final class SymbolTable {
                 errorHandler.setCurrentError(ErrorHandler.DUPLICATE_LABEL);
                 return;
             }
-            symbolTable.put(label,
-                    new Symbol(label, LocationCounter.getInstance().getCurrentAddress(), instruction.getFirstOperand()));
+            Symbol symbol = new Symbol(label, LocationCounter.getInstance().getCurrentAddress(), instruction.getFirstOperand());
+            symbolTable.put(label, symbol);
+            symbolList.add(symbol);
         }
     }
 }

@@ -4,10 +4,13 @@ import assembler.core.ErrorHandler;
 import assembler.core.ObjectCodeGenerator;
 import assembler.core.OutputGenerator;
 import assembler.core.Program;
-import misc.utils.ConsoleColors;
+import misc.utils.Terminal;
 
 import java.io.IOException;
 
+/**
+ * Responsible for writing outputs in files if needed
+ */
 public final class FileWriter {
 
     private OutputGenerator outputGenerator;
@@ -24,13 +27,13 @@ public final class FileWriter {
         String file = generateFileName("addresses");
         try {
             java.io.FileWriter writer = new java.io.FileWriter(file);
-            for (String string : OutputGenerator.getAddressFileLines())
+            for (String string : OutputGenerator.getInstance().getAddressFileLines())
                 writer.write(string + "\n");
             writer.close();
         } catch (IOException e) {
             e.getCause();
         }
-        acceptMessage("Address file written successfully to " + file);
+        Terminal.acceptMessage("Address file written successfully to " + file);
     }
 
     public void writeSymbolFile() {
@@ -41,13 +44,13 @@ public final class FileWriter {
         String file = generateFileName("symbol-table");
         try {
             java.io.FileWriter writer = new java.io.FileWriter(file);
-            for (String string : OutputGenerator.getSymbolFileLines())
+            for (String string : OutputGenerator.getInstance().getSymbolFileLines())
                 writer.write(string + "\n");
             writer.close();
         } catch (IOException e) {
             e.getCause();
         }
-        acceptMessage("Symbol table file written successfully to " + file);
+        Terminal.acceptMessage("Symbol table file written successfully to " + file);
     }
 
     /**
@@ -68,16 +71,12 @@ public final class FileWriter {
         } catch (IOException e) {
             e.getCause();
         }
-        acceptMessage("Symbol table file written successfully to " + file);
+        Terminal.acceptMessage("Symbol table file written successfully to " + file);
     }
 
     private String generateFileName(String fileName) {
         return outputGenerator.getFilePath() + "/"
                 + outputGenerator.getFileName().replaceAll(".txt", "")
                 + "-" + fileName + ".txt";
-    }
-
-    private void acceptMessage(String message) {
-        System.out.println(ConsoleColors.GREEN + message + ConsoleColors.RESET);
     }
 }

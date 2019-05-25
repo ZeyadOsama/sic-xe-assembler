@@ -6,8 +6,8 @@ import assembler.tables.DirectiveTable;
 import assembler.tables.OperationTable;
 import assembler.tables.RegisterTable;
 import assembler.tables.SymbolTable;
-import misc.utils.ConsoleColors;
 import misc.utils.ExpressionEvaluator;
+import misc.utils.Terminal;
 import misc.utils.Utils;
 import org.jetbrains.annotations.NotNull;
 import parser.Parser;
@@ -22,18 +22,39 @@ import static misc.utils.Validations.Operand.*;
 import static misc.utils.Validations.isExpression;
 import static misc.utils.Validations.isOperation;
 
-public final class ObjectCodeGenerator {
+public final class ObjectCodeGenerator implements Assembler.Interface {
+
+    /**
+     * Singleton class
+     */
+    private static ObjectCodeGenerator instance = new ObjectCodeGenerator();
+    /**
+     * Terminal instance
+     */
+    public Terminal terminal = new Terminal() {
+        @Override
+        public void print() {
+            headerMessage("Object Code");
+            System.out.println(headerRecord.content.toString());
+            for (Record textRecord : textRecords)
+                System.out.println(textRecord.content.toString());
+            System.out.println(endRecord.content.toString());
+        }
+    };
     private int PC;
-    private int PC_LAST;
-    private int displacement;
+
     private Record headerRecord;
     private Record endRecord;
     private ArrayList<Record> textRecords;
+
     private ArrayList<Instruction> parsedInstructions;
     private ArrayList<Integer> addresses;
-    private SymbolTable symbolTable;
 
-    public ObjectCodeGenerator() {
+    private SymbolTable symbolTable;
+    private int PC_LAST;
+    private int displacement;
+
+    private ObjectCodeGenerator() {
         PC = PC_LAST = displacement = 0;
 
         textRecords = new ArrayList<>();
@@ -45,19 +66,8 @@ public final class ObjectCodeGenerator {
         addresses = LocationCounter.getInstance().getAddresses();
     }
 
-    public String getHeaderRecord() {
-        return headerRecord.getContent().append("\n").toString();
-    }
-
-    public String getTextRecords() {
-        StringBuilder builder = new StringBuilder();
-        for (Record record : textRecords)
-            builder.append(record.getContent().toString()).append("\n");
-        return builder.toString();
-    }
-
-    public String getEndRecord() {
-        return endRecord.getContent().append("\n").toString();
+    public static ObjectCodeGenerator getInstance() {
+        return instance;
     }
 
     public void generate() {
@@ -76,10 +86,115 @@ public final class ObjectCodeGenerator {
         headerRecord.addContent(Program.getObjectCodeLength());
     }
 
+    @Override
+    public void reset() {
+        PC = PC_LAST = displacement = 0;
+
+        textRecords.clear();
+        headerRecord = new Record(Record.HEADER);
+        endRecord = new Record(Record.END);
+    }
+
+    private void generateTextRecord() {
+        ArrayList<ObjectCode> objectCodes = new ArrayList<>();
+        int i = 0;
+        for (Instruction instruction : parsedInstructions) {
+            if (i < addresses.size() - 1) {
+                PC_LAST = addresses.get(i);
+                PC = addresses.get(++i);
+            }
+            if (instruction.getMnemonic() == null)
+                continue;
+
+            String objectCode = null;
+            if (isOperation(instruction.getMnemonic())) {
+                switch (OperationTable.getOperation(instruction.getMnemonic()).getFormat()) {
+                    case ONE:
+                        objectCode = generateFormatOne(instruction);
+                        break;
+                    case TWO:
+                        objectCode = generateFormatTwo(instruction);
+                        break;
+                    case THREE:
+                        objectCode = generateFormatThree(instruction);
+                        break;
+                    case FOUR:
+                        objectCode = generateFormatFour(instruction);
+                        break;
+                }
+            } else if (instruction.getMnemonic().equals(DirectiveTable.BYTE)) {
+                String operand = instruction.getFirstOperand();
+                if (isLiteral(operand)) {
+                    String[] ocStream = Utils.splitAfter(parseDataOperand(operand), 6);
+                    for (String oc : ocStream)
+                        objectCodes.add(
+                                new ObjectCode(extendLength(oc, Utils.ceilToEven(oc.length())),
+                                        instruction.getAddress()));
+                } else
+                    objectCode = extendLength(Decimal.toHexadecimal(operand), Utils.ceilToEven(operand.length()));
+            } else if (instruction.getMnemonic().equals(DirectiveTable.WORD)) {
+                String operand = instruction.getFirstOperand();
+                if (isLiteral(operand))
+                    operand = parseDataOperand(operand);
+                objectCode = extendLength(Decimal.toHexadecimal(operand), 6);
+            }
+            if (objectCode != null)
+                objectCodes.add(new ObjectCode(objectCode, instruction.getAddress()));
+        }
+
+        int recordLength = 0, addressIndex = 0;
+        Record textRecord = new Record(Record.TEXT);
+        for (int j = 0; j < objectCodes.size(); j++) {
+            String objectCode = objectCodes.get(j).getObjectCode();
+            if ((textRecord.getContent().length() + (objectCode.length())) > Record.MAX_STORAGE) {
+                textRecord.insertFirst(extendLength(Decimal.toHexadecimal(recordLength), 2));
+                textRecord.insertFirst(extendLength(
+                        Decimal.toHexadecimal(objectCodes.get(addressIndex).getInstructionAddress()), 6));
+                textRecords.add(textRecord);
+                textRecord = new Record(Record.TEXT);
+                addressIndex = j;
+                recordLength = 0;
+            }
+            recordLength += objectCode.length() / 2;
+            textRecord.addContent(objectCode);
+
+            if (j == objectCodes.size() - 1) {
+                textRecord.insertFirst(extendLength(Decimal.toHexadecimal(recordLength), 2));
+                textRecord.insertFirst(extendLength(
+                        Decimal.toHexadecimal(objectCodes.get(j).getInstructionAddress()), 6));
+                textRecords.add(textRecord);
+            }
+        }
+
+    }
+
+    private void generateEndRecord() {
+        endRecord.addContent(Program.getFirstExecutableInstructionAddress());
+    }
+
     /**
-     * Terminal instance
+     * @return header record as String
      */
-    public Terminal terminal = new Terminal();
+    public String getHeaderRecord() {
+        return headerRecord.getContent().append("\n").toString();
+    }
+
+    /**
+     * @return text record as String
+     */
+    public String getTextRecords() {
+        StringBuilder builder = new StringBuilder();
+        for (Record record : textRecords)
+            builder.append(record.getContent().toString()).append("\n");
+        return builder.toString();
+    }
+
+    /**
+     * @return end record as String
+     */
+    public String getEndRecord() {
+        return endRecord.getContent().append("\n").toString();
+    }
 
     /**
      * @param instruction parsed
@@ -160,76 +275,12 @@ public final class ObjectCodeGenerator {
         return String.valueOf(n) + i + x;
     }
 
-    private void generateTextRecord() {
-        ArrayList<ObjectCode> objectCodes = new ArrayList<>();
-        int i = 0;
-        for (Instruction instruction : parsedInstructions) {
-            if (i < addresses.size() - 1) {
-                PC_LAST = addresses.get(i);
-                PC = addresses.get(++i);
-            }
-            if (instruction.getMnemonic() == null)
-                continue;
-
-            String objectCode = null;
-            if (isOperation(instruction.getMnemonic())) {
-                switch (OperationTable.getOperation(instruction.getMnemonic()).getFormat()) {
-                    case ONE:
-                        objectCode = generateFormatOne(instruction);
-                        break;
-                    case TWO:
-                        objectCode = generateFormatTwo(instruction);
-                        break;
-                    case THREE:
-                        objectCode = generateFormatThree(instruction);
-                        break;
-                    case FOUR:
-                        objectCode = generateFormatFour(instruction);
-                        break;
-                }
-            } else if (instruction.getMnemonic().equals(DirectiveTable.BYTE)) {
-                String operand = instruction.getFirstOperand();
-                if (isLiteral(operand)) {
-                    String[] ocStream = Utils.splitAfter(parseDataOperand(operand), 6);
-                    for (String oc : ocStream)
-                        objectCodes.add(
-                                new ObjectCode(extendLength(oc, Utils.ceilToEven(oc.length())),
-                                        instruction.getAddress()));
-                } else
-                    objectCode = extendLength(Decimal.toHexadecimal(operand), Utils.ceilToEven(operand.length()));
-            } else if (instruction.getMnemonic().equals(DirectiveTable.WORD)) {
-                String operand = instruction.getFirstOperand();
-                if (isLiteral(operand))
-                    operand = parseDataOperand(operand);
-                objectCode = extendLength(Decimal.toHexadecimal(operand), 6);
-            }
-            if (objectCode != null)
-                objectCodes.add(new ObjectCode(objectCode, instruction.getAddress()));
-        }
-
-        int recordLength = 0, addressIndex = 0;
-        Record textRecord = new Record(Record.TEXT);
-        for (int j = 0; j < objectCodes.size(); j++) {
-            String objectCode = objectCodes.get(j).getObjectCode();
-            if ((textRecord.getContent().length() + (objectCode.length())) > Record.MAX_STORAGE) {
-                textRecord.insertFirst(extendLength(Decimal.toHexadecimal(recordLength), 2));
-                textRecord.insertFirst(extendLength(
-                        Decimal.toHexadecimal(objectCodes.get(addressIndex).getInstructionAddress()), 6));
-                textRecords.add(textRecord);
-                textRecord = new Record(Record.TEXT);
-                addressIndex = j;
-                recordLength = 0;
-            }
-            recordLength += objectCode.length() / 2;
-            textRecord.addContent(objectCode);
-
-            if (j == objectCodes.size() - 1) {
-                textRecord.insertFirst(extendLength(Decimal.toHexadecimal(recordLength), 2));
-                textRecord.insertFirst(extendLength(
-                        Decimal.toHexadecimal(objectCodes.get(j).getInstructionAddress()), 6));
-                textRecords.add(textRecord);
-            }
-        }
+    public ArrayList<String> getRecords() {
+        ArrayList<String> records = new ArrayList<>();
+        records.add(getHeaderRecord());
+        records.add(getTextRecords());
+        records.add(getEndRecord());
+        return records;
     }
 
     /**
@@ -247,66 +298,8 @@ public final class ObjectCodeGenerator {
         return displacement >= -2048 && displacement <= 2047;
     }
 
-    /**
-     * @param instruction parsed
-     * @return b p e bits
-     */
-    private String getBPE(Instruction instruction) {
-        char b, p, e;
-        if (OperationTable.getOperation(instruction.getMnemonic()).getFormat() == Format.FOUR) {
-            b = '0';
-            p = '0';
-            e = '1';
-            return String.valueOf(b) + p + e;
-        } else {
-            String operand = Utils.removeSpecialSymbol(instruction.getFirstOperand());
-            e = '0';
-
-            if (symbolTable.containsSymbol(operand)) {
-                int targetAddress = symbolTable.getSymbol(operand).getAddress();
-
-                displacement = targetAddress - PC;
-                if (isPCRelative(displacement)) {
-                    b = '0';
-                    p = '1';
-                    return String.valueOf(b) + p + e;
-                }
-
-                if (Program.hasBaseDirective() && symbolTable.containsSymbol(Program.getBaseRegisterValue())) {
-                    int baseRegisterValue =
-                            Integer.parseInt(
-                                    symbolTable.getSymbol(Program.getBaseRegisterValue()).getValue());
-
-                    displacement = targetAddress - baseRegisterValue;
-                    if (isBaseRelative(targetAddress)) {
-                        b = '1';
-                        p = '0';
-                        return String.valueOf(b) + p + e;
-                    }
-                }
-            } else {
-                b = '0';
-                p = '0';
-                if (isAddressSymbol(operand)) {
-                    if (isExpression(operand))
-                        displacement = ExpressionEvaluator.evaluate(PC_LAST + operand.substring(1));
-                    else
-                        displacement = PC_LAST;
-                } else
-                    displacement = Integer.parseInt(operand);
-                return String.valueOf(b) + p + e;
-            }
-        }
-        displacement = 0;
-        return null;
-    }
-
     private boolean isBaseRelative(int displacement) {
         return displacement >= 0 && displacement <= 4095;
-    }
-
-    private void generateEndRecord() {
-        endRecord.addContent(Program.getFirstExecutableInstructionAddress());
     }
 
     /**
@@ -367,23 +360,56 @@ public final class ObjectCodeGenerator {
     }
 
     /**
-     * Utility class to print files content in terminal
+     * @param instruction parsed
+     * @return b p e bits
      */
-    public class Terminal {
+    private String getBPE(Instruction instruction) {
+        char b, p, e;
+        if (OperationTable.getOperation(instruction.getMnemonic()).getFormat() == Format.FOUR) {
+            b = '0';
+            p = '0';
+            e = '1';
+            return String.valueOf(b) + p + e;
+        } else {
+            String operand = Utils.removeSpecialSymbol(instruction.getFirstOperand());
+            e = '0';
 
-        private Terminal() {
-        }
+            if (symbolTable.containsSymbol(operand)) {
+                int targetAddress = symbolTable.getSymbol(operand).getAddress();
 
-        public void show() {
-            headerMessage("Object Code");
-            System.out.println(headerRecord.content.toString());
-            for (Record textRecord : textRecords)
-                System.out.println(textRecord.content.toString());
-            System.out.println(endRecord.content.toString());
-        }
+                displacement = targetAddress - PC;
+                if (isPCRelative(displacement)) {
+                    b = '0';
+                    p = '1';
+                    return String.valueOf(b) + p + e;
+                }
 
-        private void headerMessage(String message) {
-            System.out.println(ConsoleColors.PURPLE + message + ConsoleColors.RESET);
+                if (Program.hasBaseDirective() && symbolTable.containsSymbol(Program.getBaseRegisterValue())) {
+                    int baseRegisterValue =
+                            Integer.parseInt(
+                                    symbolTable.getSymbol(Program.getBaseRegisterValue()).getValue());
+
+                    displacement = targetAddress - baseRegisterValue;
+                    if (isBaseRelative(targetAddress)) {
+                        b = '1';
+                        p = '0';
+                        return String.valueOf(b) + p + e;
+                    }
+                }
+            } else {
+                b = '0';
+                p = '0';
+                if (isAddressSymbol(operand)) {
+                    if (isExpression(operand))
+                        displacement = ExpressionEvaluator.evaluate(PC_LAST + operand.substring(1));
+                    else
+                        displacement = PC_LAST;
+                } else
+                    displacement = Integer.parseInt(operand);
+                return String.valueOf(b) + p + e;
+            }
         }
+        displacement = 0;
+        return null;
     }
 }

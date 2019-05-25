@@ -1,18 +1,18 @@
 package main;
 
-import views.MainUI;
+import views.MainFrame;
 
 public class Main {
 
     public static void main(String[] args) {
-        MainUI mainUI = new MainUI();
-        mainUI.setVisible(true);
+        MainFrame mainFrame = new MainFrame();
+        mainFrame.setVisible(true);
 
 //        FileLoader fileLoader = new FileLoader();
 //        fileLoader.openChooserDialogue();
 
 //        Parser.getInstance().parse(fileLoader.loadFile(), Parser.Mode.FREE);
-//        Parser.getInstance().parse(mainUI.loadFile(), Parser.Mode.FREE);
+//        Parser.getInstance().parse(mainFrame.loadFile(), Parser.Mode.FREE);
 
 //        OutputGenerator outputGenerator = new OutputGenerator(fileLoader.getFileParentPath(), fileLoader.getFileName());
 //        OutputGenerator outputGenerator = new OutputGenerator();
@@ -22,7 +22,7 @@ public class Main {
 //
 //        ObjectCodeGenerator objectCodeGenerator = new ObjectCodeGenerator();
 //        objectCodeGenerator.generate();
-//        objectCodeGenerator.terminal.show();
+//        objectCodeGenerator.terminal.print();
 //
 //        FileWriter fileWriter = new FileWriter(outputGenerator);
 //        fileWriter.writeAddressFile();

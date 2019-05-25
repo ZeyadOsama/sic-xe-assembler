@@ -3,13 +3,8 @@ package assembler.core;
 import misc.constants.Constants;
 import misc.utils.ConsoleColors;
 
-public final class ErrorHandler {
+public final class ErrorHandler implements Assembler.Interface {
 
-    /**
-     * Constants
-     */
-    public final static int MISPLACED_LABEL = 0;
-    public static Out out = new Out();
     /**
      * Singleton class
      */
@@ -17,6 +12,11 @@ public final class ErrorHandler {
 
     private ErrorHandler() {
     }
+
+    /**
+     * Constants
+     */
+    public final static int MISPLACED_LABEL = 0;
     public final static int MISPLACED_OPERATION = 1;
     public final static int MISPLACED_OPERAND = 2;
     public final static int DUPLICATE_LABEL = 3;
@@ -39,11 +39,11 @@ public final class ErrorHandler {
     public final static int WRONG_OPERAND_TYPE = 20;
     public final static int MISSING_MNEMONIC = 21;
 
-
     private final static String[] errorList = new String[22];
     private boolean hasError = false;
     private int currentError;
     private boolean isNonExecutable = false;
+    public static Out out = new Out();
 
     public String getErrorString(int error) {
         return errorList[error];
@@ -55,6 +55,30 @@ public final class ErrorHandler {
 
     public void setCurrentError(int currentError) {
         this.currentError = currentError;
+    }
+
+    public static ErrorHandler getInstance() {
+        return instance;
+    }
+
+    @Override
+    public void reset() {
+        hasError = false;
+        isNonExecutable = false;
+    }
+
+    public boolean hasError() {
+        return hasError;
+    }
+
+    public void setHasError(boolean hasError) {
+        this.hasError = hasError;
+        if (hasError)
+            isNonExecutable = true;
+    }
+
+    public String generate() {
+        return ConsoleColors.RED + Constants.TAB + errorList[currentError] + ConsoleColors.RESET;
     }
 
     private static void load() {
@@ -82,34 +106,16 @@ public final class ErrorHandler {
         errorList[21] = "***ERROR: missing mnemonic***";
     }
 
-    public boolean hasError() {
-        return hasError;
-    }
-
-    public void setHasError(boolean hasError) {
-        this.hasError = hasError;
-        if (hasError)
-            isNonExecutable = true;
-    }
-
-    public String generate() {
-        return ConsoleColors.RED + Constants.TAB + errorList[currentError] + ConsoleColors.RESET;
-    }
-
-    public static ErrorHandler getInstance() {
-        return instance;
-    }
-
-    public boolean isNonExecutable() {
-        return isNonExecutable;
-    }
-
     static {
         load();
     }
 
     public String generate(String error) {
         return ConsoleColors.RED + Constants.TAB + error + ConsoleColors.RESET;
+    }
+
+    public boolean isNonExecutable() {
+        return isNonExecutable;
     }
 
     /**

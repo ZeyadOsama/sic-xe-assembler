@@ -21,6 +21,11 @@ public final class Program {
     private static String startAddress;
     private static ArrayList<String> instructionsList = new ArrayList<>();
 
+    public static void reset() {
+        name = startAddress = null;
+        instructionsList = new ArrayList<>();
+    }
+
     public static String getName() {
         return name;
     }
